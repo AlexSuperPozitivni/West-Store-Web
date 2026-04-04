@@ -6,19 +6,16 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://west-store.ru',
+        target: 'http://localhost:8000',
         changeOrigin: true,
-        secure: true,
       },
       '/storage': {
-        target: 'https://west-store.ru',
+        target: 'http://localhost:8000',
         changeOrigin: true,
-        secure: true,
       },
       '/sanctum': {
-        target: 'https://west-store.ru',
+        target: 'http://localhost:8000',
         changeOrigin: true,
-        secure: true,
       },
       '/bot': {
         target: 'http://localhost:3001',

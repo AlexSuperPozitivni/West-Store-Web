@@ -363,7 +363,7 @@ onMounted(() => {
 }
 
 .cart-back {
-  color: #2563eb;
+  color: var(--accent-blue);
   text-decoration: none;
   font-size: 14px;
   font-weight: 500;
@@ -371,14 +371,14 @@ onMounted(() => {
 
 .cart-checkout {
   border: none;
-  background: #0f5dbb;
+  background: var(--accent);
   color: #ffffff;
   padding: 14px 32px;
-  border-radius: 18px;
+  border-radius: 9999px;
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 10px 24px rgba(15, 93, 187, 0.25);
+  box-shadow: 0 10px 24px rgba(50, 55, 60, 0.25);
 }
 
 .order-success {
@@ -494,18 +494,18 @@ onMounted(() => {
 .order-modal__input {
   width: 100%;
   border: 1.5px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 14px 16px;
+  border-radius: 9999px;
+  padding: 14px 20px;
   font-size: 15px;
   font-family: 'Inter', sans-serif;
   color: #111827;
   outline: none;
   transition: border-color 0.2s;
-  background: #fafafa;
+  background: #fcf9f7;
 }
 
 .order-modal__input:focus {
-  border-color: #0f5dbb;
+  border-color: var(--text-dark);
 }
 
 .order-modal__input::placeholder {
@@ -523,10 +523,10 @@ onMounted(() => {
 }
 
 .order-modal__submit {
-  background: #0f5dbb;
+  background: var(--accent);
   color: #fff;
   border: none;
-  border-radius: 14px;
+  border-radius: 9999px;
   padding: 15px;
   font-size: 15px;
   font-weight: 700;
@@ -537,7 +537,7 @@ onMounted(() => {
 }
 
 .order-modal__submit:hover:not(:disabled) {
-  background: #0d4fa0;
+  background: var(--accent-hover);
 }
 
 .order-modal__submit:disabled {

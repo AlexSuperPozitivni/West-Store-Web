@@ -180,15 +180,17 @@ watch(() => router.currentRoute.value.path, () => {
     <div class="header-bar">
       <div class="header-inner">
         <button class="toggle-btn" @click="menuOpen ? closeMenu() : openMenu()" :aria-label="menuOpen ? 'Закрыть меню' : 'Открыть меню'">
-          <svg v-if="!menuOpen" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg v-if="!menuOpen" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M3 12h18M3 6h18M3 18h18" stroke-linecap="round"/>
           </svg>
-          <svg v-else width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg v-else width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 6L6 18M6 6l12 12" stroke-linecap="round"/>
           </svg>
         </button>
 
-        <RouterLink to="/" class="logo" @click="closeMenu">WEST STORE</RouterLink>
+        <RouterLink to="/" class="logo" @click="closeMenu">
+          ONLYPHONES
+        </RouterLink>
 
         <div class="header-right">
           <div class="phones desktop-only">
@@ -203,7 +205,7 @@ watch(() => router.currentRoute.value.path, () => {
           </div>
 
           <RouterLink to="/cart" class="cart-btn" @click="closeMenu">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
               <path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
             <span v-if="cartCount > 0" class="cart-badge">{{ cartCount }}</span>
@@ -212,11 +214,9 @@ watch(() => router.currentRoute.value.path, () => {
       </div>
     </div>
 
-    <!-- Mega Menu -->
     <Transition name="menu-slide">
       <div v-show="menuOpen" class="mega-menu">
         <div class="mega-inner">
-          <!-- Left: category list -->
           <nav class="cat-list">
             <button
               v-for="cat in categories"
@@ -243,7 +243,6 @@ watch(() => router.currentRoute.value.path, () => {
             </button>
           </nav>
 
-          <!-- Right: subcategories -->
           <Transition name="sub-fade">
             <div class="sub-list" v-if="activeSub.length" :key="activeCategory">
               <p class="sub-title">{{ activeCategory }}</p>
@@ -262,7 +261,6 @@ watch(() => router.currentRoute.value.path, () => {
     </Transition>
   </header>
 
-  <!-- Overlay to close menu -->
   <Transition name="overlay-fade">
     <div v-if="menuOpen" class="menu-overlay" @click="closeMenu"></div>
   </Transition>
@@ -273,23 +271,23 @@ watch(() => router.currentRoute.value.path, () => {
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: var(--bg-white);
-  border-bottom: 1px solid var(--border-color);
+  background: #ffffff;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .header-bar {
   width: 100%;
-  background: var(--bg-white);
+  background: #ffffff;
 }
 
 .header-inner {
-  max-width: 1280px;
+  max-width: 1400px;
   margin: 0 auto;
-  height: 72px;
-  padding: 0 24px;
+  height: 80px;
+  padding: 0 32px;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
 }
 
 .toggle-btn {
@@ -297,7 +295,7 @@ watch(() => router.currentRoute.value.path, () => {
   border: none;
   cursor: pointer;
   padding: 6px;
-  color: var(--text-dark);
+  color: #1a1a1a;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -311,13 +309,15 @@ watch(() => router.currentRoute.value.path, () => {
 }
 
 .logo {
-  font-size: clamp(14px, 2vw, 17px);
+  font-size: 20px;
   font-weight: 800;
-  letter-spacing: 1.5px;
-  color: var(--text-dark);
+  letter-spacing: 2px;
+  color: #1a1a1a;
   text-transform: uppercase;
   text-decoration: none;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
 }
 
 .header-right {
@@ -342,17 +342,17 @@ watch(() => router.currentRoute.value.path, () => {
 }
 
 .phone {
-  font-size: clamp(14px, 1.4vw, 18px);
+  font-size: 18px;
   font-weight: 700;
-  color: var(--text-dark);
+  color: #1a1a1a;
   text-decoration: none;
-  letter-spacing: 0.2px;
+  letter-spacing: 0.3px;
   white-space: nowrap;
 }
 
 .phone-hint {
-  font-size: 11px;
-  color: var(--text-muted);
+  font-size: 12px;
+  color: #999999;
   white-space: nowrap;
 }
 
@@ -367,8 +367,8 @@ watch(() => router.currentRoute.value.path, () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-dark);
-  padding: 4px;
+  color: #1a1a1a;
+  padding: 6px;
   flex-shrink: 0;
 }
 
@@ -376,7 +376,7 @@ watch(() => router.currentRoute.value.path, () => {
   position: absolute;
   top: -4px;
   right: -6px;
-  background: var(--accent);
+  background: var(--accent-blue);
   color: white;
   font-size: 10px;
   font-weight: 700;
@@ -387,7 +387,7 @@ watch(() => router.currentRoute.value.path, () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid var(--bg-white);
+  border: 2px solid #ffffff;
 }
 
 /* ===== Menu transitions ===== */
@@ -433,19 +433,19 @@ watch(() => router.currentRoute.value.path, () => {
 /* ===== Mega Menu ===== */
 .mega-menu {
   position: absolute;
-  top: 72px;
+  top: 80px;
   left: 0;
   width: 100%;
   background: var(--bg-white);
   border-top: 1px solid var(--border-color);
   box-shadow: 0 20px 60px rgba(0,0,0,0.1);
   z-index: 999;
-  max-height: calc(100vh - 72px);
+  max-height: calc(100vh - 80px);
   overflow-y: auto;
 }
 
 .mega-inner {
-  max-width: 1280px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 0 24px;
   display: flex;
@@ -580,10 +580,10 @@ watch(() => router.currentRoute.value.path, () => {
 
   .mega-menu {
     position: fixed;
-    top: 72px;
+    top: 80px;
     left: 0;
     width: 100%;
-    height: calc(100vh - 72px);
+    height: calc(100vh - 80px);
     max-height: none;
     overflow-y: auto;
     border-top: 1px solid var(--border-color);

@@ -319,7 +319,7 @@ watch(() => route.params.slug, () => {
 }
 
 .breadcrumb a {
-  color: #409EFF;
+  color: var(--accent-blue);
   text-decoration: none;
 }
 
@@ -340,7 +340,7 @@ watch(() => route.params.slug, () => {
 }
 
 .main-image {
-  background: #f5f7fa;
+  background: #f7f4f1;
   border-radius: 20px;
   display: flex;
   align-items: center;
@@ -366,14 +366,14 @@ watch(() => route.params.slug, () => {
   height: 70px;
   border-radius: 12px;
   border: 2px solid transparent;
-  background: #f5f7fa;
+  background: #f7f4f1;
   overflow: hidden;
   cursor: pointer;
   padding: 0;
 }
 
 .thumb.active {
-  border-color: #1d4ed8;
+  border-color: var(--text-dark);
 }
 
 .thumb img {
@@ -437,8 +437,8 @@ watch(() => route.params.slug, () => {
 }
 
 .variable-item.selected {
-  border-color: #1d4ed8;
-  box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.15);
+  border-color: var(--text-dark);
+  box-shadow: 0 0 0 2px rgba(26, 26, 26, 0.12);
 }
 
 .variable-item.selected::after {
@@ -451,7 +451,7 @@ watch(() => route.params.slug, () => {
   height: 0;
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
-  border-top: 7px solid #1d4ed8;
+  border-top: 7px solid var(--text-dark);
 }
 
 .variable-item-contents {
@@ -479,9 +479,9 @@ watch(() => route.params.slug, () => {
 }
 
 .pill.active {
-  background: #1d4ed8;
+  background: var(--accent);
   color: #ffffff;
-  border-color: #1d4ed8;
+  border-color: var(--accent);
 }
 
 .actions {
@@ -493,11 +493,11 @@ watch(() => route.params.slug, () => {
 .price-chip {
   flex: 1;
   padding: 14px 20px;
-  border-radius: 12px;
+  border-radius: 9999px;
   font-size: 24px;
   font-weight: 700;
   color: #0f172a;
-  background: #eff6ff;
+  background: #f0ece8;
   display: flex;
   align-items: center;
 }
@@ -505,7 +505,7 @@ watch(() => route.params.slug, () => {
 .btn {
   flex: 1;
   padding: 14px 20px;
-  border-radius: 12px;
+  border-radius: 9999px;
   font-size: 15px;
   font-weight: 600;
   border: none;
@@ -513,12 +513,12 @@ watch(() => route.params.slug, () => {
 }
 
 .btn.primary {
-  background: #0f5dbb;
+  background: var(--accent);
   color: #ffffff;
 }
 
 .btn.secondary {
-  background: #1d4ed8;
+  background: var(--accent);
   color: #ffffff;
 }
 
@@ -665,16 +665,16 @@ watch(() => route.params.slug, () => {
 .btn-primary {
   display: inline-block;
   padding: 14px 40px;
-  background: #409EFF;
+  background: var(--accent);
   color: #ffffff;
-  border-radius: 8px;
+  border-radius: 9999px;
   text-decoration: none;
   font-weight: 600;
   transition: all 0.3s;
 }
 
 .btn-primary:hover {
-  background: #66b1ff;
+  background: var(--accent-hover);
 }
 
 @media (max-width: 900px) {

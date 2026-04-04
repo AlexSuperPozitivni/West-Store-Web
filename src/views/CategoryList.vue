@@ -263,15 +263,15 @@ onMounted(() => {
             <br />
             в интернет-магазине
             <br />
-            <span>West Store</span>
+            <span>Onlyphones</span>
           </h1>
         </div>
         <div class="hero-right">
-          <p class="hero-title">Чтобы купить новый Айфон, обращайтесь в магазин West Store!</p>
+          <p class="hero-title">Чтобы купить новый Айфон, обращайтесь в магазин Onlyphones!</p>
           <p class="hero-text">
             Мы специализируемся на устройствах Apple и предлагаем только лучшие условия.
             У нас можно купить Айфон Pro или последний Айфон, и цена будет выгодной!
-            Для клиентов West Store — профессиональные консультации, фирменная гарантия, быстрая доставка.
+            Для клиентов Onlyphones — профессиональные консультации, фирменная гарантия, быстрая доставка.
           </p>
         </div>
       </div>
@@ -376,7 +376,7 @@ onMounted(() => {
 .catalog-page {
   min-height: 100vh;
   padding: 20px 0 80px;
-  background: var(--background, #f4f4f4);
+  background: var(--bg-main);
 }
 
 .container {
@@ -414,14 +414,14 @@ onMounted(() => {
 }
 
 .hero-left span {
-  color: #1d4ed8;
+  color: var(--accent-blue);
 }
 
 .hero-right {
   background: #ffffff;
   padding: 20px 24px;
   border-radius: 18px;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
 }
 
 .hero-title {
@@ -443,7 +443,7 @@ onMounted(() => {
   display: flex;
   gap: 12px;
   flex-wrap: nowrap;
-  background: #ececec;
+  background: #e8e4e0;
   padding: 10px 10px 14px;
   border-radius: 999px;
   margin-bottom: 32px;
@@ -495,7 +495,12 @@ onMounted(() => {
   display: grid;
   grid-template-columns: 260px 1fr;
   gap: 32px;
-  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s;
+}
+
+.catalog-card:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
 }
 
 .card-media {
@@ -513,7 +518,7 @@ onMounted(() => {
 }
 
 .card-more {
-  color: #2563eb;
+  color: var(--accent-blue);
   font-size: 13px;
   text-decoration: none;
 }
@@ -585,8 +590,8 @@ onMounted(() => {
 }
 
 .variable-item.selected {
-  border-color: #1d4ed8;
-  box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.15);
+  border-color: var(--text-dark);
+  box-shadow: 0 0 0 2px rgba(26, 26, 26, 0.12);
 }
 
 .variable-item.selected::after {
@@ -599,7 +604,7 @@ onMounted(() => {
   height: 0;
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
-  border-top: 7px solid #1d4ed8;
+  border-top: 7px solid var(--text-dark);
 }
 
 .variable-item-contents {
@@ -614,7 +619,7 @@ onMounted(() => {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
-  background: #f3f4f6;
+  background: #f0ece8;
   padding: 6px;
   border-radius: 16px;
 }
@@ -630,8 +635,8 @@ onMounted(() => {
 }
 
 .pill.active {
-  border-color: #1d4ed8;
-  color: #1d4ed8;
+  border-color: var(--text-dark);
+  color: var(--text-dark);
   font-weight: 600;
 }
 
@@ -652,13 +657,15 @@ onMounted(() => {
 }
 
 .btn.ghost {
-  background: #eef2f7;
+  background: #ede9e5;
   color: #111827;
+  border-radius: 9999px;
 }
 
 .btn.primary {
-  background: #0f5dbb;
+  background: var(--accent);
   color: #ffffff;
+  border-radius: 9999px;
 }
 
 .btn:disabled {
@@ -765,7 +772,3 @@ onMounted(() => {
   }
 }
 </style>
-
-
-
-

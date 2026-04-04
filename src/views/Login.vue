@@ -59,7 +59,7 @@ const handleLogin = async () => {
   <div class="login-page">
     <div class="login-card">
       <div class="login-header">
-        <h1>West Store</h1>
+        <h1>Onlyphones</h1>
         <p>Авторизация</p>
       </div>
 
@@ -68,7 +68,7 @@ const handleLogin = async () => {
           <el-input 
             v-model="form.email" 
             type="email" 
-            placeholder="admin@west-store.ru"
+            placeholder="admin@onlyphones.ru"
             autocomplete="email"
           />
         </el-form-item>
@@ -106,7 +106,7 @@ const handleLogin = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #32373c 0%, #1a1a2e 100%);
   padding: 20px;
 }
 

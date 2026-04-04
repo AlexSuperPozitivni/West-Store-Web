@@ -74,6 +74,7 @@ const STORAGE_URL = import.meta.env.VITE_STORAGE_URL || (typeof window !== 'unde
 const getImageUrl = (path: string | null | undefined) => {
   if (!path) return ''
   if (path.startsWith('http')) return path
+  if (path.startsWith('/banners/')) return path
   const cleanPath = path.replace(/^\/storage\//, '')
   return `${STORAGE_URL}/${cleanPath}`
 }
@@ -235,6 +236,14 @@ const closeContactModal = () => {
   contactModalOpen.value = false
 }
 
+const getChildCategories = (parentSlugs: string[]) => {
+  const parentIds = categories.value
+    .filter(c => parentSlugs.includes(c.slug))
+    .map(c => c.id)
+  if (!parentIds.length) return []
+  return categories.value.filter(c => c.parent_id && parentIds.includes(c.parent_id))
+}
+
 const primarySections = computed(() => [
   {
     key: 'iphone',
@@ -273,7 +282,8 @@ const primarySections = computed(() => [
   },
 ].map(config => ({
   ...config,
-  products: getProductsByCategorySlugs(config.slugs, 12)
+  products: getProductsByCategorySlugs(config.slugs, 30),
+  childCategories: getChildCategories(config.slugs)
 })).filter(config => config.products.length > 0))
 
 const additionalSections = computed(() => {
@@ -307,6 +317,13 @@ const additionalSections = computed(() => {
       slugs: ['pristavki', 'playstation']
     },
     {
+      key: 'windows-laptops',
+      title: 'Ноутбуки Windows',
+      viewAllText: 'Посмотреть все ноутбуки',
+      viewAllLink: '/catalog/noutbuki',
+      slugs: ['noutbuki', 'windows']
+    },
+    {
       key: 'dyson',
       title: 'Dyson',
       viewAllText: 'Посмотреть все дайсоны',
@@ -316,9 +333,16 @@ const additionalSections = computed(() => {
     {
       key: 'vr',
       title: 'Шлемы VR',
-      viewAllText: 'Посмотреть все приставки',
+      viewAllText: 'Посмотреть все шлемы',
       viewAllLink: '/catalog/vr',
       slugs: ['vr']
+    },
+    {
+      key: 'huawei',
+      title: 'Смартфоны Huawei',
+      viewAllText: 'Посмотреть все Huawei',
+      viewAllLink: '/catalog/huawei',
+      slugs: ['huawei']
     },
     {
       key: 'akustika',
@@ -346,7 +370,8 @@ const additionalSections = computed(() => {
   return configs
     .map((config) => ({
       ...config,
-      products: getProductsByCategorySlugs(config.slugs, 14)
+      products: getProductsByCategorySlugs(config.slugs, 30),
+      childCategories: getChildCategories(config.slugs)
     }))
     .filter((config) => config.products.length > 0)
 })
@@ -570,18 +595,25 @@ watch(contactModalOpen, (isOpen) => {
           class="slide"
         >
           <RouterLink :to="getSlideLink(slide)" class="slide-link" @click.capture="onSlideClick">
+            <div class="slide-content">
+              <h2 class="slide-title" :style="getSlideTitleStyle(slide)">
+                {{ slide.title }}
+              </h2>
+              <p v-if="slide.subtitle" class="slide-subtitle" :style="getSlideSubtitleStyle(slide)">{{ slide.subtitle }}</p>
+              <span class="slide-buy-link">Купить <span aria-hidden="true">→</span></span>
+            </div>
             <div class="slide-image-wrapper">
-              <img 
-                :src="getImageUrl(slide.image_desktop)" 
+              <img
+                :src="getImageUrl(slide.image_desktop)"
                 :alt="slide.title"
                 class="slide-image-desktop"
                 loading="eager"
                 draggable="false"
                 @error="$event.target.style.display='none'"
               >
-              <img 
+              <img
                 v-if="slide.image_mobile"
-                :src="getImageUrl(slide.image_mobile)" 
+                :src="getImageUrl(slide.image_mobile)"
                 :alt="slide.title"
                 class="slide-image-mobile"
                 loading="lazy"
@@ -591,13 +623,6 @@ watch(contactModalOpen, (isOpen) => {
               <div v-if="!slide.image_desktop" class="slide-placeholder">
                 <span>{{ slide.title }}</span>
               </div>
-            </div>
-            <div class="slide-content">
-              <h2 class="slide-title" :style="getSlideTitleStyle(slide)">
-                {{ slide.title }}
-              </h2>
-              <p v-if="slide.subtitle" class="slide-subtitle" :style="getSlideSubtitleStyle(slide)">{{ slide.subtitle }}</p>
-              <span class="slide-buy-link">Купить <span aria-hidden="true">→</span></span>
             </div>
           </RouterLink>
         </div>
@@ -648,6 +673,7 @@ watch(contactModalOpen, (isOpen) => {
       :view-all-text="section.viewAllText"
       :view-all-link="section.viewAllLink"
       :products="section.products"
+      :child-categories="section.childCategories"
     />
 
     <ProductCarouselSection
@@ -657,9 +683,9 @@ watch(contactModalOpen, (isOpen) => {
       :view-all-text="section.viewAllText"
       :view-all-link="section.viewAllLink"
       :products="section.products"
+      :child-categories="section.childCategories"
     />
 
-    <!-- Callback form -->
     <section class="callback-section">
       <div class="callback-card">
         <div class="callback-left">
@@ -704,22 +730,6 @@ watch(contactModalOpen, (isOpen) => {
     border-radius: 16px;
   }
 
-  .slide-image-wrapper {
-    padding-bottom: 62%;
-  }
-
-  .slide-content {
-    padding: 12px 16px 16px;
-  }
-
-  .slide-title {
-    font-size: clamp(18px, 6vw, 28px);
-  }
-
-  .slide-subtitle {
-    font-size: 13px;
-  }
-
   .home-page {
     padding-bottom: 24px;
   }
@@ -759,7 +769,7 @@ watch(contactModalOpen, (isOpen) => {
   grid-template-columns: 1fr 1fr;
   gap: 48px;
   align-items: center;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
 }
 
 .callback-title {
@@ -784,18 +794,18 @@ watch(contactModalOpen, (isOpen) => {
 .callback-input {
   width: 100%;
   border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 14px 16px;
+  border-radius: 9999px;
+  padding: 14px 20px;
   font-size: 15px;
   font-family: 'Inter', sans-serif;
   color: var(--text-dark);
-  background: #fafafa;
+  background: #fcf9f7;
   outline: none;
   transition: border-color 0.2s;
 }
 
 .callback-input:focus {
-  border-color: var(--accent);
+  border-color: var(--text-dark);
 }
 
 .callback-input::placeholder {
@@ -807,7 +817,7 @@ watch(contactModalOpen, (isOpen) => {
   background: var(--accent);
   color: #ffffff;
   border: none;
-  border-radius: 12px;
+  border-radius: 9999px;
   padding: 15px;
   font-size: 16px;
   font-weight: 600;
@@ -918,13 +928,13 @@ watch(contactModalOpen, (isOpen) => {
   max-width: 1360px;
   margin: 0 auto;
   overflow: hidden;
-  border-radius: 28px;
-  background: #ffffff;
+  border-radius: 32px;
+  background: #000000;
   touch-action: pan-y pinch-zoom;
   user-select: none;
   -webkit-user-select: none;
   cursor: grab;
-  box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+  box-shadow: 0 0 8px rgba(0,0,0,0.08);
 }
 
 .slider-container:active {
@@ -945,33 +955,30 @@ watch(contactModalOpen, (isOpen) => {
   flex: 0 0 100%;
   min-width: 100%;
   position: relative;
-  background: #ffffff;
+  background: #000000;
   overflow: hidden;
 }
 
 .slide-link {
   display: block;
+  position: relative;
   color: inherit;
   text-decoration: none;
+  height: 480px;
+  overflow: hidden;
 }
 
 .slide-image-wrapper {
-  position: relative;
   width: 100%;
-  padding-bottom: 43%;
-  overflow: hidden;
+  height: 100%;
 }
 
 .slide-image-desktop,
 .slide-image-mobile {
-  position: absolute;
-  top: 0;
-  left: 0;
+  display: block;
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  object-position: center bottom;
-  transition: transform 0.6s ease;
+  object-fit: cover;
 }
 
 .slide-image-mobile {
@@ -979,93 +986,93 @@ watch(contactModalOpen, (isOpen) => {
 }
 
 .slide-placeholder {
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: linear-gradient(135deg, #1a1a1a 0%, #111111 100%);
+  color: #ffffff;
   font-size: 32px;
   font-weight: 700;
 }
 
 .slide-content {
   position: absolute;
-  top: 72px;
+  top: 40px;
   left: 0;
-  right: 0;
+  width: 100%;
   padding: 0 24px;
-  color: #fff;
+  color: #ffffff;
   text-align: center;
   z-index: 2;
 }
 
 .slide-title {
-  font-size: clamp(40px, 4.8vw, 58px);
+  font-size: 40px;
+  line-height: 48px;
   font-weight: 700;
-  margin: 0;
-  line-height: 1.06;
-  letter-spacing: -0.03em;
+  margin: 0 0 8px;
+  color: #ffffff;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .slide-subtitle {
-  margin: 10px 0 0;
-  color: currentColor;
-  opacity: 0.85;
-  font-size: 18px;
+  display: block;
+  font-size: 24px;
+  line-height: 32px;
+  color: #ffffff;
   font-weight: 400;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .slide-buy-link {
-  margin-top: 14px;
   display: inline-flex;
+  justify-content: center;
   align-items: center;
-  gap: 10px;
-  font-size: 20px;
-  line-height: 1;
-  font-weight: 600;
-  color: var(--accent);
+  padding: 16px 40px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #007AFF;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  transition: color 0.2s;
+  transition: all 0.3s;
 }
 
 .slide-buy-link:hover {
-  color: var(--accent-hover);
+  background: linear-gradient(45deg, #74AFFD, #a855f7);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .slider-dots {
   position: absolute;
-  bottom: clamp(18px, 2.2vw, 30px);
+  bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 14px;
+  gap: 8px;
   z-index: 10;
 }
 
 .slider-dot {
-  width: 44px;
-  height: 3px;
+  width: 32px;
+  height: 4px;
   border-radius: 999px;
   border: none;
-  background: rgba(255, 255, 255, 0.26);
+  background: rgba(255, 255, 255, 0.35);
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: background 0.3s ease, width 0.3s ease;
   padding: 0;
+  box-shadow: 0 0 4px rgba(0,0,0,0.3);
 }
 
 .slider-dot.active {
-  background: #fff;
+  background: rgba(255, 255, 255, 0.85);
 }
 
 .slider-dot:hover {
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.6);
 }
 
 @media (max-width: 768px) {
@@ -1087,7 +1094,7 @@ watch(contactModalOpen, (isOpen) => {
   }
 
   .slider-container {
-    border-radius: 24px;
+    border-radius: 28px;
   }
 
   .contact-modal-title {
@@ -1102,31 +1109,33 @@ watch(contactModalOpen, (isOpen) => {
   .slide-image-desktop {
     display: none;
   }
-  
+
   .slide-image-mobile {
     display: block;
   }
-  
-  .slide-image-wrapper {
-    padding-bottom: 138%;
+
+  .slide-link {
+    height: 400px;
   }
-  
+
   .slide-content {
     top: 28px;
     padding: 0 16px;
   }
 
   .slide-title {
-    font-size: 34px;
+    font-size: 28px;
+    line-height: 34px;
   }
 
   .slide-subtitle {
-    font-size: 14px;
+    font-size: 18px;
+    line-height: 24px;
   }
 
   .slide-buy-link {
-    margin-top: 10px;
-    font-size: 16px;
+    padding: 12px 24px;
+    font-size: 14px;
   }
 
   .slider-dots {
@@ -1176,25 +1185,31 @@ watch(contactModalOpen, (isOpen) => {
   }
 
   .slider-container {
-    border-radius: 18px;
+    border-radius: 24px;
+  }
+
+  .slide-link {
+    height: 300px;
   }
 
   .slide-content {
-    top: 18px;
+    top: 20px;
     padding: 0 12px;
   }
 
   .slide-title {
-    font-size: 28px;
+    font-size: 24px;
+    line-height: 30px;
   }
 
   .slide-subtitle {
-    display: none;
+    font-size: 16px;
+    line-height: 22px;
   }
 
   .slide-buy-link {
-    margin-top: 8px;
-    font-size: 14px;
+    padding: 10px 20px;
+    font-size: 13px;
   }
 
   .slider-dot {
