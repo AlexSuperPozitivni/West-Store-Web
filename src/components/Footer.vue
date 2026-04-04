@@ -17,10 +17,8 @@ const storeLinks = [
 <template>
   <footer class="footer">
     <div class="footer-container">
-      <!-- 4 колонки -->
       <div class="footer-grid">
         
-        <!-- Колонка 1: Интернет-магазин -->
         <div class="footer-column">
           <h3 class="footer-title">Интернет-магазин</h3>
           <ul class="footer-links">
@@ -30,7 +28,6 @@ const storeLinks = [
           </ul>
         </div>
 
-        <!-- Колонка 2: Магазин -->
         <div class="footer-column">
           <h3 class="footer-title">Магазин</h3>
           
@@ -55,7 +52,6 @@ const storeLinks = [
           </ul>
         </div>
 
-        <!-- Колонка 3: Контакты -->
         <div class="footer-column">
           <h3 class="footer-title">Контакты</h3>
           
@@ -75,7 +71,6 @@ const storeLinks = [
               <a href="#" class="messenger-link">написать в WhatsApp</a>
             </div>
 
-            <!-- Платежные системы -->
             <div class="payment-systems">
               <div class="payment-icons">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="VISA" class="payment-icon">
@@ -88,9 +83,10 @@ const storeLinks = [
           </div>
         </div>
 
-        <!-- Колонка 4: Соцсети -->
         <div class="footer-column social-column">
-          <div class="brand-logo">West Store</div>
+          <div class="brand-logo">
+            ONLYPHONES
+          </div>
           
           <p class="social-label">в социальных сетях</p>
           
@@ -136,7 +132,7 @@ const storeLinks = [
           </div>
 
           <div class="copyright">
-            <p>© West Store 2025-{{ currentYear }}</p>
+            <p>© ONLYPHONES 2012-{{ currentYear }}</p>
             <p class="legal-text">
               Сайт носит сугубо информационный характер и не является публичной офертой, определяемой Статьей 437(2) ГК РФ.
             </p>
@@ -150,7 +146,7 @@ const storeLinks = [
 <style scoped>
 /* ===== Footer ===== */
 .footer {
-  background-color: #ebebeb;
+  background-color: #e8e4e0;
   padding: 60px 0 40px;
   margin-top: auto;
   position: relative;
