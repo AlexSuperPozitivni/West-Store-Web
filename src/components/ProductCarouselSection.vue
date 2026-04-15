@@ -58,6 +58,29 @@ const props = withDefaults(defineProps<{
 const STORAGE_URL = import.meta.env.VITE_STORAGE_URL || (typeof window !== 'undefined' ? window.location.origin + '/storage' : '/storage')
 const { addItem } = useCart()
 
+const categoryIcons: Record<string, string> = {
+  // iPhone
+  iphone: 'M7 1h6a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V3a2 2 0 012-2zm3 15.5a.75.75 0 100 1.5.75.75 0 000-1.5z',
+  // Watch
+  watch: 'M7.5 3h5A2.5 2.5 0 0115 5.5v9a2.5 2.5 0 01-2.5 2.5h-5A2.5 2.5 0 015 14.5v-9A2.5 2.5 0 017.5 3zM8 1v2m4-2v2M8 17v2m4-2v2',
+  // MacBook
+  macbook: 'M3 4a1 1 0 011-1h12a1 1 0 011 1v9H3V4zM1 14h18a1 1 0 010 2H1a1 1 0 010-2z',
+  // iPad
+  ipad: 'M5 1h10a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V3a2 2 0 012-2zm5 15.5a.75.75 0 100 1.5.75.75 0 000-1.5z',
+  // AirPods
+  airpods: 'M6 3a3 3 0 00-3 3v2a3 3 0 003 3h0V3zm0 8v5a1 1 0 01-2 0v-5h2zM14 3a3 3 0 013 3v2a3 3 0 01-3 3h0V3zm0 8v5a1 1 0 002 0v-5h-2z',
+}
+
+const getCategoryIcon = (slug: string): string | null => {
+  const title = props.title.toLowerCase()
+  if (title.includes('watch')) return categoryIcons.watch
+  if (title.includes('macbook') || title.includes('mac')) return categoryIcons.macbook
+  if (title.includes('ipad')) return categoryIcons.ipad
+  if (title.includes('airpods')) return categoryIcons.airpods
+  if (title.includes('iphone')) return categoryIcons.iphone
+  return null
+}
+
 const activeSubSlug = ref<string | null>(null)
 
 const shortName = (cat: ChildCategory) => {
@@ -246,7 +269,9 @@ onUnmounted(() => {
         :class="['sub-tab', { active: activeSubSlug === sub.slug }]"
         @click="selectSub(sub.slug)"
       >
-        <img v-if="sub.icon" :src="getImageUrl(sub.icon)" :alt="shortName(sub)" class="sub-tab-icon-img" />
+        <svg v-if="getCategoryIcon(sub.slug)" class="sub-tab-icon-svg" width="28" height="28" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+          <path :d="getCategoryIcon(sub.slug)!" />
+        </svg>
         <span>{{ shortName(sub) }}</span>
       </button>
     </div>
@@ -364,16 +389,14 @@ onUnmounted(() => {
   opacity: 0.8;
 }
 
-.sub-tab-icon-img {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-  opacity: 0.5;
+.sub-tab-icon-svg {
+  opacity: 0.4;
   transition: opacity 0.15s;
 }
 
-.sub-tab.active .sub-tab-icon-img {
-  opacity: 1;
+.sub-tab.active .sub-tab-icon-svg {
+  opacity: 0.85;
+  color: var(--accent-blue, #007aff);
 }
 
 @media (max-width: 768px) {
