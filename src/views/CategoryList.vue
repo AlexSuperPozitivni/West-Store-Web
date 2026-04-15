@@ -3,6 +3,9 @@ import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { api } from '../lib/api'
 import { useCart } from '../lib/cart'
+import { useDynamicSeo } from '../lib/useSeo'
+
+const { setSeo } = useDynamicSeo()
 import { toColorToken, resolveColorStyle } from '../lib/color'
 import { resolveProductState, type ProductVariation } from '../lib/variation'
 
@@ -36,6 +39,7 @@ interface Category {
   id: number
   name: string
   slug: string
+  icon?: string | null
   parent_id?: number | null
   is_active?: boolean
 }
@@ -240,6 +244,13 @@ watch(products, (items) => {
   ensureDefaults(items)
 }, { immediate: true })
 
+watch(currentCategoryName, (name) => {
+  setSeo({
+    title: name !== 'гаджет' ? name : 'Каталог',
+    description: `Купить ${name} в ONLYPHONES. Лучшие цены в Москве, доставка, гарантия.`
+  })
+}, { immediate: true })
+
 onMounted(() => {
   loadCart()
   fetchCategories()
@@ -289,6 +300,7 @@ onMounted(() => {
           :to="`/catalog/${cat.slug}`"
           :class="['tab-pill', { active: currentCategorySlug === cat.slug }]"
         >
+          <img v-if="cat.icon" :src="getImageUrl(cat.icon)" :alt="cat.name" class="tab-icon" />
           {{ cat.name }}
         </RouterLink>
       </div>
@@ -466,6 +478,18 @@ onMounted(() => {
 .tab-pill.active {
   background: #ffffff;
   box-shadow: 0 10px 18px rgba(15, 23, 42, 0.08);
+}
+
+.tab-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.tab-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .category-tabs::-webkit-scrollbar {

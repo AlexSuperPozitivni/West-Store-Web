@@ -6,7 +6,23 @@ import { useCart } from '../lib/cart'
 const { cartCount, loadCart } = useCart()
 const router = useRouter()
 const menuOpen = ref(false)
+const searchOpen = ref(false)
+const searchQuery = ref('')
+
+const handleSearch = () => {
+  const q = searchQuery.value.trim()
+  if (!q) return
+  searchOpen.value = false
+  searchQuery.value = ''
+  closeMenu()
+  router.push({ path: '/search', query: { q } })
+}
 const activeCategory = ref<string | null>(null)
+const mobileExpanded = ref<string | null>(null)
+const isMobile = ref(false)
+
+const checkMobile = () => { isMobile.value = window.innerWidth <= 900 }
+
 
 interface SubItem { label: string; path: string }
 interface NavCategory {
@@ -131,6 +147,7 @@ const infoLinks = [
   { label: 'О магазине', path: '/about' },
   { label: 'Трейд-ин', path: '/trade-in' },
   { label: 'Ремонт', path: '/repair' },
+  { label: 'Оплата', path: '/payment' },
   { label: 'Франшиза', path: '/franchise' },
   { label: 'Контакты', path: '/contacts' },
   { label: 'Блог', path: '/blog' },
@@ -164,10 +181,13 @@ const navigateTo = (path: string) => {
 
 onMounted(() => {
   loadCart()
+  checkMobile()
+  window.addEventListener('resize', checkMobile)
 })
 
 onBeforeUnmount(() => {
   document.body.style.overflow = ''
+  window.removeEventListener('resize', checkMobile)
 })
 
 watch(() => router.currentRoute.value.path, () => {
@@ -193,14 +213,33 @@ watch(() => router.currentRoute.value.path, () => {
         </RouterLink>
 
         <div class="header-right">
+          <div class="search-area desktop-only">
+            <div v-if="searchOpen" class="search-input-wrap">
+              <input
+                v-model="searchQuery"
+                type="text"
+                placeholder="Поиск товаров..."
+                class="search-input"
+                @keyup.enter="handleSearch"
+                ref="searchInputRef"
+              />
+              <button class="search-submit" @click="handleSearch" aria-label="Найти">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35" stroke-linecap="round"/>
+                </svg>
+              </button>
+            </div>
+            <button v-else class="search-toggle" @click="searchOpen = true" aria-label="Поиск">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </div>
+
           <div class="phones desktop-only">
             <div class="phone-row">
-              <a href="tel:+74951512345" class="phone">+7 (495) 15 12345</a>
-              <span class="phone-hint">многоканальный</span>
-            </div>
-            <div class="phone-row">
-              <a href="tel:+79099512345" class="phone">+7 (909) 95 12345</a>
-              <span class="phone-hint">iMessage, WhatsApp, Telegram</span>
+              <a href="tel:+79299556487" class="phone">+7 (929) 955 6487</a>
+              <span class="phone-hint">WhatsApp, Telegram</span>
             </div>
           </div>
 
@@ -218,18 +257,25 @@ watch(() => router.currentRoute.value.path, () => {
       <div v-show="menuOpen" class="mega-menu">
         <div class="mega-inner">
           <nav class="cat-list">
-            <button
-              v-for="cat in categories"
-              :key="cat.label"
-              :class="['cat-item', { active: activeCategory === cat.label }]"
-              @mouseenter="hoverCategory(cat)"
-              @click="cat.sub?.length ? hoverCategory(cat) : navigateTo(cat.path)"
-            >
-              <span>{{ cat.label }}</span>
-              <svg v-if="cat.sub?.length" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
+            <template v-for="cat in categories" :key="cat.label">
+              <button
+                :class="['cat-item', { active: activeCategory === cat.label }]"
+                @mouseenter="!isMobile ? hoverCategory(cat) : undefined"
+                @click="isMobile ? (cat.sub?.length ? (mobileExpanded = mobileExpanded === cat.label ? null : cat.label) : navigateTo(cat.path)) : (cat.sub?.length ? hoverCategory(cat) : navigateTo(cat.path))"
+              >
+                <span>{{ cat.label }}</span>
+                <svg v-if="cat.sub?.length" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" :style="isMobile && mobileExpanded === cat.label ? 'transform: rotate(90deg)' : ''">
+                  <path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+
+              <div v-if="isMobile && mobileExpanded === cat.label && cat.sub?.length" class="mobile-sub">
+                <button class="mobile-sub-item mobile-sub-all" @click="navigateTo(cat.path)">Все {{ cat.label }}</button>
+                <button v-for="sub in cat.sub" :key="sub.label" class="mobile-sub-item" @click="navigateTo(sub.path)">
+                  {{ sub.label }}
+                </button>
+              </div>
+            </template>
 
             <div class="cat-divider"></div>
 
@@ -467,7 +513,7 @@ watch(() => router.currentRoute.value.path, () => {
   align-items: center;
   justify-content: space-between;
   padding: 9px 12px 9px 4px;
-  font-size: 14px;
+  font-size: 13px;
   color: var(--text-main);
   background: none;
   border: none;
@@ -511,7 +557,7 @@ watch(() => router.currentRoute.value.path, () => {
 }
 
 .info-link {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text-muted);
 }
 
@@ -542,7 +588,7 @@ watch(() => router.currentRoute.value.path, () => {
 .sub-item {
   display: block;
   padding: 8px 12px;
-  font-size: 14px;
+  font-size: 13px;
   color: var(--text-main);
   background: none;
   border: none;
@@ -566,6 +612,68 @@ watch(() => router.currentRoute.value.path, () => {
   z-index: 998;
   background: rgba(0, 0, 0, 0.25);
   backdrop-filter: blur(2px);
+}
+
+.search-area {
+  display: flex;
+  align-items: center;
+}
+
+.search-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  color: #1a1a1a;
+  border-radius: 6px;
+  transition: background 0.15s;
+  display: flex;
+  align-items: center;
+}
+
+.search-toggle:hover {
+  background: rgba(0,0,0,0.06);
+}
+
+.search-input-wrap {
+  display: flex;
+  align-items: center;
+  background: #f5f5f5;
+  border-radius: 10px;
+  padding: 0 4px 0 14px;
+  height: 38px;
+  width: 240px;
+  transition: width 0.2s;
+}
+
+.search-input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 14px;
+  font-family: inherit;
+  width: 100%;
+  color: #1a1a1a;
+}
+
+.search-input::placeholder {
+  color: #999;
+}
+
+.search-submit {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  border-radius: 6px;
+  transition: color 0.15s;
+}
+
+.search-submit:hover {
+  color: #1a1a1a;
 }
 
 .desktop-only {
@@ -626,8 +734,7 @@ watch(() => router.currentRoute.value.path, () => {
   }
 
   .sub-list {
-    padding: 8px 0 20px 0;
-    border-top: 1px solid var(--border-color);
+    display: none;
   }
 
   .sub-title {
@@ -644,6 +751,34 @@ watch(() => router.currentRoute.value.path, () => {
   .sub-item:hover {
     padding-left: 14px;
     background: #f5f5f5;
+  }
+
+  .mobile-sub {
+    padding: 0 0 4px 16px;
+    border-bottom: 1px solid var(--border-color);
+    background: #fafafa;
+  }
+
+  .mobile-sub-item {
+    display: block;
+    width: 100%;
+    padding: 10px 8px;
+    font-size: 14px;
+    color: var(--text-main);
+    background: none;
+    border: none;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .mobile-sub-item:last-child {
+    border-bottom: none;
+  }
+
+  .mobile-sub-all {
+    font-weight: 600;
+    color: var(--accent-blue, #2563eb);
   }
 }
 </style>

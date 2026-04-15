@@ -2,6 +2,9 @@
 import { computed, nextTick, ref, watch, onMounted, onUnmounted, type CSSProperties } from 'vue'
 import ProductCarouselSection from '../components/ProductCarouselSection.vue'
 import { api } from '../lib/api'
+import { useSeo } from '../lib/useSeo'
+
+useSeo({ title: 'Главная', description: 'ONLYPHONES — интернет-магазин Apple техники в Москве. iPhone, MacBook, iPad, AirPods, Apple Watch по лучшим ценам.' })
 import type { ProductVariation } from '../lib/variation'
 // ProductVariation is used in Product.variations type below
 
@@ -46,6 +49,7 @@ interface Category {
   id: number
   name: string
   slug: string
+  icon?: string | null
   parent_id?: number | null
 }
 
@@ -74,7 +78,7 @@ const STORAGE_URL = import.meta.env.VITE_STORAGE_URL || (typeof window !== 'unde
 const getImageUrl = (path: string | null | undefined) => {
   if (!path) return ''
   if (path.startsWith('http')) return path
-  if (path.startsWith('/banners/')) return path
+  if (path.startsWith('/slides/')) return path
   const cleanPath = path.replace(/^\/storage\//, '')
   return `${STORAGE_URL}/${cleanPath}`
 }
