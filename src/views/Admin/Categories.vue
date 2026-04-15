@@ -1,15 +1,30 @@
-﻿<script setup lang="ts">
-import { ref, onMounted } from 'vue'
+<script setup lang="ts">
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { api, ensureCsrf } from '../../lib/api'
 
 const router = useRouter()
+const STORAGE_URL = import.meta.env.VITE_STORAGE_URL || (typeof window !== 'undefined' ? window.location.origin + '/storage' : '/storage')
 
 const categories = ref<any[]>([])
+const mediaItems = ref<any[]>([])
 const loading = ref(false)
 const dialogVisible = ref(false)
-const form = ref({ name: '', slug: '', parent_id: null, is_active: true })
+const mediaDialogVisible = ref(false)
+const editingId = ref<number | null>(null)
+const form = ref({ name: '', slug: '', icon: '', parent_id: null as number | null, is_active: true })
+
+const parentOptions = computed(() => {
+  const opts = categories.value.filter(c => !c.parent_id && c.id !== editingId.value)
+  return [{ id: null, name: '-- Без родителя --' }, ...opts]
+})
+
+const getImageUrl = (path: string | null) => {
+  if (!path) return ''
+  if (path.startsWith('http')) return path
+  return `${STORAGE_URL}/${path.replace(/^\/storage\//, '')}`
+}
 
 const handleAuthError = (e: any) => {
   const status = e?.response?.status
@@ -28,7 +43,6 @@ const fetchCategories = async () => {
   try {
     const res = await api.get('/admin/categories')
     categories.value = res.data
-    return
   } catch (e: any) {
     if (handleAuthError(e)) return
     ElMessage.error('Ошибка загрузки категорий')
@@ -37,13 +51,42 @@ const fetchCategories = async () => {
   }
 }
 
+const fetchMedia = async () => {
+  try {
+    const res = await api.get('/media')
+    mediaItems.value = (res.data || []).filter((m: any) => m.is_image)
+  } catch { /* ignore */ }
+}
+
+const openCreate = () => {
+  editingId.value = null
+  form.value = { name: '', slug: '', icon: '', parent_id: null, is_active: true }
+  dialogVisible.value = true
+}
+
+const openEdit = (row: any) => {
+  editingId.value = row.id
+  form.value = {
+    name: row.name,
+    slug: row.slug,
+    icon: row.icon || '',
+    parent_id: row.parent_id || null,
+    is_active: row.is_active
+  }
+  dialogVisible.value = true
+}
+
 const submitForm = async () => {
   try {
     await ensureCsrf()
-    await api.post('/admin/categories', form.value)
-    ElMessage.success('Категория добавлена')
+    if (editingId.value) {
+      await api.put(`/admin/categories/${editingId.value}`, form.value)
+      ElMessage.success('Категория обновлена')
+    } else {
+      await api.post('/admin/categories', form.value)
+      ElMessage.success('Категория добавлена')
+    }
     dialogVisible.value = false
-    form.value = { name: '', slug: '', parent_id: null, is_active: true }
     fetchCategories()
   } catch (e: any) {
     if (handleAuthError(e)) return
@@ -64,6 +107,26 @@ const deleteCategory = async (id: number) => {
   }
 }
 
+const openMediaPicker = () => {
+  fetchMedia()
+  mediaDialogVisible.value = true
+}
+
+const selectMedia = (item: any) => {
+  form.value.icon = item.path
+  mediaDialogVisible.value = false
+}
+
+const clearIcon = () => {
+  form.value.icon = ''
+}
+
+const getParentName = (parentId: number | null) => {
+  if (!parentId) return '—'
+  const parent = categories.value.find(c => c.id === parentId)
+  return parent ? parent.name : '—'
+}
+
 onMounted(() => {
   fetchCategories()
 })
@@ -73,13 +136,24 @@ onMounted(() => {
   <div>
     <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
       <h2>Категории</h2>
-      <el-button type="primary" @click="dialogVisible = true">Добавить категорию</el-button>
+      <el-button type="primary" @click="openCreate">Добавить категорию</el-button>
     </div>
 
     <el-table :data="categories" v-loading="loading" border>
-      <el-table-column prop="id" label="ID" width="80" />
+      <el-table-column prop="id" label="ID" width="60" />
+      <el-table-column label="Иконка" width="80">
+        <template #default="scope">
+          <img v-if="scope.row.icon" :src="getImageUrl(scope.row.icon)" style="width: 40px; height: 40px; object-fit: contain;" />
+          <span v-else style="color: #ccc;">—</span>
+        </template>
+      </el-table-column>
       <el-table-column prop="name" label="Название" />
       <el-table-column prop="slug" label="Slug" />
+      <el-table-column label="Родитель" width="150">
+        <template #default="scope">
+          {{ getParentName(scope.row.parent_id) }}
+        </template>
+      </el-table-column>
       <el-table-column label="Статус" width="100">
         <template #default="scope">
           <el-tag :type="scope.row.is_active ? 'success' : 'danger'">
@@ -87,20 +161,38 @@ onMounted(() => {
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="Действия" width="150">
+      <el-table-column label="Действия" width="180">
         <template #default="scope">
+          <el-button size="small" @click="openEdit(scope.row)">Изменить</el-button>
           <el-button size="small" type="danger" @click="deleteCategory(scope.row.id)">Удалить</el-button>
         </template>
       </el-table-column>
     </el-table>
 
-    <el-dialog v-model="dialogVisible" title="Новая категория" width="500px">
-      <el-form :model="form" label-width="100px">
+    <el-dialog v-model="dialogVisible" :title="editingId ? 'Редактировать категорию' : 'Новая категория'" width="500px">
+      <el-form :model="form" label-width="120px">
         <el-form-item label="Название">
           <el-input v-model="form.name" />
         </el-form-item>
         <el-form-item label="Slug (URL)">
           <el-input v-model="form.slug" />
+        </el-form-item>
+        <el-form-item label="Родитель">
+          <el-select v-model="form.parent_id" placeholder="Без родителя" clearable style="width: 100%;">
+            <el-option
+              v-for="opt in parentOptions"
+              :key="opt.id ?? 'none'"
+              :label="opt.name"
+              :value="opt.id"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="Иконка">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <img v-if="form.icon" :src="getImageUrl(form.icon)" style="width: 48px; height: 48px; object-fit: contain; border: 1px solid #eee; border-radius: 8px; padding: 4px;" />
+            <el-button @click="openMediaPicker">{{ form.icon ? 'Заменить' : 'Выбрать из медиа' }}</el-button>
+            <el-button v-if="form.icon" type="danger" plain @click="clearIcon">Убрать</el-button>
+          </div>
         </el-form-item>
         <el-form-item label="Статус">
           <el-switch v-model="form.is_active" />
@@ -111,70 +203,54 @@ onMounted(() => {
         <el-button type="primary" @click="submitForm">Сохранить</el-button>
       </template>
     </el-dialog>
+
+    <el-dialog v-model="mediaDialogVisible" title="Выбрать иконку" width="700px">
+      <div v-if="mediaItems.length === 0" style="text-align: center; padding: 40px; color: #999;">
+        Нет загруженных изображений. Загрузите иконки через раздел "Медиа".
+      </div>
+      <div v-else class="media-grid">
+        <div
+          v-for="item in mediaItems"
+          :key="item.path"
+          class="media-item"
+          @click="selectMedia(item)"
+        >
+          <img :src="getImageUrl(item.path)" :alt="item.name" />
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
+
 <style scoped>
-.categories-page {
-  padding: 10px 0;
+.media-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 12px;
+  max-height: 400px;
+  overflow-y: auto;
 }
 
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 2px solid #f0f2f5;
-}
-
-.page-header h2 {
-  font-size: 28px;
-  color: #303133;
-  font-weight: 700;
-}
-
-.el-table {
+.media-item {
+  aspect-ratio: 1;
+  border: 2px solid #eee;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  transition: border-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
 }
 
-.el-table th {
-  background: #f5f7fa;
-  font-weight: 600;
-  color: #606266;
+.media-item:hover {
+  border-color: #409eff;
 }
 
-.el-button {
-  border-radius: 6px;
-  font-weight: 500;
-}
-
-.el-dialog {
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.el-dialog__header {
-  background: linear-gradient(135deg, #409EFF 0%, #66b1ff 100%);
-  padding: 20px;
-}
-
-.el-dialog__title {
-  color: white;
-  font-weight: 600;
-}
-
-.el-dialog__headerbtn .el-dialog__close {
-  color: white;
-}
-
-@media (max-width: 768px) {
-  .page-header {
-    flex-direction: column;
-    gap: 15px;
-    align-items: flex-start;
-  }
+.media-item img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
 }
 </style>
-

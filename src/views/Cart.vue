@@ -3,6 +3,9 @@ import { onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import axios from 'axios'
 import { useCart } from '../lib/cart'
+import { useSeo } from '../lib/useSeo'
+
+useSeo({ title: 'Корзина' })
 
 interface CartItem {
   id: number

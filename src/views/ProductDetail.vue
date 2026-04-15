@@ -4,6 +4,9 @@ import { useRoute, RouterLink } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { api } from '../lib/api'
 import { useCart } from '../lib/cart'
+import { useDynamicSeo } from '../lib/useSeo'
+
+const { setSeo } = useDynamicSeo()
 import { toColorToken, resolveColorStyle } from '../lib/color'
 import { resolveProductState, type ProductVariation } from '../lib/variation'
 import iPhoneSection from '../components/iPhoneSection.vue'
@@ -161,6 +164,12 @@ const fetchProduct = async () => {
     const slug = route.params.slug as string
     const res = await api.get(`/products/${slug}`)
     product.value = res.data
+    if (product.value) {
+      setSeo({
+        title: product.value.name,
+        description: `${product.value.name} — купить в ONLYPHONES за ${Number(product.value.price).toLocaleString('ru-RU')} ₽. Доставка по Москве.`,
+      })
+    }
     selectedAttributes.value = {}
 
     const first = product.value?.image_main || product.value?.images?.[0] || null

@@ -33,6 +33,7 @@ interface ChildCategory {
   id: number
   name: string
   slug: string
+  icon?: string | null
   parent_id?: number | null
 }
 
@@ -72,10 +73,12 @@ const shortName = (cat: ChildCategory) => {
 }
 
 const visibleProducts = computed(() => {
-  if (!activeSubSlug.value || !props.childCategories.length) return props.products
-  const sub = props.childCategories.find(c => c.slug === activeSubSlug.value)
-  if (!sub) return props.products
-  return props.products.filter(p => p.category_id === sub.id)
+  let items = props.products
+  if (activeSubSlug.value && props.childCategories.length) {
+    const sub = props.childCategories.find(c => c.slug === activeSubSlug.value)
+    if (sub) items = items.filter(p => p.category_id === sub.id)
+  }
+  return [...items].sort((a, b) => b.id - a.id)
 })
 
 const selectSub = (slug: string | null) => {
@@ -229,11 +232,11 @@ onUnmounted(() => {
         :class="['sub-tab', { active: !activeSubSlug }]"
         @click="selectSub(null)"
       >
-        <svg class="sub-tab-icon" width="28" height="20" viewBox="0 0 28 20" fill="none" stroke="currentColor" stroke-width="1.2">
-          <rect x="1" y="2" width="11" height="8" rx="1.5" />
-          <rect x="16" y="2" width="11" height="8" rx="1.5" />
-          <rect x="1" y="13" width="11" height="5" rx="1.5" />
-          <rect x="16" y="13" width="11" height="5" rx="1.5" />
+        <svg class="sub-tab-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="1" y="1" width="7.5" height="7.5" rx="2" />
+          <rect x="11.5" y="1" width="7.5" height="7.5" rx="2" />
+          <rect x="1" y="11.5" width="7.5" height="7.5" rx="2" />
+          <rect x="11.5" y="11.5" width="7.5" height="7.5" rx="2" />
         </svg>
         <span>Все</span>
       </button>
@@ -243,10 +246,7 @@ onUnmounted(() => {
         :class="['sub-tab', { active: activeSubSlug === sub.slug }]"
         @click="selectSub(sub.slug)"
       >
-        <svg class="sub-tab-icon" width="28" height="20" viewBox="0 0 28 20" fill="none" stroke="currentColor" stroke-width="1.2">
-          <rect x="2" y="1" width="24" height="15" rx="2" />
-          <line x1="8" y1="19" x2="20" y2="19" stroke-linecap="round" />
-        </svg>
+        <img v-if="sub.icon" :src="getImageUrl(sub.icon)" :alt="shortName(sub)" class="sub-tab-icon-img" />
         <span>{{ shortName(sub) }}</span>
       </button>
     </div>
@@ -332,11 +332,11 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  padding: 10px 20px;
+  padding: 10px 18px;
   border-radius: 12px;
   border: none;
   background: transparent;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   color: var(--text-muted);
   cursor: pointer;
@@ -362,6 +362,18 @@ onUnmounted(() => {
 
 .sub-tab.active .sub-tab-icon {
   opacity: 0.8;
+}
+
+.sub-tab-icon-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  opacity: 0.5;
+  transition: opacity 0.15s;
+}
+
+.sub-tab.active .sub-tab-icon-img {
+  opacity: 1;
 }
 
 @media (max-width: 768px) {
@@ -543,19 +555,21 @@ onUnmounted(() => {
 
 .color-options {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 .color-dot {
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   border: 2px solid transparent;
   padding: 2px;
   background: none;
   cursor: pointer;
   transition: border-color 0.15s;
+  flex-shrink: 0;
 }
 
 .color-dot span {
@@ -563,7 +577,7 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  border: 1px solid rgba(0,0,0,0.1);
+  border: 1px solid rgba(0,0,0,0.12);
 }
 
 .color-dot.active {

@@ -3,6 +3,7 @@ import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import Footer from './components/Footer.vue'
 import Header from './components/Header.vue'
+import { useTheme } from './lib/useTheme'
 import {
   Box,
   Picture,
@@ -10,11 +11,24 @@ import {
   SwitchButton,
   ArrowDown,
   Fold,
-  Expand
+  Expand,
+  Odometer,
+  Document,
+  Moon,
+  Sunny,
+  ShoppingCart,
+  DataLine,
+  User,
+  Ticket,
+  Notebook,
+  ChatDotRound,
+  Upload,
+  Setting
 } from '@element-plus/icons-vue'
 
 const route = useRoute()
 const router = useRouter()
+const { isDark, toggle: toggleTheme } = useTheme()
 const sidebarOpen = ref(true)
 const activeSubmenu = ref<string | null>(null)
 
@@ -25,6 +39,13 @@ const isAuthenticated = computed(() => {
 const isAdminPage = computed(() => {
   return route.path.startsWith('/admin') && isAuthenticated.value
 })
+
+// Reset theme to light on public pages to prevent dark admin theme leaking
+watch(isAdminPage, (isAdmin) => {
+  if (!isAdmin) {
+    document.documentElement.setAttribute('data-theme', 'light')
+  }
+}, { immediate: true })
 
 const toggleSubmenu = (name: string) => {
   activeSubmenu.value = activeSubmenu.value === name ? null : name
@@ -40,22 +61,32 @@ const menuItems = [
   {
     section: 'АДМИНИСТРИРОВАНИЕ',
     items: [
+      { name: 'Дашборд', icon: Odometer, path: '/admin/dashboard', submenu: null },
+      { name: 'Заказы', icon: ShoppingCart, path: '/admin/orders', submenu: null },
+      { name: 'Заявки', icon: ChatDotRound, path: '/admin/requests', submenu: null },
+      { name: 'Аналитика', icon: DataLine, path: '/admin/analytics', submenu: null },
+      { name: 'Клиенты', icon: User, path: '/admin/customers', submenu: null },
       {
         name: 'Каталог',
         icon: Box,
         path: null,
         submenu: [
           { name: 'Товары', path: '/admin/products' },
-          { name: 'Категории', path: '/admin/categories' }
+          { name: 'Категории', path: '/admin/categories' },
+          { name: 'Импорт/Экспорт', path: '/admin/import' }
         ]
       },
-      { name: 'Слайдер', icon: PictureFilled, path: '/admin/sliders', submenu: null },
-      { name: 'Медиа', icon: Picture, path: '/admin/media', submenu: null }
+      { name: 'Промокоды', icon: Ticket, path: '/admin/promocodes', submenu: null },
+      { name: 'Слайдеры', icon: PictureFilled, path: '/admin/sliders', submenu: null },
+      { name: 'Страницы', icon: Notebook, path: '/admin/pages', submenu: null },
+      { name: 'Медиа', icon: Picture, path: '/admin/media', submenu: null },
+      { name: 'Журнал', icon: Document, path: '/admin/activity-log', submenu: null }
     ]
   },
   {
-    section: 'ПОЛЬЗОВАТЕЛЬ',
+    section: 'НАСТРОЙКИ',
     items: [
+      { name: 'Настройки', icon: Setting, path: '/admin/settings', submenu: null },
       { name: 'Выход', icon: SwitchButton, path: null, submenu: null, isLogout: true }
     ]
   }
@@ -96,12 +127,20 @@ const scrollToTop = () => {
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
+const socialExpanded = ref(false)
+const isMobileOrTablet = ref(false)
+const checkDevice = () => { isMobileOrTablet.value = window.innerWidth <= 1024 }
+const toggleSocials = () => { socialExpanded.value = !socialExpanded.value }
+
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
+  window.removeEventListener('resize', checkDevice)
 })
 
 onMounted(() => {
   window.addEventListener('scroll', handleScroll, { passive: true })
+  checkDevice()
+  window.addEventListener('resize', checkDevice)
 })
 
 const launchConfetti = (event: MouseEvent, type: string) => {
@@ -109,6 +148,7 @@ const launchConfetti = (event: MouseEvent, type: string) => {
     instagram: ['#E1306C', '#833AB4', '#F77737', '#FCAF45', '#ffffff'],
     telegram:  ['#0088cc', '#29b6f6', '#54a9eb', '#ffffff'],
     whatsapp:  ['#25d366', '#128C7E', '#a5e6c0', '#ffffff'],
+    avito:     ['#97CF26', '#00AAFF', '#FF6163', '#ffffff'],
   }
   const palette = palettes[type] || ['#ff0', '#f0f', '#0ff']
   const target = event.currentTarget as HTMLElement
@@ -214,10 +254,17 @@ const launchConfetti = (event: MouseEvent, type: string) => {
         </div>
       </nav>
 
-      <button class="sidebar-toggle" @click="sidebarOpen = !sidebarOpen" aria-label="Свернуть меню">
-        <el-icon v-if="sidebarOpen"><Fold /></el-icon>
-        <el-icon v-else><Expand /></el-icon>
-      </button>
+      <div class="sidebar-bottom">
+        <button class="theme-toggle" @click="toggleTheme" :aria-label="isDark ? 'Светлая тема' : 'Тёмная тема'">
+          <el-icon v-if="isDark"><Sunny /></el-icon>
+          <el-icon v-else><Moon /></el-icon>
+          <span class="nav-text" v-if="sidebarOpen">{{ isDark ? 'Светлая' : 'Тёмная' }}</span>
+        </button>
+        <button class="sidebar-toggle" @click="sidebarOpen = !sidebarOpen" aria-label="Свернуть меню">
+          <el-icon v-if="sidebarOpen"><Fold /></el-icon>
+          <el-icon v-else><Expand /></el-icon>
+        </button>
+      </div>
     </aside>
 
     <main class="main-content">
@@ -252,28 +299,49 @@ const launchConfetti = (event: MouseEvent, type: string) => {
       </button>
     </Transition>
 
-    <div class="social-float-group">
-      <a href="https://www.instagram.com/onlyphones_ru/" target="_blank" rel="noopener noreferrer"
-         class="social-float insta-float" aria-label="Instagram"
-         @mouseenter="launchConfetti($event, 'instagram')">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+    <div :class="['social-float-group', { collapsed: !socialExpanded }]">
+      <button class="social-toggle" @click="toggleSocials" :aria-label="socialExpanded ? 'Скрыть' : 'Показать'">
+        <svg v-if="!socialExpanded" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M4 12h16M12 4v16" stroke-linecap="round"/>
         </svg>
-      </a>
-      <a href="https://t.me/onlyphones" target="_blank" rel="noopener noreferrer"
-         class="social-float tg-float" aria-label="Telegram"
-         @mouseenter="launchConfetti($event, 'telegram')">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+        <svg v-else width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M18 6L6 18M6 6l12 12" stroke-linecap="round"/>
         </svg>
-      </a>
-      <a href="https://wa.me/79099512345" target="_blank" rel="noopener noreferrer"
-         class="social-float wa-float" aria-label="WhatsApp"
-         @mouseenter="launchConfetti($event, 'whatsapp')">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-        </svg>
-      </a>
+      </button>
+      <Transition name="social-expand">
+        <div v-show="socialExpanded || !isMobileOrTablet" class="social-links">
+          <a href="https://www.instagram.com/onlyphones_ru/" target="_blank" rel="noopener noreferrer"
+             class="social-float insta-float" aria-label="Instagram"
+             @mouseenter="launchConfetti($event, 'instagram')">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+            </svg>
+          </a>
+          <a href="https://t.me/weststore_msk" target="_blank" rel="noopener noreferrer"
+             class="social-float tg-float" aria-label="Telegram"
+             @mouseenter="launchConfetti($event, 'telegram')">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+            </svg>
+          </a>
+          <a href="https://wa.me/79299556487" target="_blank" rel="noopener noreferrer"
+             class="social-float wa-float" aria-label="WhatsApp"
+             @mouseenter="launchConfetti($event, 'whatsapp')">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+            </svg>
+          </a>
+          <a href="https://www.avito.ru/brands/i314221442" target="_blank" rel="noopener noreferrer"
+             class="social-float avito-float" aria-label="Avito"
+             @mouseenter="launchConfetti($event, 'avito')">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <circle cx="8" cy="8" r="5" fill="#97CF26"/>
+              <circle cx="17.5" cy="6.5" r="3.5" fill="#00AAFF"/>
+              <circle cx="15" cy="16" r="5" fill="#FF6163"/>
+            </svg>
+          </a>
+        </div>
+      </Transition>
     </div>
   </div>
 </template>
@@ -366,6 +434,32 @@ const launchConfetti = (event: MouseEvent, type: string) => {
   align-items: center;
 }
 
+.social-toggle {
+  display: none;
+}
+
+.social-links {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.social-expand-enter-active {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.social-expand-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.social-expand-enter-from {
+  opacity: 0;
+  transform: translateY(16px);
+}
+.social-expand-leave-to {
+  opacity: 0;
+  transform: translateY(16px);
+}
+
 .social-float {
   width: 54px;
   height: 54px;
@@ -404,6 +498,14 @@ const launchConfetti = (event: MouseEvent, type: string) => {
 }
 .insta-float:hover {
   box-shadow: 0 6px 26px rgba(188, 24, 136, 0.55);
+}
+
+.avito-float {
+  background: #ffffff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+.avito-float:hover {
+  box-shadow: 0 6px 26px rgba(0, 0, 0, 0.22);
 }
 
 /* ===== Scroll to top ===== */
@@ -456,7 +558,29 @@ const launchConfetti = (event: MouseEvent, type: string) => {
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
+  .social-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: none;
+    background: #1a1a2e;
+    color: #ffffff;
+    cursor: pointer;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.22);
+    transition: transform 0.2s, background 0.2s;
+    order: 1;
+  }
+  .social-toggle:hover {
+    background: #26242d;
+    transform: scale(1.08);
+  }
+  .social-links {
+    order: 0;
+  }
   .social-float-group {
     bottom: max(16px, env(safe-area-inset-bottom));
     right: 14px;
@@ -480,6 +604,80 @@ const launchConfetti = (event: MouseEvent, type: string) => {
     width: 22px;
     height: 22px;
   }
+  .social-toggle {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* ===== Dark Theme Variables ===== */
+:global([data-theme="dark"]) {
+  --card-bg: #1e1e2e;
+  --bg-main: #181825;
+  --bg-secondary: #2a2a3c;
+  --text-primary: #cdd6f4;
+  --text-secondary: #a6adc8;
+  --text-muted: #6c7086;
+  --border: #313244;
+  --shadow: rgba(0, 0, 0, 0.3);
+}
+
+:global([data-theme="dark"]) .admin-layout {
+  background: var(--bg-main);
+}
+
+:global([data-theme="dark"]) .main-content {
+  background: var(--bg-main);
+}
+
+:global([data-theme="dark"]) .top-bar {
+  background: var(--card-bg);
+  border-color: var(--border);
+}
+
+:global([data-theme="dark"]) .breadcrumb {
+  color: var(--text-muted);
+}
+
+:global([data-theme="dark"]) .breadcrumb .current {
+  color: var(--text-primary);
+}
+
+:global([data-theme="dark"]) .el-dialog {
+  --el-dialog-bg-color: #1e1e2e;
+  --el-dialog-title-font-color: #cdd6f4;
+}
+
+:global([data-theme="dark"]) .el-table {
+  --el-table-bg-color: #1e1e2e;
+  --el-table-tr-bg-color: #1e1e2e;
+  --el-table-header-bg-color: #2a2a3c;
+  --el-table-row-hover-bg-color: #2a2a3c;
+  --el-table-text-color: #cdd6f4;
+  --el-table-header-text-color: #a6adc8;
+  --el-table-border-color: #313244;
+}
+
+:global([data-theme="dark"]) .el-input__wrapper,
+:global([data-theme="dark"]) .el-textarea__inner {
+  background-color: #2a2a3c;
+  box-shadow: 0 0 0 1px #313244 inset;
+  color: #cdd6f4;
+}
+
+:global([data-theme="dark"]) .el-select__wrapper {
+  background-color: #2a2a3c;
+  box-shadow: 0 0 0 1px #313244 inset;
+  color: #cdd6f4;
+}
+
+:global([data-theme="dark"]) .el-input-number {
+  --el-input-number-bg-color: #2a2a3c;
+}
+
+:global([data-theme="dark"]) .bulk-bar {
+  background: #1a2744;
+  border-color: #2a4a7f;
 }
 
 /* ===== Admin Styles (existing) ===== */
@@ -663,6 +861,31 @@ const launchConfetti = (event: MouseEvent, type: string) => {
 
 .submenu-link.active {
   color: #667eea;
+}
+
+.sidebar-bottom {
+  display: flex;
+  flex-direction: column;
+}
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  background: rgba(0, 0, 0, 0.15);
+  border: none;
+  color: #e6a23c;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  width: 100%;
+  text-align: left;
+}
+
+.theme-toggle:hover {
+  background: rgba(0, 0, 0, 0.25);
+  color: #f0c060;
 }
 
 .sidebar-toggle {

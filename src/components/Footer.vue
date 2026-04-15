@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { RouterLink } from 'vue-router'
 
 const currentYear = new Date().getFullYear()
 
@@ -9,8 +10,13 @@ const categories = [
 ]
 
 const storeLinks = [
-  'Трейд-ин', 'Ремонт', 'О магазине', 'Доставка и оплата',
-  'Схема проезда', 'Политика в отношении обработки персональных данных'
+  { label: 'Трейд-ин', path: '/trade-in' },
+  { label: 'Ремонт', path: '/repair' },
+  { label: 'Доставка и оплата', path: '/payment' },
+  { label: 'О магазине', path: '/about' },
+  { label: 'Контакты', path: '/contacts' },
+  { label: 'Блог', path: '/blog' },
+  { label: 'Франшиза', path: '/franchise' },
 ]
 </script>
 
@@ -23,7 +29,7 @@ const storeLinks = [
           <h3 class="footer-title">Интернет-магазин</h3>
           <ul class="footer-links">
             <li v-for="item in categories" :key="item">
-              <a href="#" class="footer-link">{{ item }}</a>
+              <RouterLink :to="`/catalog/${item.toLowerCase()}`" class="footer-link">{{ item }}</RouterLink>
             </li>
           </ul>
         </div>
@@ -46,8 +52,8 @@ const storeLinks = [
           </div>
 
           <ul class="footer-links">
-            <li v-for="link in storeLinks" :key="link">
-              <a href="#" class="footer-link">{{ link }}</a>
+            <li v-for="link in storeLinks" :key="link.label">
+              <RouterLink :to="link.path" class="footer-link">{{ link.label }}</RouterLink>
             </li>
           </ul>
         </div>
@@ -57,18 +63,13 @@ const storeLinks = [
           
           <div class="contacts-block">
             <div class="phone-block">
-              <a href="tel:+74951512345" class="phone-number">+7 (495) 15 12345</a>
-              <span class="phone-label">многоканальный</span>
-            </div>
-
-            <div class="phone-block">
-              <a href="tel:+79099512345" class="phone-number">+7 (909) 95 12345</a>
-              <span class="phone-label">iMessage, Telegram, Viber, SMS</span>
+              <a href="tel:+79299556487" class="phone-number">+7 (929) 955 6487</a>
+              <span class="phone-label">WhatsApp, Telegram</span>
             </div>
 
             <div class="messenger-links">
-              <a href="#" class="messenger-link">написать в Telegram</a>
-              <a href="#" class="messenger-link">написать в WhatsApp</a>
+              <a href="https://t.me/weststore_msk" target="_blank" rel="noopener noreferrer" class="messenger-link">написать в Telegram</a>
+              <a href="https://wa.me/79299556487" target="_blank" rel="noopener noreferrer" class="messenger-link">написать в WhatsApp</a>
             </div>
 
             <div class="payment-systems">

@@ -14,8 +14,6 @@ const form = ref({
 const loading = ref(false)
 
 const handleLogin = async () => {
-  console.log('Login attempt:', form.value)
-  
   if (!form.value.email.trim()) {
     ElMessage.error('Введите email')
     return
@@ -31,8 +29,6 @@ const handleLogin = async () => {
     await ensureCsrf()
     const response = await api.post('/auth/login', form.value)
     
-    console.log('Login response:', response.data)
-
     if (response.data.success) {
       localStorage.setItem('admin_auth', 'true')
       localStorage.setItem('admin_user', JSON.stringify(response.data.user))
@@ -46,8 +42,6 @@ const handleLogin = async () => {
       ElMessage.error(response.data.message || 'Ошибка входа')
     }
   } catch (e: any) {
-    console.error('Login error:', e)
-    console.error('Error response:', e.response?.data)
     ElMessage.error(e.response?.data?.message || 'Неверный email или пароль')
   } finally {
     loading.value = false
