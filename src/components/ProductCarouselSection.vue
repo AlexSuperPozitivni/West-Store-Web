@@ -82,6 +82,41 @@ const getCategoryIcon = (slug: string): string | null => {
 }
 
 const activeSubSlug = ref<string | null>(null)
+const activeSizeFilter = ref<string | null>(null)
+
+const isSizeGroup = (name: string) => {
+  const n = name.toLowerCase()
+  return n.includes('размер') || n.includes('size') || n.includes('диагональ')
+}
+
+const sizeFilterValues = computed(() => {
+  const sizes = new Set<string>()
+  for (const product of props.products) {
+    if (!product.attributes) continue
+    for (const attr of product.attributes) {
+      const val = attr.pivot?.value
+      if (val && isSizeGroup(attr.name)) {
+        sizes.add(val)
+      }
+    }
+  }
+  return Array.from(sizes).sort((a, b) => {
+    const numA = parseFloat(a)
+    const numB = parseFloat(b)
+    if (!isNaN(numA) && !isNaN(numB)) return numA - numB
+    return a.localeCompare(b)
+  })
+})
+
+const sizeGroupName = computed(() => {
+  for (const product of props.products) {
+    if (!product.attributes) continue
+    for (const attr of product.attributes) {
+      if (isSizeGroup(attr.name)) return attr.name
+    }
+  }
+  return null
+})
 
 const shortName = (cat: ChildCategory) => {
   let name = cat.name
@@ -100,6 +135,14 @@ const visibleProducts = computed(() => {
   if (activeSubSlug.value && props.childCategories.length) {
     const sub = props.childCategories.find(c => c.slug === activeSubSlug.value)
     if (sub) items = items.filter(p => p.category_id === sub.id)
+  }
+  if (activeSizeFilter.value && sizeGroupName.value) {
+    items = items.filter(p => {
+      if (!p.attributes) return false
+      return p.attributes.some(attr =>
+        isSizeGroup(attr.name) && attr.pivot?.value === activeSizeFilter.value
+      )
+    })
   }
   return [...items].sort((a, b) => b.id - a.id)
 })
@@ -250,30 +293,49 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <div v-if="childCategories.length > 1" class="sub-tabs">
-      <button
-        :class="['sub-tab', { active: !activeSubSlug }]"
-        @click="selectSub(null)"
-      >
-        <svg class="sub-tab-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
-          <rect x="1" y="1" width="7.5" height="7.5" rx="2" />
-          <rect x="11.5" y="1" width="7.5" height="7.5" rx="2" />
-          <rect x="1" y="11.5" width="7.5" height="7.5" rx="2" />
-          <rect x="11.5" y="11.5" width="7.5" height="7.5" rx="2" />
-        </svg>
-        <span>Все</span>
-      </button>
-      <button
-        v-for="sub in childCategories"
-        :key="sub.slug"
-        :class="['sub-tab', { active: activeSubSlug === sub.slug }]"
-        @click="selectSub(sub.slug)"
-      >
-        <svg v-if="getCategoryIcon(sub.slug)" class="sub-tab-icon-svg" width="28" height="28" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
-          <path :d="getCategoryIcon(sub.slug)!" />
-        </svg>
-        <span>{{ shortName(sub) }}</span>
-      </button>
+    <div v-if="childCategories.length > 1 || sizeFilterValues.length > 1" class="sub-tabs-row">
+      <div v-if="childCategories.length > 1" class="sub-tabs">
+        <button
+          :class="['sub-tab', { active: !activeSubSlug }]"
+          @click="selectSub(null)"
+        >
+          <svg class="sub-tab-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="1" y="1" width="7.5" height="7.5" rx="2" />
+            <rect x="11.5" y="1" width="7.5" height="7.5" rx="2" />
+            <rect x="1" y="11.5" width="7.5" height="7.5" rx="2" />
+            <rect x="11.5" y="11.5" width="7.5" height="7.5" rx="2" />
+          </svg>
+          <span>Все</span>
+        </button>
+        <button
+          v-for="sub in childCategories"
+          :key="sub.slug"
+          :class="['sub-tab', { active: activeSubSlug === sub.slug }]"
+          @click="selectSub(sub.slug)"
+        >
+          <svg v-if="getCategoryIcon(sub.slug)" class="sub-tab-icon-svg" width="28" height="28" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+            <path :d="getCategoryIcon(sub.slug)!" />
+          </svg>
+          <span>{{ shortName(sub) }}</span>
+        </button>
+      </div>
+
+      <div v-if="sizeFilterValues.length > 1" class="size-filters">
+        <button
+          :class="['size-pill', { active: !activeSizeFilter }]"
+          @click="activeSizeFilter = null; nextTick(() => { if (trackRef) trackRef.scrollTo({ left: 0, behavior: 'smooth' }); checkScroll() })"
+        >
+          Все
+        </button>
+        <button
+          v-for="size in sizeFilterValues"
+          :key="size"
+          :class="['size-pill', { active: activeSizeFilter === size }]"
+          @click="activeSizeFilter = size; nextTick(() => { if (trackRef) trackRef.scrollTo({ left: 0, behavior: 'smooth' }); checkScroll() })"
+        >
+          {{ size }}
+        </button>
+      </div>
     </div>
 
     <div class="carousel-track" ref="trackRef">
@@ -338,18 +400,62 @@ onUnmounted(() => {
   padding: 40px 20px;
 }
 
-/* ===== Subcategory tabs ===== */
+/* ===== Subcategory tabs + size filters row ===== */
+.sub-tabs-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.sub-tabs-row::-webkit-scrollbar {
+  display: none;
+}
+
 .sub-tabs {
   display: flex;
   gap: 0;
-  margin-bottom: 24px;
   overflow-x: auto;
   scrollbar-width: none;
   background: #f0ece8;
   border-radius: 16px;
   padding: 6px;
-  width: fit-content;
-  max-width: 100%;
+  flex-shrink: 0;
+}
+
+.size-filters {
+  display: flex;
+  gap: 0;
+  background: #f0ece8;
+  border-radius: 16px;
+  padding: 6px;
+  flex-shrink: 0;
+}
+
+.size-pill {
+  padding: 10px 20px;
+  border-radius: 12px;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+
+.size-pill:hover {
+  color: var(--text-dark);
+}
+
+.size-pill.active {
+  background: #fff;
+  color: var(--text-dark);
+  font-weight: 600;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
 
 .sub-tabs::-webkit-scrollbar {
@@ -407,6 +513,10 @@ onUnmounted(() => {
 }
 
 @media (max-width: 768px) {
+  .sub-tabs-row {
+    gap: 10px;
+  }
+
   .sub-tabs {
     border-radius: 12px;
     padding: 4px;
@@ -426,6 +536,16 @@ onUnmounted(() => {
     width: 22px;
     height: 22px;
     display: block;
+  }
+
+  .size-filters {
+    border-radius: 12px;
+    padding: 4px;
+  }
+
+  .size-pill {
+    padding: 8px 14px;
+    font-size: 12px;
   }
 }
 
