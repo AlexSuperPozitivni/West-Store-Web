@@ -127,6 +127,22 @@ const attributeGroups = computed<AttributeGroup[]>(() => {
 
 const resolvedState = computed(() => resolveProductState(product.value, selectedAttributes.value))
 
+const colorGroupName = computed(() => {
+  return attributeGroups.value.find(g => isColorGroup(g.name))?.name || null
+})
+
+const colorThumbs = computed(() => {
+  if (!product.value?.variations || !colorGroupName.value) return []
+  const seen = new Map<string, string>()
+  for (const v of product.value.variations) {
+    const colorVal = v.attributes?.[colorGroupName.value]
+    if (colorVal && v.image && !seen.has(colorVal)) {
+      seen.set(colorVal, v.image)
+    }
+  }
+  return Array.from(seen.entries()).map(([color, image]) => ({ color, image }))
+})
+
 const chooseAttribute = (name: string, value: string) => {
   selectedAttributes.value[name] = value
   const variationImage = resolvedState.value.variation?.image
@@ -135,8 +151,11 @@ const chooseAttribute = (name: string, value: string) => {
   }
 }
 
-const selectImage = (path: string | null) => {
-  selectedImage.value = path
+const selectColorThumb = (color: string, image: string) => {
+  if (colorGroupName.value) {
+    selectedAttributes.value[colorGroupName.value] = color
+  }
+  selectedImage.value = image
 }
 
 const handleAddToCart = () => {
@@ -215,15 +234,16 @@ watch(() => route.params.slug, () => {
           <div class="main-image">
             <img :src="getImageUrl(selectedImage || product.image_main)" :alt="product.name" />
           </div>
-          <div v-if="product.images && product.images.length > 0" class="thumbs">
+          <div v-if="colorThumbs.length > 1" class="thumbs">
             <button
-              v-for="img in [product.image_main, ...(product.images || [])].filter(Boolean)"
-              :key="img"
-              :class="['thumb', { active: selectedImage === img }]"
-              @click="selectImage(img)"
+              v-for="thumb in colorThumbs"
+              :key="thumb.color"
+              :class="['thumb', { active: selectedAttributes[colorGroupName!] === thumb.color }]"
+              @click="selectColorThumb(thumb.color, thumb.image)"
               type="button"
+              :title="thumb.color"
             >
-              <img :src="getImageUrl(img)" :alt="product.name" />
+              <img :src="getImageUrl(thumb.image)" :alt="thumb.color" />
             </button>
           </div>
         </div>
@@ -366,7 +386,7 @@ watch(() => route.params.slug, () => {
 }
 
 .main-image {
-  background: #f7f4f1;
+  background: transparent;
   border-radius: 20px;
   display: flex;
   align-items: center;
@@ -392,7 +412,7 @@ watch(() => route.params.slug, () => {
   height: 70px;
   border-radius: 12px;
   border: 2px solid transparent;
-  background: #f7f4f1;
+  background: transparent;
   overflow: hidden;
   cursor: pointer;
   padding: 0;
