@@ -48,7 +48,8 @@ interface AttributeGroup {
 const route = useRoute()
 const product = ref<Product | null>(null)
 const loading = ref(false)
-const specsOpen = ref(true)
+const specsOpen = ref(false)
+const descOpen = ref(false)
 const selectedAttributes = ref<Record<string, string>>({})
 const selectedImage = ref<string | null>(null)
 
@@ -228,16 +229,7 @@ watch(() => route.params.slug, () => {
         </div>
 
         <div class="details">
-          <div class="title-row">
-            <span :class="['stock-dot', { 'in-stock': resolvedState.inStock }]" :title="resolvedState.inStock ? 'В наличии' : 'Нет в наличии'">
-              <svg width="12" height="12" viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </span>
-            <h1 class="title">{{ product.name }}</h1>
-          </div>
-          <p v-if="product.description" class="description">
-            {{ product.description }}
-          </p>
-
+          <h1 class="title">{{ product.name }}</h1>
           <div v-for="group in attributeGroups" :key="group.name" class="attribute-row">
             <div class="attribute-label">{{ group.name }}</div>
 
@@ -270,6 +262,13 @@ watch(() => route.params.slug, () => {
             </div>
           </div>
 
+          <div class="stock-row">
+            <span :class="['stock-dot', { 'in-stock': resolvedState.inStock }]">
+              <svg width="12" height="12" viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="stock-label">{{ resolvedState.inStock ? 'В наличии' : (resolvedState.isPreorder ? 'Предзаказ' : 'Нет в наличии') }}</span>
+          </div>
+
           <button class="add-cart-btn" :disabled="!resolvedState.canBuy" @click="handleAddToCart">
             <span class="btn-price">{{ Number(resolvedState.price).toLocaleString('ru-RU') }} ₽</span>
             <span class="btn-text">{{ resolvedState.isPreorder && !resolvedState.inStock ? 'Оформить предзаказ' : (resolvedState.canBuy ? 'В корзину' : 'Нет в наличии') }}</span>
@@ -297,6 +296,21 @@ watch(() => route.params.slug, () => {
             </div>
           </div>
           <div v-else class="specs-empty">Характеристики не указаны</div>
+        </div>
+      </div>
+
+      <div v-if="product.description" class="specs-card">
+        <button
+          class="specs-header"
+          type="button"
+          :aria-expanded="descOpen"
+          @click="descOpen = !descOpen"
+        >
+          <span class="specs-title">Описание</span>
+          <span :class="['chevron', { open: descOpen }]" aria-hidden="true"></span>
+        </button>
+        <div :class="['specs-body', { open: descOpen }]">
+          <p class="desc-text">{{ product.description }}</p>
         </div>
       </div>
 
@@ -400,10 +414,17 @@ watch(() => route.params.slug, () => {
   gap: 16px;
 }
 
-.title-row {
+.title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.stock-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .stock-dot {
@@ -422,15 +443,17 @@ watch(() => route.params.slug, () => {
   background: #22c55e;
 }
 
-.title {
-  font-size: 28px;
-  font-weight: 700;
-  color: #111827;
+.stock-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #22c55e;
 }
 
-.description {
+.desc-text {
   color: #4b5563;
-  line-height: 1.6;
+  line-height: 1.7;
+  padding: 0 50px 10px;
+  margin: 0;
 }
 
 .attribute-row {
