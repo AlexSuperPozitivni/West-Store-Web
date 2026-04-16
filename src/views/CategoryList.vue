@@ -170,6 +170,12 @@ const getProductState = (product: Product) => {
   return resolveProductState(product, selected)
 }
 
+const getProductImage = (product: Product) => {
+  const state = getProductState(product)
+  if (state.variation?.image) return state.variation.image
+  return product.image_main
+}
+
 const addToCart = (product: Product) => {
   const chosen = selectedAttributes.value[product.id] || {}
   const attrs = Object.values(chosen).filter(Boolean)
@@ -308,19 +314,14 @@ onMounted(() => {
       <div v-loading="loading" class="catalog-list">
         <div v-for="product in visibleProducts" :key="product.id" class="catalog-card">
           <div class="card-media">
-            <img :src="getImageUrl(product.image_main)" :alt="product.name" />
+            <img :src="getImageUrl(getProductImage(product))" :alt="product.name" />
             <RouterLink :to="`/product/${product.slug}`" class="card-more">Подробнее</RouterLink>
           </div>
 
           <div class="card-info">
-            <div class="card-head">
-              <span :class="['stock-dot', { 'in-stock': getProductState(product).inStock }]" :title="getProductState(product).inStock ? 'В наличии' : 'Нет в наличии'">
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </span>
-              <h2 class="card-title">{{ product.name }}</h2>
-            </div>
+            <h2 class="card-title">{{ product.name }}</h2>
 
-            <template v-for="group in getAttributeGroups(product).slice(0, 2)" :key="group.name">
+            <template v-for="group in getAttributeGroups(product)" :key="group.name">
               <div class="attr-row">
                 <div class="attr-label">{{ group.name }}</div>
 
@@ -353,6 +354,13 @@ onMounted(() => {
                 </div>
               </div>
             </template>
+
+            <div class="stock-row">
+              <span :class="['stock-dot', { 'in-stock': getProductState(product).inStock }]">
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <span class="stock-text">{{ getProductState(product).inStock ? 'В наличии' : (getProductState(product).isPreorder ? 'Предзаказ' : 'Нет в наличии') }}</span>
+            </div>
 
             <button
               class="add-cart-btn"
@@ -547,10 +555,17 @@ onMounted(() => {
   gap: 16px;
 }
 
-.card-head {
+.card-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0;
+  color: #111827;
+}
+
+.stock-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .stock-dot {
@@ -569,11 +584,10 @@ onMounted(() => {
   background: #22c55e;
 }
 
-.card-title {
-  font-size: 22px;
-  font-weight: 700;
-  margin: 0;
-  color: #111827;
+.stock-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #22c55e;
 }
 
 .add-cart-btn {

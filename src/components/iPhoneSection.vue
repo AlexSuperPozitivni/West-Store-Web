@@ -196,7 +196,7 @@ onMounted(() => fetchProducts())
           </div>
 
           <div class="attributes-wrapper">
-            <template v-for="group in getAttributeGroups(product).slice(0, 2)" :key="group.name">
+            <template v-for="group in getAttributeGroups(product)" :key="group.name">
               
               <div v-if="isColorGroup(group.name)" class="product-colors" :data-op-palette="product.slug ? product.slug.replace(/-/g, '_') : ''">
                 <button 
