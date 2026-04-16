@@ -278,9 +278,14 @@ onUnmounted(() => {
 
     <div class="carousel-track" ref="trackRef">
       <div class="product-card" v-for="product in visibleProducts.slice(0, limit)" :key="product.id">
-        <RouterLink :to="`/product/${product.slug}`" class="product-name" :title="product.name">
-          {{ product.name }}
-        </RouterLink>
+        <div class="product-name-row">
+          <span :class="['stock-dot', { 'in-stock': getProductState(product).inStock }]" :title="getProductState(product).inStock ? 'В наличии' : 'Нет в наличии'">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <RouterLink :to="`/product/${product.slug}`" class="product-name" :title="product.name">
+            {{ product.name }}
+          </RouterLink>
+        </div>
 
         <RouterLink :to="`/product/${product.slug}`" class="card-image-wrap">
           <img :src="getImageUrl(getProductState(product).variation?.image || product.image_main)" :alt="product.name" class="card-image" loading="lazy">
@@ -392,6 +397,8 @@ onUnmounted(() => {
 .sub-tab-icon-svg {
   opacity: 0.4;
   transition: opacity 0.15s;
+  display: block;
+  flex-shrink: 0;
 }
 
 .sub-tab.active .sub-tab-icon-svg {
@@ -413,6 +420,12 @@ onUnmounted(() => {
   .sub-tab-icon {
     width: 22px;
     height: 16px;
+  }
+
+  .sub-tab-icon-svg {
+    width: 22px;
+    height: 22px;
+    display: block;
   }
 }
 
@@ -503,18 +516,41 @@ onUnmounted(() => {
   box-shadow: 0 6px 24px rgba(0,0,0,0.1);
 }
 
+.product-name-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.stock-dot {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #d1d5db;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+.stock-dot.in-stock {
+  background: #22c55e;
+}
+
 .product-name {
   font-size: 15px;
   font-weight: 600;
   color: #111;
   text-decoration: none;
-  text-align: center;
+  text-align: left;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   min-height: 40px;
-  margin-bottom: 8px;
 }
 
 .card-image-wrap {
@@ -608,29 +644,30 @@ onUnmounted(() => {
 }
 
 .add-cart-btn {
-  background: var(--accent);
+  background: linear-gradient(90deg, #43e0f0 0%, #a855f7 100%);
   color: #fff;
   border: none;
   width: calc(100% + 40px);
   margin: auto -20px 0;
-  padding: 14px 20px;
+  padding: 16px 24px;
   border-radius: 0 0 20px 20px;
   font-weight: 600;
   cursor: pointer;
   font-size: 14px;
-  transition: background 0.2s;
+  transition: opacity 0.2s, filter 0.2s;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .add-cart-btn:hover:not(:disabled) {
-  background: var(--accent-hover);
+  filter: brightness(1.08);
 }
 
 .add-cart-btn:disabled {
   background: #ccc;
   cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .btn-price {

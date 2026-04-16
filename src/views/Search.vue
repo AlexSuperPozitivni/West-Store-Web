@@ -118,9 +118,14 @@ watch(query, (q) => {
                 loading="lazy"
               />
             </RouterLink>
-            <RouterLink :to="`/product/${product.slug}`" class="product-name">
-              {{ product.name }}
-            </RouterLink>
+            <div class="product-name-row">
+              <span class="stock-dot in-stock" title="В наличии">
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <RouterLink :to="`/product/${product.slug}`" class="product-name">
+                {{ product.name }}
+              </RouterLink>
+            </div>
             <button class="add-cart-btn" @click="addToCart(product)">
               <span class="btn-price">{{ product.price.toLocaleString('ru-RU') }} ₽</span>
               <span class="btn-text">В корзину</span>
@@ -293,19 +298,42 @@ watch(query, (q) => {
   object-fit: contain;
 }
 
+.product-name-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-bottom: 12px;
+  flex: 1;
+}
+
+.stock-dot {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #d1d5db;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+.stock-dot.in-stock {
+  background: #22c55e;
+}
+
 .product-name {
   font-size: 15px;
   font-weight: 600;
   color: #111;
   text-decoration: none;
-  text-align: center;
+  text-align: left;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   min-height: 40px;
-  margin-bottom: 12px;
-  flex: 1;
 }
 
 .product-name:hover {
@@ -313,24 +341,24 @@ watch(query, (q) => {
 }
 
 .add-cart-btn {
-  background: var(--accent, #111);
+  background: linear-gradient(90deg, #43e0f0 0%, #a855f7 100%);
   color: #fff;
   border: none;
   width: calc(100% + 40px);
   margin: 0 -20px;
-  padding: 14px 20px;
+  padding: 16px 24px;
   border-radius: 0 0 20px 20px;
   font-weight: 600;
   cursor: pointer;
   font-size: 14px;
-  transition: background 0.2s;
+  transition: opacity 0.2s, filter 0.2s;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .add-cart-btn:hover {
-  background: var(--accent-hover, #333);
+  filter: brightness(1.08);
 }
 
 .btn-price {

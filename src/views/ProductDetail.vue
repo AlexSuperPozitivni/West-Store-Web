@@ -228,7 +228,12 @@ watch(() => route.params.slug, () => {
         </div>
 
         <div class="details">
-          <h1 class="title">{{ product.name }}</h1>
+          <div class="title-row">
+            <span :class="['stock-dot', { 'in-stock': resolvedState.inStock }]" :title="resolvedState.inStock ? 'В наличии' : 'Нет в наличии'">
+              <svg width="12" height="12" viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <h1 class="title">{{ product.name }}</h1>
+          </div>
           <p v-if="product.description" class="description">
             {{ product.description }}
           </p>
@@ -265,12 +270,10 @@ watch(() => route.params.slug, () => {
             </div>
           </div>
 
-          <div class="actions">
-            <div class="price-chip">{{ Number(resolvedState.price).toLocaleString('ru-RU') }} ₽</div>
-            <button class="btn secondary" :disabled="!resolvedState.canBuy" @click="handleAddToCart">
-              {{ resolvedState.isPreorder && !resolvedState.inStock ? 'Оформить предзаказ' : (resolvedState.canBuy ? 'В корзину' : 'Нет в наличии') }}
-            </button>
-          </div>
+          <button class="add-cart-btn" :disabled="!resolvedState.canBuy" @click="handleAddToCart">
+            <span class="btn-price">{{ Number(resolvedState.price).toLocaleString('ru-RU') }} ₽</span>
+            <span class="btn-text">{{ resolvedState.isPreorder && !resolvedState.inStock ? 'Оформить предзаказ' : (resolvedState.canBuy ? 'В корзину' : 'Нет в наличии') }}</span>
+          </button>
 
           <div class="sku">Артикул: <span>{{ product.sku || product.slug || product.id }}</span></div>
         </div>
@@ -397,6 +400,28 @@ watch(() => route.params.slug, () => {
   gap: 16px;
 }
 
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stock-dot {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #d1d5db;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stock-dot.in-stock {
+  background: #22c55e;
+}
+
 .title {
   font-size: 28px;
   font-weight: 700;
@@ -493,48 +518,35 @@ watch(() => route.params.slug, () => {
   border-color: var(--accent);
 }
 
-.actions {
+.add-cart-btn {
+  background: linear-gradient(90deg, #43e0f0 0%, #a855f7 100%);
+  color: #fff;
+  border: none;
+  padding: 18px 28px;
+  border-radius: 9999px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, filter 0.2s;
   display: flex;
-  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
   margin-top: 10px;
 }
 
-.price-chip {
-  flex: 1;
-  padding: 14px 20px;
-  border-radius: 9999px;
-  font-size: 24px;
-  font-weight: 700;
-  color: #0f172a;
-  background: #f0ece8;
-  display: flex;
-  align-items: center;
+.add-cart-btn:hover:not(:disabled) {
+  filter: brightness(1.08);
 }
 
-.btn {
-  flex: 1;
-  padding: 14px 20px;
-  border-radius: 9999px;
-  font-size: 15px;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-}
-
-.btn.primary {
-  background: var(--accent);
-  color: #ffffff;
-}
-
-.btn.secondary {
-  background: var(--accent);
-  color: #ffffff;
-}
-
-.btn:disabled {
-  opacity: 0.6;
+.add-cart-btn:disabled {
+  background: #ccc;
   cursor: not-allowed;
+  opacity: 0.6;
 }
+
+.btn-price { font-weight: 700; font-size: 22px; }
+.btn-text { font-weight: 600; font-size: 16px; }
 
 .sku {
   font-size: 13px;
@@ -717,9 +729,11 @@ watch(() => route.params.slug, () => {
     grid-template-columns: 1fr;
   }
 
-  .actions {
-    flex-direction: column;
+  .add-cart-btn {
+    padding: 14px 20px;
   }
+  .btn-price { font-size: 18px; }
+  .btn-text { font-size: 14px; }
 
   .specs-card {
     border-radius: 22px;
