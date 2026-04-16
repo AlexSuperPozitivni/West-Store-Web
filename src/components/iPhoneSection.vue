@@ -186,9 +186,14 @@ onMounted(() => fetchProducts())
             <img :src="getImageUrl(getProductState(product).variation?.image || product.image_main)" :alt="product.name" class="product-image" loading="lazy">
           </RouterLink>
 
-          <RouterLink :to="`/product/${product.slug}`" class="product-name-link">
-            <h3 class="product-name">{{ product.name }}</h3>
-          </RouterLink>
+          <div class="product-name-row">
+            <span :class="['stock-dot', { 'in-stock': getProductState(product).inStock }]" :title="getProductState(product).inStock ? 'В наличии' : 'Нет в наличии'">
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <RouterLink :to="`/product/${product.slug}`" class="product-name-link">
+              <h3 class="product-name">{{ product.name }}</h3>
+            </RouterLink>
+          </div>
 
           <div class="attributes-wrapper">
             <template v-for="group in getAttributeGroups(product).slice(0, 2)" :key="group.name">
@@ -217,16 +222,14 @@ onMounted(() => fetchProducts())
             </template>
           </div>
 
-          <div class="product-footer">
-            <div class="product-price">{{ Number(getProductState(product).price).toLocaleString('ru-RU') }} ₽</div>
-            <button 
-              class="add-to-cart-btn" 
-              :disabled="!getProductState(product).canBuy"
-              @click="addToCart(product)"
-            >
-              {{ getProductState(product).isPreorder && !getProductState(product).inStock ? 'Предзаказ' : (getProductState(product).canBuy ? 'В корзину' : 'Нет') }}
-            </button>
-          </div>
+          <button
+            class="add-cart-btn"
+            :disabled="!getProductState(product).canBuy"
+            @click="addToCart(product)"
+          >
+            <span class="btn-price">{{ Number(getProductState(product).price).toLocaleString('ru-RU') }} ₽</span>
+            <span class="btn-text">{{ getProductState(product).isPreorder && !getProductState(product).inStock ? 'Предзаказ' : (getProductState(product).canBuy ? 'В корзину' : 'Нет в наличии') }}</span>
+          </button>
         </div>
       </div>
     </div>
@@ -310,9 +313,32 @@ onMounted(() => fetchProducts())
   object-fit: contain;
 }
 
+.product-name-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.stock-dot {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #d1d5db;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+.stock-dot.in-stock {
+  background: #22c55e;
+}
+
 .product-name-link {
   text-decoration: none;
-  margin-bottom: 16px;
 }
 
 .product-name {
@@ -382,30 +408,32 @@ onMounted(() => fetchProducts())
 .option-pill:hover { background: #e8e8e8; }
 .option-pill.active { background: #fff; color: var(--text-dark); border-color: var(--text-dark); font-weight: 600; }
 
-/* Подвал карточки */
-.product-footer {
+/* Кнопка корзины */
+.add-cart-btn {
   margin-top: auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.product-price { font-size: 18px; font-weight: 700; color: var(--text-dark); }
-
-.add-to-cart-btn {
-  background: var(--accent);
-  color: white;
+  background: linear-gradient(90deg, #43e0f0 0%, #a855f7 100%);
+  color: #fff;
   border: none;
-  padding: 10px 20px;
-  border-radius: 9999px;
+  width: calc(100% + 48px);
+  margin-left: -24px;
+  margin-right: -24px;
+  margin-bottom: -24px;
+  padding: 16px 24px;
+  border-radius: 0 0 20px 20px;
   font-weight: 600;
-  font-size: 13px;
   cursor: pointer;
-  transition: background 0.2s ease;
+  font-size: 14px;
+  transition: opacity 0.2s, filter 0.2s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.add-to-cart-btn:hover:not(:disabled) { background: var(--accent-hover); }
-.add-to-cart-btn:disabled { background: #ccc; cursor: not-allowed; }
+.add-cart-btn:hover:not(:disabled) { filter: brightness(1.08); }
+.add-cart-btn:disabled { background: #ccc; cursor: not-allowed; opacity: 0.6; }
+
+.btn-price { font-weight: 700; font-size: 15px; }
+.btn-text { font-weight: 600; font-size: 14px; }
 
 @media (max-width: 900px) {
   .info-cards-container { grid-template-columns: 1fr; gap: 12px; }
@@ -419,8 +447,12 @@ onMounted(() => fetchProducts())
   .product-card { padding: 16px; border-radius: 16px; }
   .product-image-container { height: 160px; }
   .product-name { font-size: 15px; height: auto; min-height: 45px; }
-  .product-price { font-size: 16px; }
-  .add-to-cart-btn { padding: 8px 12px; font-size: 13px; }
-  .product-footer { flex-direction: column; gap: 12px; }
+  .add-cart-btn {
+    width: calc(100% + 32px);
+    margin-left: -16px;
+    margin-right: -16px;
+    margin-bottom: -16px;
+    padding: 12px 16px;
+  }
 }
 </style>

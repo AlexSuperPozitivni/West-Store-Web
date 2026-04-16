@@ -314,8 +314,10 @@ onMounted(() => {
 
           <div class="card-info">
             <div class="card-head">
+              <span :class="['stock-dot', { 'in-stock': getProductState(product).inStock }]" :title="getProductState(product).inStock ? 'В наличии' : 'Нет в наличии'">
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
               <h2 class="card-title">{{ product.name }}</h2>
-              <div class="card-price">{{ Number(getProductState(product).price).toLocaleString('ru-RU') }} ₽</div>
             </div>
 
             <template v-for="group in getAttributeGroups(product).slice(0, 2)" :key="group.name">
@@ -352,27 +354,19 @@ onMounted(() => {
               </div>
             </template>
 
-            <div class="card-actions">
-              <button
-                v-if="getProductState(product).isPreorder && !getProductState(product).inStock"
-                class="btn ghost"
-                type="button"
-              >
-                Предзаказ
-              </button>
-              <button
-                class="btn primary"
-                type="button"
-                :disabled="!getProductState(product).canBuy"
-                @click="addToCart(product)"
-              >
-                {{
-                  getProductState(product).isPreorder && !getProductState(product).inStock
-                    ? 'Оформить предзаказ'
-                    : (getProductState(product).canBuy ? 'В корзину' : 'Нет в наличии')
-                }}
-              </button>
-            </div>
+            <button
+              class="add-cart-btn"
+              type="button"
+              :disabled="!getProductState(product).canBuy"
+              @click="addToCart(product)"
+            >
+              <span class="btn-price">{{ Number(getProductState(product).price).toLocaleString('ru-RU') }} ₽</span>
+              <span class="btn-text">{{
+                getProductState(product).isPreorder && !getProductState(product).inStock
+                  ? 'Предзаказ'
+                  : (getProductState(product).canBuy ? 'В корзину' : 'Нет в наличии')
+              }}</span>
+            </button>
           </div>
         </div>
 
@@ -555,9 +549,24 @@ onMounted(() => {
 
 .card-head {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
+  align-items: center;
+  gap: 10px;
+}
+
+.stock-dot {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #d1d5db;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stock-dot.in-stock {
+  background: #22c55e;
 }
 
 .card-title {
@@ -567,11 +576,35 @@ onMounted(() => {
   color: #111827;
 }
 
-.card-price {
-  font-size: 18px;
+.add-cart-btn {
+  background: linear-gradient(90deg, #43e0f0 0%, #a855f7 100%);
+  color: #fff;
+  border: none;
+  padding: 16px 24px;
+  border-radius: 9999px;
   font-weight: 600;
-  color: #111827;
+  cursor: pointer;
+  font-size: 14px;
+  transition: opacity 0.2s, filter 0.2s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
 }
+
+.add-cart-btn:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.add-cart-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn-price { font-weight: 700; font-size: 16px; }
+.btn-text { font-weight: 600; font-size: 14px; }
 
 .attr-row {
   display: grid;
@@ -664,38 +697,6 @@ onMounted(() => {
   font-weight: 600;
 }
 
-.card-actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 8px;
-}
-
-.btn {
-  flex: 1;
-  padding: 12px 20px;
-  border-radius: 14px;
-  font-weight: 600;
-  font-size: 14px;
-  border: none;
-  cursor: pointer;
-}
-
-.btn.ghost {
-  background: #ede9e5;
-  color: #111827;
-  border-radius: 9999px;
-}
-
-.btn.primary {
-  background: var(--accent);
-  color: #ffffff;
-  border-radius: 9999px;
-}
-
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
 
 .empty-state {
   text-align: center;
@@ -784,15 +785,8 @@ onMounted(() => {
     font-size: 12px;
   }
 
-  .card-actions {
-    flex-direction: column;
-    gap: 8px;
-    margin-top: 2px;
-  }
-
-  .btn {
-    padding: 10px 14px;
-    font-size: 13px;
+  .add-cart-btn {
+    padding: 14px 18px;
   }
 }
 </style>

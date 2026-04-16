@@ -209,7 +209,7 @@ watch(() => router.currentRoute.value.path, () => {
         </button>
 
         <RouterLink to="/" class="logo" @click="closeMenu">
-          ONLYPHONES
+          west-store
         </RouterLink>
 
         <div class="header-right">
