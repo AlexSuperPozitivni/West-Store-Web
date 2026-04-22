@@ -334,6 +334,7 @@ watch(() => router.currentRoute.value.path, () => {
   display: flex;
   align-items: center;
   gap: 20px;
+  position: relative;
 }
 
 .toggle-btn {
@@ -356,13 +357,15 @@ watch(() => router.currentRoute.value.path, () => {
 
 .logo {
   text-decoration: none;
-  flex-shrink: 0;
   display: flex;
   align-items: center;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .logo-img {
-  height: 60px;
+  height: 48px;
   width: auto;
   object-fit: contain;
 }
