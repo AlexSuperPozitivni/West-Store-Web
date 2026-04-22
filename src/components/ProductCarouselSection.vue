@@ -171,7 +171,24 @@ const visibleProducts = computed(() => {
       )
     })
   }
-  return [...items].sort((a, b) => b.id - a.id)
+  return [...items].sort((a, b) => {
+    const getModelInfo = (name: string) => {
+      const match = name.match(/(\d+)/)
+      const num = match ? parseInt(match[1], 10) : 0
+      const isProMax = /pro\s*max/i.test(name)
+      const isPro = !isProMax && /pro/i.test(name)
+      const isUltra = /ultra/i.test(name)
+      const isPlus = /plus|\+/i.test(name)
+      // Higher priority = shown first
+      const variant = isProMax ? 4 : isUltra ? 3 : isPro ? 2 : isPlus ? 1 : 0
+      return { num, variant }
+    }
+    const ma = getModelInfo(a.name)
+    const mb = getModelInfo(b.name)
+    if (ma.num !== mb.num) return mb.num - ma.num
+    if (ma.variant !== mb.variant) return mb.variant - ma.variant
+    return a.name.localeCompare(b.name)
+  })
 })
 
 const selectSub = (slug: string | null) => {
