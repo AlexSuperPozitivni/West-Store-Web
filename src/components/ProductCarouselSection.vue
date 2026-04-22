@@ -175,12 +175,25 @@ const visibleProducts = computed(() => {
     const getModelInfo = (name: string) => {
       const match = name.match(/(\d+)/)
       const num = match ? parseInt(match[1], 10) : 0
+      const lower = name.toLowerCase()
       const isProMax = /pro\s*max/i.test(name)
-      const isPro = !isProMax && /pro/i.test(name)
+      const isPro = !isProMax && /\bpro\b/i.test(name)
       const isUltra = /ultra/i.test(name)
       const isPlus = /plus|\+/i.test(name)
-      // Higher priority = shown first
-      const variant = isProMax ? 4 : isUltra ? 3 : isPro ? 2 : isPlus ? 1 : 0
+      const isAir = /\bair\b/i.test(name)
+      const isE = /\d+e\b/i.test(name)
+      const isSE = /\bse\b/i.test(name)
+      const isMini = /mini/i.test(name)
+      // Higher variant = shown first (Pro Max > Pro > Plus > base > Air > e > mini > SE)
+      let variant = 3 // base
+      if (isProMax) variant = 6
+      else if (isUltra) variant = 5
+      else if (isPro) variant = 4
+      else if (isPlus) variant = 3
+      else if (isAir) variant = 2
+      else if (isE) variant = 1
+      else if (isMini) variant = 0
+      else if (isSE) variant = -1
       return { num, variant }
     }
     const ma = getModelInfo(a.name)

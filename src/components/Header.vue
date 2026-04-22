@@ -210,7 +210,6 @@ watch(() => router.currentRoute.value.path, () => {
 
         <RouterLink to="/" class="logo" @click="closeMenu">
           <img src="/logo.jpg" alt="West-Store" class="logo-img" />
-          <span class="logo-text">WEST-STORE</span>
         </RouterLink>
 
         <div class="header-right">
@@ -360,25 +359,12 @@ watch(() => router.currentRoute.value.path, () => {
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 8px;
 }
 
 .logo-img {
-  height: 44px;
-  width: 44px;
-  object-fit: cover;
-  border-radius: 8px;
-}
-
-.logo-text {
-  font-family: 'Impact', 'Arial Narrow', 'Helvetica Neue', sans-serif;
-  font-size: 22px;
-  font-weight: 900;
-  font-style: italic;
-  letter-spacing: 1.5px;
-  color: #1a1a1a;
-  text-transform: uppercase;
-  transform: skewX(-4deg);
+  height: 60px;
+  width: auto;
+  object-fit: contain;
 }
 
 .header-right {
