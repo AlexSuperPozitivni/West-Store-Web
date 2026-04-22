@@ -7,7 +7,7 @@ interface SeoOptions {
   ogImage?: string
 }
 
-const SITE_NAME = 'ONLYPHONES — Apple в Москве'
+const SITE_NAME = 'WEST-STORE — Apple в Москве'
 
 const setMeta = (name: string, content: string) => {
   let el = document.querySelector(`meta[name="${name}"]`) || document.querySelector(`meta[property="${name}"]`)

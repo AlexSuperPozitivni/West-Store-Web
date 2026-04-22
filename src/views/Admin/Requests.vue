@@ -32,10 +32,9 @@ const editStatus = ref<CustomerRequest['status']>('new')
 
 function loadRequests(): CustomerRequest[] {
   try {
-    const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
-    return data.length ? data : generateDemoRequests()
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
   } catch {
-    return generateDemoRequests()
+    return []
   }
 }
 

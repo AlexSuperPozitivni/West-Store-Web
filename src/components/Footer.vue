@@ -86,7 +86,7 @@ const storeLinks = [
 
         <div class="footer-column social-column">
           <div class="brand-logo">
-            ONLYPHONES
+            WEST-STORE
           </div>
           
           <p class="social-label">в социальных сетях</p>
@@ -133,7 +133,7 @@ const storeLinks = [
           </div>
 
           <div class="copyright">
-            <p>© ONLYPHONES 2012-{{ currentYear }}</p>
+            <p>© WEST-STORE 2012-{{ currentYear }}</p>
             <p class="legal-text">
               Сайт носит сугубо информационный характер и не является публичной офертой, определяемой Статьей 437(2) ГК РФ.
             </p>
@@ -314,12 +314,15 @@ const storeLinks = [
 }
 
 .brand-logo {
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: 1px;
+  font-family: 'Impact', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+  font-size: 22px;
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: 1.5px;
   color: #000000;
   margin-bottom: 15px;
   text-transform: uppercase;
+  transform: skewX(-4deg);
 }
 
 .social-label {

@@ -198,7 +198,7 @@ function generateDemoOrders(): Order[] {
 
     result.push({
       id: i + 1,
-      order_number: `OP-${String(10000 + i).slice(1)}`,
+      order_number: `WS-${String(10000 + i).slice(1)}`,
       date: date.toISOString(),
       customer_name: names[i % names.length],
       customer_phone: phones[i % phones.length],
@@ -233,13 +233,8 @@ const fetchOrders = async () => {
     orders.value = res.data || []
   } catch (e: any) {
     if (handleAuthError(e)) return
-    // Fallback to localStorage
-    let stored = loadFromLocalStorage()
-    if (stored.length === 0) {
-      stored = generateDemoOrders()
-      saveToLocalStorage(stored)
-    }
-    orders.value = stored
+    // Fallback to localStorage (real orders only, no demo data)
+    orders.value = loadFromLocalStorage()
   } finally {
     loading.value = false
   }

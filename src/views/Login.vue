@@ -53,7 +53,7 @@ const handleLogin = async () => {
   <div class="login-page">
     <div class="login-card">
       <div class="login-header">
-        <h1>Onlyphones</h1>
+        <h1>West-Store</h1>
         <p>Авторизация</p>
       </div>
 
@@ -62,7 +62,7 @@ const handleLogin = async () => {
           <el-input 
             v-model="form.email" 
             type="email" 
-            placeholder="admin@onlyphones.ru"
+            placeholder="admin@west-store.ru"
             autocomplete="email"
           />
         </el-form-item>

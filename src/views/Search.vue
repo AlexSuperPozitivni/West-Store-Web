@@ -67,7 +67,7 @@ const addToCart = (product: Product) => {
 
 watch(query, (q) => {
   searchInput.value = q
-  document.title = q ? `Поиск: ${q} | ONLYPHONES — Apple в Москве` : 'Поиск | ONLYPHONES — Apple в Москве'
+  document.title = q ? `Поиск: ${q} | WEST-STORE — Apple в Москве` : 'Поиск | WEST-STORE — Apple в Москве'
   searchProducts(q)
 }, { immediate: true })
 </script>

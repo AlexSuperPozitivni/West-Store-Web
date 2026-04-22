@@ -209,7 +209,7 @@ watch(() => router.currentRoute.value.path, () => {
         </button>
 
         <RouterLink to="/" class="logo" @click="closeMenu">
-          west-store
+          WEST-STORE
         </RouterLink>
 
         <div class="header-right">
@@ -355,15 +355,18 @@ watch(() => router.currentRoute.value.path, () => {
 }
 
 .logo {
-  font-size: 20px;
-  font-weight: 800;
-  letter-spacing: 2px;
+  font-family: 'Impact', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+  font-size: 24px;
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: 1.5px;
   color: #1a1a1a;
   text-transform: uppercase;
   text-decoration: none;
   flex-shrink: 0;
   display: flex;
   align-items: center;
+  transform: skewX(-4deg);
 }
 
 .header-right {

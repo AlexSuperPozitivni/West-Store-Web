@@ -4,7 +4,7 @@ import { useSeo } from '../lib/useSeo'
 
 useSeo({
   title: 'О магазине',
-  description: 'ONLYPHONES — магазин Apple техники в Москве. Оригинальная продукция, гарантия качества, профессиональная консультация.'
+  description: 'WEST-STORE — магазин Apple техники в Москве. Оригинальная продукция, гарантия качества, профессиональная консультация.'
 })
 
 const advantages = [
@@ -37,7 +37,7 @@ onMounted(() => {
     <section class="hero">
       <div class="hero-container">
         <div class="hero-badge">О нас</div>
-        <h1 class="hero-title">ONLYPHONES</h1>
+        <h1 class="hero-title">WEST-STORE</h1>
         <p class="hero-subtitle">
           Ваш надёжный магазин оригинальной техники в Москве. Продаём, обмениваем и обслуживаем устройства Apple, Samsung, DJI, Dyson и другие топовые бренды.
         </p>
@@ -53,7 +53,7 @@ onMounted(() => {
           <div class="story-card">
             <span class="story-icon">🏪</span>
             <h3>Магазин с душой</h3>
-            <p>ONLYPHONES — это магазин для тех, кто ценит качество и надёжность. Мы начинали как небольшая точка продаж Apple техники, а сегодня предлагаем широкий ассортимент устройств от лучших мировых брендов.</p>
+            <p>WEST-STORE — это магазин для тех, кто ценит качество и надёжность. Мы начинали как небольшая точка продаж Apple техники, а сегодня предлагаем широкий ассортимент устройств от лучших мировых брендов.</p>
           </div>
           <div class="story-card">
             <span class="story-icon">🎯</span>
@@ -73,7 +73,7 @@ onMounted(() => {
     <section class="advantages animate-on-scroll">
       <div class="section-container">
         <h2 class="section-title">Почему выбирают нас</h2>
-        <p class="section-subtitle">Четыре причины покупать технику в ONLYPHONES</p>
+        <p class="section-subtitle">Четыре причины покупать технику в WEST-STORE</p>
         <div class="advantages-grid">
           <div v-for="(adv, i) in advantages" :key="i" class="advantage-card" :style="{ animationDelay: i * 0.1 + 's' }">
             <span class="advantage-icon">{{ adv.icon }}</span>

@@ -4,7 +4,7 @@ import { useSeo } from '../lib/useSeo'
 
 useSeo({
   title: 'Контакты',
-  description: 'Контакты магазина ONLYPHONES. Адрес: Москва, ул. Барклая 8. Телефон: +7 (929) 955 6487. WhatsApp, Telegram.'
+  description: 'Контакты магазина WEST-STORE. Адрес: Москва, ул. Барклая 8. Телефон: +7 (929) 955 6487. WhatsApp, Telegram.'
 })
 
 const form = ref({ name: '', phone: '' })

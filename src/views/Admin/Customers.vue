@@ -150,14 +150,11 @@ const fetchCustomers = async () => {
     localStorage.setItem('admin_customers', JSON.stringify(customers.value))
   } catch (e: any) {
     if (handleAuthError(e)) return
-    // Fallback to localStorage
-    const stored = localStorage.getItem('admin_customers')
-    if (stored) {
-      customers.value = JSON.parse(stored)
-    } else {
-      customers.value = generateDemoCustomers()
-      localStorage.setItem('admin_customers', JSON.stringify(customers.value))
-    }
+    // Fallback to localStorage (real data only, no demo data)
+    try {
+      const stored = localStorage.getItem('admin_customers')
+      customers.value = stored ? JSON.parse(stored) : []
+    } catch { customers.value = [] }
   } finally {
     loading.value = false
   }

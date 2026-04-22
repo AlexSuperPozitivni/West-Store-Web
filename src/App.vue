@@ -185,9 +185,9 @@ const launchConfetti = (event: MouseEvent, type: string) => {
   <div v-if="isAdminPage" class="admin-layout">
     <aside :class="['sidebar', { collapsed: !sidebarOpen }]">
       <div class="user-profile">
-        <div class="avatar">OP</div>
+        <div class="avatar">WS</div>
         <div class="user-info" v-if="sidebarOpen">
-          <div class="user-name">Onlyphones</div>
+          <div class="user-name">West-Store</div>
           <div class="user-status">
             <span class="status-dot"></span>
             Панель администратора

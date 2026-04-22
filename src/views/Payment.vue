@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useSeo } from '../lib/useSeo'
 
-useSeo({ title: 'Оплата', description: 'Способы оплаты в ONLYPHONES: наличные, карта, СБП, рассрочка, кредит. Удобная оплата при получении.' })
+useSeo({ title: 'Оплата', description: 'Способы оплаты в WEST-STORE: наличные, карта, СБП, рассрочка, кредит. Удобная оплата при получении.' })
 
 const activeTab = ref('card')
 

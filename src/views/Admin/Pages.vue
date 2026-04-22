@@ -92,7 +92,7 @@ const getDefaults = (): PageContent[] => [
       }
     ],
     seo: {
-      metaTitle: 'Trade-In — Обмен техники | ONLYPHONES',
+      metaTitle: 'Trade-In — Обмен техники | WEST-STORE',
       metaDescription: 'Обменяйте старую технику Apple на новую с выгодой. Быстрая оценка, лучшие цены в Москве.'
     }
   },
@@ -147,7 +147,7 @@ const getDefaults = (): PageContent[] => [
       }
     ],
     seo: {
-      metaTitle: 'Ремонт Apple в Москве | ONLYPHONES',
+      metaTitle: 'Ремонт Apple в Москве | WEST-STORE',
       metaDescription: 'Профессиональный ремонт iPhone, iPad, MacBook. Бесплатная диагностика, гарантия до 12 месяцев.'
     }
   },
@@ -192,7 +192,7 @@ const getDefaults = (): PageContent[] => [
       }
     ],
     seo: {
-      metaTitle: 'Оплата и доставка | ONLYPHONES',
+      metaTitle: 'Оплата и доставка | WEST-STORE',
       metaDescription: 'Удобные способы оплаты: наличные, карта, СБП, рассрочка. Доставка по Москве и России.'
     }
   },
@@ -200,10 +200,10 @@ const getDefaults = (): PageContent[] => [
     id: 'about',
     name: 'О магазине',
     path: '/about',
-    pageTitle: 'О магазине ONLYPHONES',
+    pageTitle: 'О магазине WEST-STORE',
     hero: {
       badge: 'О нас',
-      title: 'ONLYPHONES — магазин техники Apple в Москве',
+      title: 'WEST-STORE — магазин техники Apple в Москве',
       subtitle: 'Продаём оригинальную технику Apple с гарантией. Работаем с 2020 года, тысячи довольных клиентов.',
       buttonPrimary: 'Перейти в каталог',
       buttonSecondary: 'Связаться с нами'
@@ -234,8 +234,8 @@ const getDefaults = (): PageContent[] => [
       }
     ],
     seo: {
-      metaTitle: 'О магазине ONLYPHONES | Техника Apple в Москве',
-      metaDescription: 'ONLYPHONES — магазин оригинальной техники Apple в Москве. Гарантия, доставка, trade-in, ремонт.'
+      metaTitle: 'О магазине WEST-STORE | Техника Apple в Москве',
+      metaDescription: 'WEST-STORE — магазин оригинальной техники Apple в Москве. Гарантия, доставка, trade-in, ремонт.'
     }
   }
 ]

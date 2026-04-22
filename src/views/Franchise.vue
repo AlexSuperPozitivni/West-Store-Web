@@ -4,14 +4,14 @@ import { useSeo } from '../lib/useSeo'
 
 useSeo({
   title: 'Франшиза',
-  description: 'Франшиза ONLYPHONES — откройте магазин Apple техники. Готовая бизнес-модель, поддержка, быстрая окупаемость.'
+  description: 'Франшиза WEST-STORE — откройте магазин Apple техники. Готовая бизнес-модель, поддержка, быстрая окупаемость.'
 })
 
 const form = ref({ name: '', phone: '', city: '' })
 const submitted = ref(false)
 
 const advantages = [
-  { icon: '🏆', title: 'Узнаваемый бренд', text: 'Сильное имя и репутация ONLYPHONES привлекают клиентов с первого дня работы' },
+  { icon: '🏆', title: 'Узнаваемый бренд', text: 'Сильное имя и репутация WEST-STORE привлекают клиентов с первого дня работы' },
   { icon: '📊', title: 'Готовая бизнес-модель', text: 'Проверенная система продаж, закупок и управления — вам не нужно изобретать с нуля' },
   { icon: '🛡️', title: 'Поддержка 24/7', text: 'Персональный менеджер, помощь в запуске и операционная поддержка на каждом этапе' },
   { icon: '🚀', title: 'Быстрая окупаемость', text: 'Средний срок окупаемости — 3-6 месяцев благодаря высокой маржинальности продукции' },
@@ -62,7 +62,7 @@ onMounted(() => {
     <section class="hero">
       <div class="hero-container">
         <div class="hero-badge">Франшиза</div>
-        <h1 class="hero-title">Откройте свой<br><span class="highlight">ONLYPHONES</span></h1>
+        <h1 class="hero-title">Откройте свой<br><span class="highlight">WEST-STORE</span></h1>
         <p class="hero-subtitle">
           Запустите прибыльный бизнес по продаже Apple техники с поддержкой сильного бренда и проверенной бизнес-моделью
         </p>
@@ -76,7 +76,7 @@ onMounted(() => {
     <!-- Преимущества -->
     <section id="advantages" class="advantages animate-on-scroll">
       <div class="section-container">
-        <h2 class="section-title">Почему ONLYPHONES</h2>
+        <h2 class="section-title">Почему WEST-STORE</h2>
         <p class="section-subtitle">Преимущества франшизы, которые обеспечат ваш успех</p>
         <div class="advantages-grid">
           <div v-for="(adv, i) in advantages" :key="i" class="advantage-card" :style="{ animationDelay: i * 0.1 + 's' }">
@@ -121,7 +121,7 @@ onMounted(() => {
         <div class="form-wrapper">
           <div class="form-text">
             <h2>Хотите стать партнёром?</h2>
-            <p>Оставьте заявку — мы свяжемся с вами, расскажем подробности и ответим на все вопросы о франшизе ONLYPHONES.</p>
+            <p>Оставьте заявку — мы свяжемся с вами, расскажем подробности и ответим на все вопросы о франшизе WEST-STORE.</p>
             <div class="form-features">
               <div class="form-feature">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>

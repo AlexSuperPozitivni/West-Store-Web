@@ -253,7 +253,7 @@ watch(products, (items) => {
 watch(currentCategoryName, (name) => {
   setSeo({
     title: name !== 'гаджет' ? name : 'Каталог',
-    description: `Купить ${name} в ONLYPHONES. Лучшие цены в Москве, доставка, гарантия.`
+    description: `Купить ${name} в WEST-STORE. Лучшие цены в Москве, доставка, гарантия.`
   })
 }, { immediate: true })
 
@@ -280,15 +280,15 @@ onMounted(() => {
             <br />
             в интернет-магазине
             <br />
-            <span>Onlyphones</span>
+            <span>West-Store</span>
           </h1>
         </div>
         <div class="hero-right">
-          <p class="hero-title">Чтобы купить новый Айфон, обращайтесь в магазин Onlyphones!</p>
+          <p class="hero-title">Чтобы купить новый Айфон, обращайтесь в магазин West-Store!</p>
           <p class="hero-text">
             Мы специализируемся на устройствах Apple и предлагаем только лучшие условия.
             У нас можно купить Айфон Pro или последний Айфон, и цена будет выгодной!
-            Для клиентов Onlyphones — профессиональные консультации, фирменная гарантия, быстрая доставка.
+            Для клиентов West-Store — профессиональные консультации, фирменная гарантия, быстрая доставка.
           </p>
         </div>
       </div>

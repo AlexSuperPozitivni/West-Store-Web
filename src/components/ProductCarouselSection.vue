@@ -130,10 +130,37 @@ const shortName = (cat: ChildCategory) => {
   return name
 }
 
+const extractModelNumber = (name: string): number => {
+  const short = shortName({ id: 0, name, slug: '' })
+  const match = short.match(/\d+/)
+  return match ? parseInt(match[0], 10) : 0
+}
+
+const sortedChildCategories = computed(() => {
+  if (!props.childCategories.length) return []
+  return [...props.childCategories].sort((a, b) => {
+    const numA = extractModelNumber(a.name)
+    const numB = extractModelNumber(b.name)
+    // Both have numbers — sort descending (newest first)
+    if (numA && numB) {
+      if (numA !== numB) return numB - numA
+      // Same number — "Pro" / "Ultra" variants after base
+      const aIsPro = /pro|ultra|max/i.test(a.name)
+      const bIsPro = /pro|ultra|max/i.test(b.name)
+      if (aIsPro !== bIsPro) return aIsPro ? -1 : 1
+      return a.name.localeCompare(b.name)
+    }
+    // Items without numbers (SE, Air, etc.) go to the end
+    if (numA && !numB) return -1
+    if (!numA && numB) return 1
+    return a.name.localeCompare(b.name)
+  })
+})
+
 const visibleProducts = computed(() => {
   let items = props.products
-  if (activeSubSlug.value && props.childCategories.length) {
-    const sub = props.childCategories.find(c => c.slug === activeSubSlug.value)
+  if (activeSubSlug.value && sortedChildCategories.value.length) {
+    const sub = sortedChildCategories.value.find(c => c.slug === activeSubSlug.value)
     if (sub) items = items.filter(p => p.category_id === sub.id)
   }
   if (activeSizeFilter.value && sizeGroupName.value) {
@@ -293,8 +320,8 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <div v-if="childCategories.length > 1 || sizeFilterValues.length > 1" class="sub-tabs-row">
-      <div v-if="childCategories.length > 1" class="sub-tabs">
+    <div v-if="sortedChildCategories.length > 1 || sizeFilterValues.length > 1" class="sub-tabs-row">
+      <div v-if="sortedChildCategories.length > 1" class="sub-tabs">
         <button
           :class="['sub-tab', { active: !activeSubSlug }]"
           @click="selectSub(null)"
@@ -308,7 +335,7 @@ onUnmounted(() => {
           <span>Все</span>
         </button>
         <button
-          v-for="sub in childCategories"
+          v-for="sub in sortedChildCategories"
           :key="sub.slug"
           :class="['sub-tab', { active: activeSubSlug === sub.slug }]"
           @click="selectSub(sub.slug)"

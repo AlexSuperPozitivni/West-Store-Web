@@ -4,7 +4,7 @@ import ProductCarouselSection from '../components/ProductCarouselSection.vue'
 import { api } from '../lib/api'
 import { useSeo } from '../lib/useSeo'
 
-useSeo({ title: 'Главная', description: 'ONLYPHONES — интернет-магазин Apple техники в Москве. iPhone, MacBook, iPad, AirPods, Apple Watch по лучшим ценам.' })
+useSeo({ title: 'Главная', description: 'WEST-STORE — интернет-магазин Apple техники в Москве. iPhone, MacBook, iPad, AirPods, Apple Watch по лучшим ценам.' })
 import type { ProductVariation } from '../lib/variation'
 // ProductVariation is used in Product.variations type below
 

@@ -11,7 +11,7 @@ const activeTab = ref('contacts')
 // --- Default values ---
 const defaults = {
   contacts: {
-    storeName: 'ONLYPHONES',
+    storeName: 'WEST-STORE',
     phone: '+7 (929) 955 6487',
     phoneSecondary: '',
     email: '',
@@ -24,7 +24,7 @@ const defaults = {
   social: {
     telegram: { value: '@weststore_msk', enabled: true },
     whatsapp: { value: '+7 929 955 6487', enabled: true },
-    instagram: { value: 'https://www.instagram.com/onlyphones_ru/', enabled: true },
+    instagram: { value: 'https://www.instagram.com/west-store_ru/', enabled: true },
     avito: { value: 'https://www.avito.ru/brands/i314221442', enabled: true },
     vk: { value: '', enabled: false },
     youtube: { value: '', enabled: false }
@@ -39,7 +39,7 @@ const defaults = {
     maintenanceMode: false
   },
   seo: {
-    siteTitle: 'ONLYPHONES — Apple в Москве',
+    siteTitle: 'WEST-STORE — Apple в Москве',
     metaDescription: '',
     metaKeywords: '',
     googleAnalyticsId: '',
@@ -150,7 +150,7 @@ const tabs = [
 
       <div class="form-group">
         <label class="form-label">Название магазина</label>
-        <el-input v-model="contacts.storeName" placeholder="ONLYPHONES" />
+        <el-input v-model="contacts.storeName" placeholder="WEST-STORE" />
       </div>
 
       <div class="form-row">
@@ -167,7 +167,7 @@ const tabs = [
 
       <div class="form-group">
         <label class="form-label">Email</label>
-        <el-input v-model="contacts.email" placeholder="info@onlyphones.ru" />
+        <el-input v-model="contacts.email" placeholder="info@west-store.ru" />
       </div>
 
       <div class="form-group">
@@ -341,7 +341,7 @@ const tabs = [
 
       <div class="form-group">
         <label class="form-label">Заголовок сайта (title)</label>
-        <el-input v-model="seo.siteTitle" placeholder="ONLYPHONES — Apple в Москве" />
+        <el-input v-model="seo.siteTitle" placeholder="WEST-STORE — Apple в Москве" />
         <span class="form-hint">Отображается во вкладке браузера и в результатах поиска</span>
       </div>
 
@@ -401,7 +401,7 @@ const tabs = [
         <label class="form-label">Email для уведомлений</label>
         <el-input
           v-model="notifications.orderEmail"
-          placeholder="orders@onlyphones.ru"
+          placeholder="orders@west-store.ru"
           :disabled="!notifications.emailEnabled"
         />
       </div>

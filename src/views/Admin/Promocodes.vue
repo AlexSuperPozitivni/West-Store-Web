@@ -109,13 +109,7 @@ const fetchPromocodes = async () => {
     saveToStorage(promocodes.value)
   } catch (e: any) {
     if (handleAuthError(e)) return
-    const stored = loadFromStorage()
-    if (stored.length > 0) {
-      promocodes.value = stored
-    } else {
-      promocodes.value = demoPromocodes
-      saveToStorage(demoPromocodes)
-    }
+    promocodes.value = loadFromStorage()
   } finally {
     loading.value = false
   }

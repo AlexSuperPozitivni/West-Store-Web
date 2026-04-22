@@ -104,7 +104,7 @@ onMounted(fetchStats)
     <div class="page-header">
       <div class="header-content">
         <h2>Панель управления</h2>
-        <span class="subtitle">Обзор магазина Onlyphones</span>
+        <span class="subtitle">Обзор магазина West-Store</span>
       </div>
     </div>
 

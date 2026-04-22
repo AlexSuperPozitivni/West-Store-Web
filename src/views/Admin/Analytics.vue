@@ -12,7 +12,7 @@ const periods: { key: Period; label: string }[] = [
   { key: 'year', label: 'Год' },
 ]
 
-// --- Demo data keyed by period ---
+// --- Analytics data keyed by period (starts empty — real data will come from API) ---
 
 interface PeriodData {
   revenue: number
@@ -28,160 +28,26 @@ interface PeriodData {
   recentOrders: { id: number; date: string; amount: number; status: string }[]
 }
 
+const emptyPeriod = (labels: string[]): PeriodData => ({
+  revenue: 0, revenueDelta: 0,
+  orders: 0, ordersDelta: 0,
+  avgCheck: 0, avgCheckDelta: 0,
+  conversion: 0, conversionDelta: 0,
+  revenueChart: labels.map(label => ({ label, value: 0 })),
+  topProducts: [],
+  recentOrders: [],
+})
+
 const demoData: Record<Period, PeriodData> = {
-  week: {
-    revenue: 892_400,
-    revenueDelta: 8.3,
-    orders: 14,
-    ordersDelta: 16.7,
-    avgCheck: 63_743,
-    avgCheckDelta: -2.1,
-    conversion: 3.8,
-    conversionDelta: 0.4,
-    revenueChart: [
-      { label: 'Пн', value: 148_200 },
-      { label: 'Вт', value: 95_800 },
-      { label: 'Ср', value: 203_500 },
-      { label: 'Чт', value: 67_300 },
-      { label: 'Пт', value: 175_600 },
-      { label: 'Сб', value: 134_000 },
-      { label: 'Вс', value: 68_000 },
-    ],
-    topProducts: [
-      { name: 'iPhone 16 Pro 256GB', qty: 3, revenue: 389_700 },
-      { name: 'AirPods Pro 3', qty: 4, revenue: 99_600 },
-      { name: 'MacBook Air M4 16/512', qty: 1, revenue: 164_900 },
-      { name: 'iPhone 16 128GB', qty: 2, revenue: 139_800 },
-      { name: 'Apple Watch Ultra 2', qty: 1, revenue: 79_900 },
-      { name: 'iPad Air M3 256GB', qty: 1, revenue: 74_900 },
-      { name: 'Чехол MagSafe iPhone 16', qty: 3, revenue: 14_700 },
-      { name: 'AirPods 4', qty: 1, revenue: 17_900 },
-    ],
-    recentOrders: [
-      { id: 1087, date: '14.04.2026 15:32', amount: 129_900, status: 'Доставлен' },
-      { id: 1086, date: '14.04.2026 12:10', amount: 24_900, status: 'В пути' },
-      { id: 1085, date: '13.04.2026 18:45', amount: 164_900, status: 'Собирается' },
-      { id: 1084, date: '13.04.2026 09:20', amount: 69_900, status: 'Доставлен' },
-      { id: 1083, date: '12.04.2026 21:05', amount: 4_900, status: 'Доставлен' },
-    ],
-  },
-  month: {
-    revenue: 3_847_200,
-    revenueDelta: 12.4,
-    orders: 58,
-    ordersDelta: 9.2,
-    avgCheck: 66_331,
-    avgCheckDelta: 3.0,
-    conversion: 4.1,
-    conversionDelta: 0.6,
-    revenueChart: [
-      { label: '1 нед', value: 892_400 },
-      { label: '2 нед', value: 1_024_800 },
-      { label: '3 нед', value: 978_300 },
-      { label: '4 нед', value: 951_700 },
-    ],
-    topProducts: [
-      { name: 'iPhone 16 Pro 256GB', qty: 12, revenue: 1_558_800 },
-      { name: 'MacBook Air M4 16/512', qty: 6, revenue: 989_400 },
-      { name: 'AirPods Pro 3', qty: 14, revenue: 348_600 },
-      { name: 'iPhone 16 128GB', qty: 8, revenue: 559_200 },
-      { name: 'iPad Air M3 256GB', qty: 4, revenue: 299_600 },
-      { name: 'Apple Watch Ultra 2', qty: 3, revenue: 239_700 },
-      { name: 'MacBook Pro M4 Pro 18/512', qty: 2, revenue: 479_800 },
-      { name: 'AirPods 4', qty: 5, revenue: 89_500 },
-      { name: 'iPad Pro M4 11" 256GB', qty: 2, revenue: 199_800 },
-      { name: 'Чехол MagSafe iPhone 16', qty: 9, revenue: 44_100 },
-    ],
-    recentOrders: [
-      { id: 1087, date: '14.04.2026 15:32', amount: 129_900, status: 'Доставлен' },
-      { id: 1086, date: '14.04.2026 12:10', amount: 24_900, status: 'В пути' },
-      { id: 1085, date: '13.04.2026 18:45', amount: 164_900, status: 'Собирается' },
-      { id: 1084, date: '13.04.2026 09:20', amount: 69_900, status: 'Доставлен' },
-      { id: 1083, date: '12.04.2026 21:05', amount: 4_900, status: 'Доставлен' },
-    ],
-  },
-  quarter: {
-    revenue: 11_240_600,
-    revenueDelta: 18.7,
-    orders: 164,
-    ordersDelta: 14.5,
-    avgCheck: 68_540,
-    avgCheckDelta: 3.7,
-    conversion: 4.3,
-    conversionDelta: 0.9,
-    revenueChart: [
-      { label: 'Фев', value: 3_210_400 },
-      { label: 'Мар', value: 4_183_000 },
-      { label: 'Апр', value: 3_847_200 },
-    ],
-    topProducts: [
-      { name: 'iPhone 16 Pro 256GB', qty: 38, revenue: 4_936_200 },
-      { name: 'MacBook Air M4 16/512', qty: 18, revenue: 2_968_200 },
-      { name: 'AirPods Pro 3', qty: 42, revenue: 1_045_800 },
-      { name: 'iPhone 16 128GB', qty: 22, revenue: 1_537_800 },
-      { name: 'iPad Air M3 256GB', qty: 10, revenue: 749_000 },
-      { name: 'Apple Watch Ultra 2', qty: 8, revenue: 639_200 },
-      { name: 'MacBook Pro M4 Pro 18/512', qty: 5, revenue: 1_199_500 },
-      { name: 'AirPods 4', qty: 15, revenue: 268_500 },
-      { name: 'iPad Pro M4 11" 256GB', qty: 6, revenue: 599_400 },
-      { name: 'Чехол MagSafe iPhone 16', qty: 28, revenue: 137_200 },
-    ],
-    recentOrders: [
-      { id: 1087, date: '14.04.2026 15:32', amount: 129_900, status: 'Доставлен' },
-      { id: 1086, date: '14.04.2026 12:10', amount: 24_900, status: 'В пути' },
-      { id: 1085, date: '13.04.2026 18:45', amount: 164_900, status: 'Собирается' },
-      { id: 1084, date: '13.04.2026 09:20', amount: 69_900, status: 'Доставлен' },
-      { id: 1083, date: '12.04.2026 21:05', amount: 4_900, status: 'Доставлен' },
-    ],
-  },
-  year: {
-    revenue: 42_860_400,
-    revenueDelta: 24.1,
-    orders: 612,
-    ordersDelta: 19.8,
-    avgCheck: 70_033,
-    avgCheckDelta: 3.6,
-    conversion: 4.5,
-    conversionDelta: 1.2,
-    revenueChart: [
-      { label: 'Май', value: 2_850_000 },
-      { label: 'Июн', value: 2_640_000 },
-      { label: 'Июл', value: 2_410_000 },
-      { label: 'Авг', value: 2_980_000 },
-      { label: 'Сен', value: 3_760_000 },
-      { label: 'Окт', value: 4_120_000 },
-      { label: 'Ноя', value: 4_580_000 },
-      { label: 'Дек', value: 5_230_000 },
-      { label: 'Янв', value: 3_050_000 },
-      { label: 'Фев', value: 3_210_400 },
-      { label: 'Мар', value: 4_183_000 },
-      { label: 'Апр', value: 3_847_000 },
-    ],
-    topProducts: [
-      { name: 'iPhone 16 Pro 256GB', qty: 142, revenue: 18_437_800 },
-      { name: 'MacBook Air M4 16/512', qty: 64, revenue: 10_553_600 },
-      { name: 'AirPods Pro 3', qty: 158, revenue: 3_934_200 },
-      { name: 'iPhone 16 128GB', qty: 86, revenue: 6_011_400 },
-      { name: 'iPad Air M3 256GB', qty: 38, revenue: 2_846_200 },
-      { name: 'MacBook Pro M4 Pro 18/512', qty: 22, revenue: 5_277_800 },
-      { name: 'Apple Watch Ultra 2', qty: 30, revenue: 2_397_000 },
-      { name: 'AirPods 4', qty: 54, revenue: 966_600 },
-      { name: 'iPad Pro M4 11" 256GB', qty: 18, revenue: 1_798_200 },
-      { name: 'Чехол MagSafe iPhone 16', qty: 96, revenue: 470_400 },
-    ],
-    recentOrders: [
-      { id: 1087, date: '14.04.2026 15:32', amount: 129_900, status: 'Доставлен' },
-      { id: 1086, date: '14.04.2026 12:10', amount: 24_900, status: 'В пути' },
-      { id: 1085, date: '13.04.2026 18:45', amount: 164_900, status: 'Собирается' },
-      { id: 1084, date: '13.04.2026 09:20', amount: 69_900, status: 'Доставлен' },
-      { id: 1083, date: '12.04.2026 21:05', amount: 4_900, status: 'Доставлен' },
-    ],
-  },
+  week: emptyPeriod(['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']),
+  month: emptyPeriod(['1 нед', '2 нед', '3 нед', '4 нед']),
+  quarter: emptyPeriod(['Фев', 'Мар', 'Апр']),
+  year: emptyPeriod(['Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек', 'Янв', 'Фев', 'Мар', 'Апр']),
 }
 
 const currentData = computed(() => demoData[activePeriod.value])
 
-const maxRevenue = computed(() => Math.max(...currentData.value.revenueChart.map(d => d.value)))
+const maxRevenue = computed(() => Math.max(1, ...currentData.value.revenueChart.map(d => d.value)))
 
 const maxProductRevenue = computed(() => {
   const products = currentData.value.topProducts
@@ -249,7 +115,7 @@ const statusColor = (s: string): string => {
     <div class="page-header">
       <div class="header-content">
         <h2>Аналитика продаж</h2>
-        <span class="subtitle">Демо-данные Onlyphones</span>
+        <span class="subtitle">Статистика магазина West-Store</span>
       </div>
       <div class="period-selector">
         <button

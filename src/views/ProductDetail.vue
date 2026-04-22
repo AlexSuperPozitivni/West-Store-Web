@@ -187,7 +187,7 @@ const fetchProduct = async () => {
     if (product.value) {
       setSeo({
         title: product.value.name,
-        description: `${product.value.name} — купить в ONLYPHONES за ${Number(product.value.price).toLocaleString('ru-RU')} ₽. Доставка по Москве.`,
+        description: `${product.value.name} — купить в WEST-STORE за ${Number(product.value.price).toLocaleString('ru-RU')} ₽. Доставка по Москве.`,
       })
     }
     selectedAttributes.value = {}

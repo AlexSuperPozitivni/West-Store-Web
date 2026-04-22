@@ -4,7 +4,7 @@ import { useSeo } from '../lib/useSeo'
 
 useSeo({
   title: 'Блог',
-  description: 'Блог магазина ONLYPHONES — обзоры Apple техники, гайды по выбору, сравнения и полезные советы.'
+  description: 'Блог магазина WEST-STORE — обзоры Apple техники, гайды по выбору, сравнения и полезные советы.'
 })
 
 const posts = [
@@ -83,7 +83,7 @@ onMounted(() => {
         <div class="hero-badge">Блог</div>
         <h1 class="hero-title">Новости и статьи</h1>
         <p class="hero-subtitle">
-          Обзоры Apple техники, гайды по выбору, сравнения устройств и полезные советы от экспертов ONLYPHONES
+          Обзоры Apple техники, гайды по выбору, сравнения устройств и полезные советы от экспертов WEST-STORE
         </p>
       </div>
     </section>
