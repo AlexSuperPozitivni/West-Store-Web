@@ -365,8 +365,8 @@ watch(() => router.currentRoute.value.path, () => {
 }
 
 .logo-img {
-  height: 64px;
-  width: auto;
+  height: 70px;
+  width: 180px;
   object-fit: contain;
   display: block;
   transition: transform 0.2s ease;
