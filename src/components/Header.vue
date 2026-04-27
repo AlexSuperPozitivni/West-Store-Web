@@ -209,10 +209,7 @@ watch(() => router.currentRoute.value.path, () => {
         </button>
 
         <RouterLink to="/" class="logo" @click="closeMenu">
-          <span class="logo-wrap">
-            <img src="/logo.jpg" alt="" class="logo-splash" />
-            <span class="logo-text">WEST-STORE</span>
-          </span>
+          <img src="/logo.png" alt="WEST-STORE" class="logo-img" />
         </RouterLink>
 
         <div class="header-right">
@@ -367,44 +364,16 @@ watch(() => router.currentRoute.value.path, () => {
   transform: translateX(-50%);
 }
 
-.logo-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.logo-splash {
-  position: absolute;
-  height: 72px;
-  width: 72px;
+.logo-img {
+  height: 64px;
+  width: auto;
   object-fit: contain;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  opacity: 0.9;
-  pointer-events: none;
-  z-index: 0;
+  display: block;
+  transition: transform 0.2s ease;
 }
 
-.logo-text {
-  position: relative;
-  z-index: 1;
-  font-family: 'Impact', 'Arial Narrow', 'Helvetica Neue', sans-serif;
-  font-size: 26px;
-  font-weight: 900;
-  font-style: italic;
-  letter-spacing: 2px;
-  color: #fff;
-  text-transform: uppercase;
-  transform: skewX(-5deg);
-  text-shadow:
-    -1px -1px 0 #1a1a1a,
-    1px -1px 0 #1a1a1a,
-    -1px 1px 0 #1a1a1a,
-    2px 2px 0 #1a1a1a,
-    0 0 6px rgba(0,0,0,0.5);
-  padding: 0 4px;
+.logo:hover .logo-img {
+  transform: scale(1.05);
 }
 
 .header-right {
