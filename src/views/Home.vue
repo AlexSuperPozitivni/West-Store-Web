@@ -1067,9 +1067,18 @@ watch(contactModalOpen, (isOpen) => {
   background: rgba(255, 255, 255, 0.35);
   cursor: pointer;
   transition: background 0.3s ease, width 0.3s ease;
-  padding: 16px 0;
-  background-clip: content-box;
-  box-shadow: none;
+  padding: 0;
+  position: relative;
+  box-shadow: 0 0 4px rgba(0,0,0,0.3);
+}
+
+.slider-dot::before {
+  content: '';
+  position: absolute;
+  top: -18px;
+  bottom: -18px;
+  left: -4px;
+  right: -4px;
 }
 
 .slider-dot.active {
