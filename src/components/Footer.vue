@@ -440,7 +440,7 @@ const storeLinks = [
 
 @media (max-width: 768px) {
   .footer {
-    padding: 40px 0 80px;
+    padding: 40px 0 calc(80px + env(safe-area-inset-bottom));
   }
 
   .footer-grid {

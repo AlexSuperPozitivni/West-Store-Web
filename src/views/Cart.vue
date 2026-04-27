@@ -499,7 +499,7 @@ onMounted(() => {
   border: 1.5px solid #e5e7eb;
   border-radius: 9999px;
   padding: 14px 20px;
-  font-size: 15px;
+  font-size: 16px;
   font-family: 'Inter', sans-serif;
   color: #111827;
   outline: none;

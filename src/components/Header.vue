@@ -697,14 +697,24 @@ watch(() => router.currentRoute.value.path, () => {
     display: none !important;
   }
 
+  .header-inner {
+    height: 80px;
+    padding: 0 16px;
+  }
+
+  .logo-img {
+    height: 70px;
+  }
+
   .mega-menu {
     position: fixed;
-    top: 100px;
+    top: 80px;
     left: 0;
     width: 100%;
-    height: calc(100vh - 100px);
+    height: calc(100dvh - 80px);
     max-height: none;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     border-top: 1px solid var(--border-color);
   }
 

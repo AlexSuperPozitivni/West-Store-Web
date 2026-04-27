@@ -683,6 +683,7 @@ onUnmounted(() => {
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
   padding-bottom: 20px;
 }
 

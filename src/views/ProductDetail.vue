@@ -746,6 +746,10 @@ watch(() => route.params.slug, () => {
     grid-template-columns: 1fr;
   }
 
+  .desc-text {
+    padding: 0 16px 10px;
+  }
+
   .specs-header {
     padding: 24px 28px;
   }
