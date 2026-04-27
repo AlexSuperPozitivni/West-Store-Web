@@ -329,7 +329,7 @@ watch(() => router.currentRoute.value.path, () => {
 .header-inner {
   max-width: 1400px;
   margin: 0 auto;
-  height: 80px;
+  height: 100px;
   padding: 0 32px;
   display: flex;
   align-items: center;
@@ -365,10 +365,11 @@ watch(() => router.currentRoute.value.path, () => {
 }
 
 .logo-img {
-  height: 70px;
-  width: 180px;
+  height: 90px;
+  width: auto;
   object-fit: contain;
   display: block;
+  border-radius: 12px;
   transition: transform 0.2s ease;
 }
 
@@ -489,14 +490,14 @@ watch(() => router.currentRoute.value.path, () => {
 /* ===== Mega Menu ===== */
 .mega-menu {
   position: absolute;
-  top: 80px;
+  top: 100px;
   left: 0;
   width: 100%;
   background: var(--bg-white);
   border-top: 1px solid var(--border-color);
   box-shadow: 0 20px 60px rgba(0,0,0,0.1);
   z-index: 999;
-  max-height: calc(100vh - 80px);
+  max-height: calc(100vh - 100px);
   overflow-y: auto;
 }
 
@@ -698,10 +699,10 @@ watch(() => router.currentRoute.value.path, () => {
 
   .mega-menu {
     position: fixed;
-    top: 80px;
+    top: 100px;
     left: 0;
     width: 100%;
-    height: calc(100vh - 80px);
+    height: calc(100vh - 100px);
     max-height: none;
     overflow-y: auto;
     border-top: 1px solid var(--border-color);
