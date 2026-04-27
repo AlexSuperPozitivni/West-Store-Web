@@ -273,6 +273,16 @@ const selectAttribute = (productId: number, name: string, value: string) => {
   selectedAttributes.value[productId][name] = value
 }
 
+const getProductSubtitle = (product: Product): string | null => {
+  if (!product.attributes) return null
+  for (const attr of product.attributes) {
+    if (isSizeGroup(attr.name) && attr.pivot?.value) {
+      return attr.pivot.value
+    }
+  }
+  return null
+}
+
 const getProductState = (product: Product) => {
   const selected = selectedAttributes.value[product.id] || {}
   return resolveProductState(product, selected)
@@ -406,6 +416,9 @@ onUnmounted(() => {
             {{ product.name }}
           </RouterLink>
         </div>
+        <p v-if="getProductSubtitle(product)" class="product-subtitle">
+          {{ getProductSubtitle(product) }}
+        </p>
 
         <RouterLink :to="`/product/${product.slug}`" class="card-image-wrap">
           <img :src="getImageUrl(getProductState(product).variation?.image || product.image_main)" :alt="product.name" class="card-image" loading="lazy">
@@ -422,19 +435,7 @@ onUnmounted(() => {
                 <span :style="resolveColorStyle(val)"></span>
               </button>
             </div>
-            <div v-else-if="isSizeGroup(group.name)" class="size-select-wrap">
-              <select
-                class="size-select"
-                :value="selectedAttributes[product.id]?.[group.name] || group.values[0]"
-                @change="selectAttribute(product.id, group.name, ($event.target as HTMLSelectElement).value)"
-              >
-                <option v-for="val in group.values" :key="val" :value="val">{{ val }}</option>
-              </select>
-              <svg class="size-select-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-            <div v-else class="pill-options">
+            <div v-else-if="!isSizeGroup(group.name)" class="pill-options">
               <button
                 v-for="val in group.values" :key="val"
                 :class="['attr-pill', { active: selectedAttributes[product.id]?.[group.name] === val }]"
@@ -802,43 +803,11 @@ onUnmounted(() => {
   box-shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
 
-.size-select-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.size-select {
-  width: 100%;
-  padding: 9px 32px 9px 14px;
-  border-radius: 10px;
-  border: 1.5px solid #e0dcd8;
-  background: #f8f6f4;
+.product-subtitle {
   font-size: 13px;
-  font-weight: 500;
-  color: #333;
-  cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
-  font-family: inherit;
-  transition: border-color 0.15s, box-shadow 0.15s;
-}
-
-.size-select:hover {
-  border-color: #c0bbb5;
-}
-
-.size-select:focus {
-  outline: none;
-  border-color: var(--accent-blue, #2563eb);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-}
-
-.size-select-arrow {
-  position: absolute;
-  right: 10px;
-  pointer-events: none;
-  color: #999;
+  color: #888;
+  margin: -4px 0 4px;
+  padding-left: 24px;
 }
 
 .color-options {
