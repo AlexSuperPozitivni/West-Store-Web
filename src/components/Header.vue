@@ -209,7 +209,7 @@ watch(() => router.currentRoute.value.path, () => {
         </button>
 
         <RouterLink to="/" class="logo" @click="closeMenu">
-          <img src="/logo.svg" alt="WEST-STORE" class="logo-img" />
+          <img src="/logo_new.png" alt="WEST-STORE" class="logo-img" />
         </RouterLink>
 
         <div class="header-right">
