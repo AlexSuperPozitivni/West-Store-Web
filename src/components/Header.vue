@@ -209,7 +209,7 @@ watch(() => router.currentRoute.value.path, () => {
         </button>
 
         <RouterLink to="/" class="logo" @click="closeMenu">
-          <img src="/logo.png" alt="WEST-STORE" class="logo-img" />
+          <img src="/logo.svg" alt="WEST-STORE" class="logo-img" />
         </RouterLink>
 
         <div class="header-right">
@@ -369,8 +369,8 @@ watch(() => router.currentRoute.value.path, () => {
   width: auto;
   object-fit: contain;
   display: block;
-  border-radius: 12px;
   transition: transform 0.2s ease;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15));
 }
 
 .logo:hover .logo-img {
