@@ -50,9 +50,13 @@ const props = withDefaults(defineProps<{
   products: Product[]
   childCategories?: ChildCategory[]
   limit?: number
+  hideSize?: boolean
+  sortByPriceDesc?: boolean
 }>(), {
   limit: 14,
-  childCategories: () => []
+  childCategories: () => [],
+  hideSize: false,
+  sortByPriceDesc: false,
 })
 
 const STORAGE_URL = import.meta.env.VITE_STORAGE_URL || (typeof window !== 'undefined' ? window.location.origin + '/storage' : '/storage')
@@ -163,13 +167,16 @@ const visibleProducts = computed(() => {
     const sub = sortedChildCategories.value.find(c => c.slug === activeSubSlug.value)
     if (sub) items = items.filter(p => p.category_id === sub.id)
   }
-  if (activeSizeFilter.value && sizeGroupName.value) {
+  if (!props.hideSize && activeSizeFilter.value && sizeGroupName.value) {
     items = items.filter(p => {
       if (!p.attributes) return false
       return p.attributes.some(attr =>
         isSizeGroup(attr.name) && attr.pivot?.value === activeSizeFilter.value
       )
     })
+  }
+  if (props.sortByPriceDesc) {
+    return [...items].sort((a, b) => b.price - a.price)
   }
   return [...items].sort((a, b) => {
     const getModelInfo = (name: string) => {
@@ -361,7 +368,7 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <div v-if="sortedChildCategories.length > 1 || sizeFilterValues.length > 1" class="sub-tabs-row">
+    <div v-if="sortedChildCategories.length > 1 || (!hideSize && sizeFilterValues.length > 1)" class="sub-tabs-row">
       <div v-if="sortedChildCategories.length > 1" class="sub-tabs">
         <button
           :class="['sub-tab', { active: !activeSubSlug }]"
@@ -388,7 +395,7 @@ onUnmounted(() => {
         </button>
       </div>
 
-      <div v-if="sizeFilterValues.length > 1" class="size-filters">
+      <div v-if="!hideSize && sizeFilterValues.length > 1" class="size-filters">
         <button
           :class="['size-pill', { active: !activeSizeFilter }]"
           @click="activeSizeFilter = null; nextTick(() => { if (trackRef) trackRef.scrollTo({ left: 0, behavior: 'smooth' }); checkScroll() })"
@@ -416,7 +423,7 @@ onUnmounted(() => {
             {{ product.name }}
           </RouterLink>
         </div>
-        <p v-if="getProductSubtitle(product)" class="product-subtitle">
+        <p v-if="!hideSize && getProductSubtitle(product)" class="product-subtitle">
           {{ getProductSubtitle(product) }}
         </p>
 

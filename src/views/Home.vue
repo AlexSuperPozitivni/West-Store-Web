@@ -275,6 +275,8 @@ const primarySections = computed(() => [
     viewAllText: 'Посмотреть все часы',
     viewAllLink: '/catalog/watch',
     slugs: ['watch'],
+    hideSize: true,
+    sortByPriceDesc: true,
   },
   {
     key: 'macbook',
@@ -677,6 +679,8 @@ watch(contactModalOpen, (isOpen) => {
       :view-all-link="section.viewAllLink"
       :products="section.products"
       :child-categories="section.childCategories"
+      :hide-size="section.hideSize || false"
+      :sort-by-price-desc="section.sortByPriceDesc || false"
     />
 
     <ProductCarouselSection
