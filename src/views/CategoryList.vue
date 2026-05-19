@@ -660,11 +660,12 @@ onMounted(() => {
 }
 
 .card-title {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 700;
   margin: 0;
   color: #111827;
-  line-height: 1.3;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
 }
 
 .stock-buy-row {
