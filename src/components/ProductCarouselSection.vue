@@ -114,9 +114,17 @@ const isSizeGroup = (name: string) => {
   return n.includes('размер') || n.includes('size') || n.includes('диагональ')
 }
 
+const subFilteredProducts = computed(() => {
+  if (!activeSubSlug.value || !sortedChildCategories.value.length) return props.products
+  const sub = sortedChildCategories.value.find(c => c.slug === activeSubSlug.value)
+  if (!sub) return props.products
+  return props.products.filter(p => p.category_id === sub.id)
+})
+
 const sizeFilterValues = computed(() => {
+  if (!activeSubSlug.value) return []
   const sizes = new Set<string>()
-  for (const product of props.products) {
+  for (const product of subFilteredProducts.value) {
     if (!product.attributes) continue
     for (const attr of product.attributes) {
       const val = attr.pivot?.value
@@ -125,6 +133,7 @@ const sizeFilterValues = computed(() => {
       }
     }
   }
+  if (sizes.size <= 1) return []
   return Array.from(sizes).sort((a, b) => {
     const numA = parseFloat(a)
     const numB = parseFloat(b)
@@ -235,6 +244,7 @@ const visibleProducts = computed(() => {
 
 const selectSub = (slug: string | null) => {
   activeSubSlug.value = slug
+  activeSizeFilter.value = null
   nextTick(() => {
     if (trackRef.value) trackRef.value.scrollTo({ left: 0, behavior: 'smooth' })
     checkScroll()
@@ -405,8 +415,8 @@ onUnmounted(() => {
       </div>
     </RouterLink>
 
-    <div v-if="sortedChildCategories.length > 1 || (!hideSize && sizeFilterValues.length > 1)" class="sub-tabs-row">
-      <div v-if="sortedChildCategories.length > 1" class="sub-tabs">
+    <div v-if="sortedChildCategories.length > 1" class="sub-tabs-row">
+      <div class="sub-tabs">
         <button
           :class="['sub-tab', { active: !activeSubSlug }]"
           @click="selectSub(null)"
@@ -431,8 +441,10 @@ onUnmounted(() => {
           <span>{{ shortName(sub) }}</span>
         </button>
       </div>
+    </div>
 
-      <div v-if="!hideSize && sizeFilterValues.length > 1" class="size-filters">
+    <div v-if="!hideSize && sizeFilterValues.length > 0" class="size-filters-row">
+      <div class="size-filters">
         <button
           :class="['size-pill', { active: !activeSizeFilter }]"
           @click="activeSizeFilter = null; nextTick(() => { if (trackRef) trackRef.scrollTo({ left: 0, behavior: 'smooth' }); checkScroll() })"
@@ -540,8 +552,12 @@ onUnmounted(() => {
   flex-shrink: 0;
 }
 
+.size-filters-row {
+  margin-bottom: 20px;
+}
+
 .size-filters {
-  display: flex;
+  display: inline-flex;
   gap: 0;
   background: #f0ece8;
   border-radius: 16px;
