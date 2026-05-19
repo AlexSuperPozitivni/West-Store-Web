@@ -22,6 +22,7 @@ import {
   Ticket,
   Notebook,
   ChatDotRound,
+  ChatRound,
   Upload,
   Setting
 } from '@element-plus/icons-vue'
@@ -76,6 +77,7 @@ const menuItems = [
           { name: 'Импорт/Экспорт', path: '/admin/import' }
         ]
       },
+      { name: 'Отзывы', icon: ChatRound, path: '/admin/reviews', submenu: null },
       { name: 'Промокоды', icon: Ticket, path: '/admin/promocodes', submenu: null },
       { name: 'Слайдеры', icon: PictureFilled, path: '/admin/sliders', submenu: null },
       { name: 'Страницы', icon: Notebook, path: '/admin/pages', submenu: null },

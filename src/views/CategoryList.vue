@@ -56,6 +56,12 @@ const categories = ref<Category[]>([])
 const loading = ref(false)
 const selectedAttributes = ref<Record<number, Record<string, string>>>({})
 
+const sortOption = ref('default')
+const filterInStock = ref(false)
+const filterPriceMin = ref<number | null>(null)
+const filterPriceMax = ref<number | null>(null)
+const filtersOpen = ref(false)
+
 const STORAGE_URL = import.meta.env.VITE_STORAGE_URL || (typeof window !== 'undefined' ? window.location.origin + '/storage' : '/storage')
 
 const { addItem, loadCart } = useCart()
@@ -223,8 +229,44 @@ const visibleProducts = computed(() => {
     }
   }
 
+  if (filterInStock.value) {
+    list = list.filter(p => p.in_stock)
+  }
+
+  if (filterPriceMin.value !== null && filterPriceMin.value > 0) {
+    list = list.filter(p => p.price >= filterPriceMin.value!)
+  }
+
+  if (filterPriceMax.value !== null && filterPriceMax.value > 0) {
+    list = list.filter(p => p.price <= filterPriceMax.value!)
+  }
+
+  if (sortOption.value === 'price-asc') {
+    list = [...list].sort((a, b) => a.price - b.price)
+  } else if (sortOption.value === 'price-desc') {
+    list = [...list].sort((a, b) => b.price - a.price)
+  } else if (sortOption.value === 'name') {
+    list = [...list].sort((a, b) => a.name.localeCompare(b.name, 'ru'))
+  } else if (sortOption.value === 'in-stock') {
+    list = [...list].sort((a, b) => (b.in_stock ? 1 : 0) - (a.in_stock ? 1 : 0))
+  }
+
   return list
 })
+
+const resetFilters = () => {
+  sortOption.value = 'default'
+  filterInStock.value = false
+  filterPriceMin.value = null
+  filterPriceMax.value = null
+}
+
+const hasActiveFilters = computed(() =>
+  filterInStock.value ||
+  (filterPriceMin.value !== null && filterPriceMin.value > 0) ||
+  (filterPriceMax.value !== null && filterPriceMax.value > 0) ||
+  sortOption.value !== 'default'
+)
 
 const ensureDefaults = (items: Product[]) => {
   items.forEach((product) => {
@@ -325,6 +367,63 @@ onMounted(() => {
           {{ cat.name }}
         </RouterLink>
       </div>
+
+      <div class="filter-bar">
+        <button class="filter-toggle" @click="filtersOpen = !filtersOpen">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21V14M4 10V3M12 21V12M12 8V3M20 21V16M20 12V3M1 14h6M9 8h6M17 16h6" stroke-linecap="round"/></svg>
+          Фильтры
+          <span v-if="hasActiveFilters" class="filter-badge"></span>
+        </button>
+
+        <div class="sort-wrap">
+          <select v-model="sortOption" class="sort-select">
+            <option value="default">По умолчанию</option>
+            <option value="price-asc">Сначала дешевле</option>
+            <option value="price-desc">Сначала дороже</option>
+            <option value="name">По названию</option>
+            <option value="in-stock">По наличию</option>
+          </select>
+        </div>
+
+        <span class="results-count">{{ visibleProducts.length }} товаров</span>
+      </div>
+
+      <Transition name="filters-slide">
+        <div v-if="filtersOpen" class="filters-panel">
+          <div class="filter-group">
+            <span class="filter-label">Цена, ₽</span>
+            <div class="price-inputs">
+              <input
+                v-model.number="filterPriceMin"
+                type="number"
+                placeholder="От"
+                min="0"
+                class="price-input"
+              />
+              <span class="price-dash">—</span>
+              <input
+                v-model.number="filterPriceMax"
+                type="number"
+                placeholder="До"
+                min="0"
+                class="price-input"
+              />
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <label class="checkbox-label">
+              <input type="checkbox" v-model="filterInStock" class="filter-checkbox" />
+              <span class="checkbox-custom"></span>
+              Только в наличии
+            </label>
+          </div>
+
+          <button v-if="hasActiveFilters" class="reset-btn" @click="resetFilters">
+            Сбросить фильтры
+          </button>
+        </div>
+      </Transition>
 
       <div v-loading="loading" class="catalog-list">
         <div v-for="product in visibleProducts" :key="product.id" class="catalog-card">
@@ -734,6 +833,207 @@ onMounted(() => {
 }
 
 
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.filter-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.filter-toggle:hover {
+  border-color: #111827;
+}
+
+.filter-badge {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #a855f7;
+  position: absolute;
+  top: 8px;
+  right: 10px;
+}
+
+.sort-wrap {
+  position: relative;
+}
+
+.sort-select {
+  padding: 10px 36px 10px 16px;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23666' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  transition: border-color 0.2s;
+}
+
+.sort-select:hover {
+  border-color: #111827;
+}
+
+.results-count {
+  font-size: 13px;
+  color: #9ca3af;
+  margin-left: auto;
+}
+
+.filters-slide-enter-active,
+.filters-slide-leave-active {
+  transition: all 0.25s ease;
+  overflow: hidden;
+}
+
+.filters-slide-enter-from,
+.filters-slide-leave-to {
+  opacity: 0;
+  max-height: 0;
+  margin-bottom: 0;
+}
+
+.filters-slide-enter-to,
+.filters-slide-leave-from {
+  opacity: 1;
+  max-height: 200px;
+}
+
+.filters-panel {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  background: #ffffff;
+  padding: 20px 24px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-label {
+  font-size: 13px;
+  color: #9ca3af;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.price-inputs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.price-input {
+  width: 110px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  font-size: 14px;
+  color: #111827;
+  background: #fafafa;
+  transition: border-color 0.2s;
+}
+
+.price-input:focus {
+  outline: none;
+  border-color: #a855f7;
+}
+
+.price-input::placeholder {
+  color: #c0c0c0;
+}
+
+.price-dash {
+  color: #d1d5db;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #111827;
+  cursor: pointer;
+  user-select: none;
+}
+
+.filter-checkbox {
+  display: none;
+}
+
+.checkbox-custom {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 2px solid #d1d5db;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.filter-checkbox:checked + .checkbox-custom {
+  background: #a855f7;
+  border-color: #a855f7;
+}
+
+.filter-checkbox:checked + .checkbox-custom::after {
+  content: '';
+  width: 6px;
+  height: 10px;
+  border: 2px solid #fff;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg) translateY(-1px);
+}
+
+.reset-btn {
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: none;
+  background: #f3f4f6;
+  font-size: 13px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-left: auto;
+}
+
+.reset-btn:hover {
+  background: #e5e7eb;
+  color: #111827;
+}
+
 .empty-state {
   text-align: center;
   padding: 60px 20px;
@@ -761,6 +1061,42 @@ onMounted(() => {
 
   .hero-left h1 {
     font-size: 24px;
+  }
+
+  .filter-bar {
+    gap: 10px;
+  }
+
+  .filters-panel {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .filter-group {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .price-input {
+    width: 100%;
+    flex: 1;
+  }
+
+  .price-inputs {
+    width: 100%;
+  }
+
+  .reset-btn {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .results-count {
+    display: none;
   }
 
   .category-tabs {
