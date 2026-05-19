@@ -108,7 +108,6 @@ const toCategorySlug = (segment: string) => {
     aksessuary: 'accessories',
     accessories: 'accessories',
     'apple-tv': 'apple-tv',
-    'apple-vision': 'apple-vision',
     noutbuki: 'noutbuki'
   }
   return aliases[key] || key
@@ -968,7 +967,7 @@ watch(contactModalOpen, (isOpen) => {
   position: relative;
   color: inherit;
   text-decoration: none;
-  height: 480px;
+  height: 580px;
   overflow: hidden;
 }
 
@@ -1129,7 +1128,7 @@ watch(contactModalOpen, (isOpen) => {
   }
 
   .slide-link {
-    height: 400px;
+    height: 500px;
   }
 
   .slide-content {
@@ -1203,7 +1202,7 @@ watch(contactModalOpen, (isOpen) => {
   }
 
   .slide-link {
-    height: 300px;
+    height: 400px;
   }
 
   .slide-content {

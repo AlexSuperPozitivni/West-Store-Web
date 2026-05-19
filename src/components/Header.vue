@@ -88,7 +88,6 @@ const categories: NavCategory[] = [
     ]
   },
   { label: 'Apple TV', path: '/catalog/apple-tv' },
-  { label: 'Apple Vision', path: '/catalog/apple-vision' },
   { label: 'DJI', path: '/catalog/dji' },
   {
     label: 'Аксессуары', path: '/catalog/accessories',
@@ -210,6 +209,7 @@ watch(() => router.currentRoute.value.path, () => {
 
         <RouterLink to="/" class="logo" @click="closeMenu">
           <img src="/logo_new.png" alt="WEST-STORE" class="logo-img" />
+          <span class="logo-text">WEST-STORE</span>
         </RouterLink>
 
         <div class="header-right">
@@ -375,6 +375,16 @@ watch(() => router.currentRoute.value.path, () => {
 
 .logo:hover .logo-img {
   transform: scale(1.05);
+}
+
+.logo-text {
+  font-size: 22px;
+  font-weight: 800;
+  color: #1a1a1a;
+  letter-spacing: 1.5px;
+  white-space: nowrap;
+  text-transform: uppercase;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .header-right {
@@ -704,6 +714,10 @@ watch(() => router.currentRoute.value.path, () => {
 
   .logo-img {
     height: 70px;
+  }
+
+  .logo-text {
+    display: none;
   }
 
   .mega-menu {
