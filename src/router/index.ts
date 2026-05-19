@@ -27,7 +27,6 @@ import Pages from '../views/Admin/Pages.vue'
 import Requests from '../views/Admin/Requests.vue'
 import Import from '../views/Admin/Import.vue'
 import Settings from '../views/Admin/Settings.vue'
-import Reviews from '../views/Admin/Reviews.vue'
 
 const routes = [
   // Публичные маршруты
@@ -64,7 +63,6 @@ const routes = [
   { path: '/admin/requests', name: 'Requests', component: Requests, meta: { requiresAuth: true } },
   { path: '/admin/import', name: 'Import', component: Import, meta: { requiresAuth: true } },
   { path: '/admin/settings', name: 'Settings', component: Settings, meta: { requiresAuth: true } },
-  { path: '/admin/reviews', name: 'Reviews', component: Reviews, meta: { requiresAuth: true } },
 
   // 404
   { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound }
