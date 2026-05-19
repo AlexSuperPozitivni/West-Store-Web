@@ -87,7 +87,7 @@ const categories: NavCategory[] = [
       { label: 'Watch Hermès', path: '/catalog/watch-hermes' },
     ]
   },
-  { label: 'Apple TV', path: '/catalog/apple-tv' },
+  { label: 'Apple TV', path: '/catalog/tv' },
   { label: 'DJI', path: '/catalog/dji' },
   {
     label: 'Аксессуары', path: '/catalog/accessories',
@@ -359,18 +359,19 @@ watch(() => router.currentRoute.value.path, () => {
   text-decoration: none;
   display: flex;
   align-items: center;
+  gap: 10px;
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
 }
 
 .logo-img {
-  height: 90px;
+  height: 56px;
   width: auto;
   object-fit: contain;
   display: block;
   transition: transform 0.2s ease;
-  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15));
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.12));
 }
 
 .logo:hover .logo-img {
@@ -378,13 +379,14 @@ watch(() => router.currentRoute.value.path, () => {
 }
 
 .logo-text {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 800;
   color: #1a1a1a;
-  letter-spacing: 1.5px;
+  letter-spacing: 1.2px;
   white-space: nowrap;
   text-transform: uppercase;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.1;
 }
 
 .header-right {

@@ -107,7 +107,7 @@ const toCategorySlug = (segment: string) => {
     'apple-watch': 'watch',
     aksessuary: 'accessories',
     accessories: 'accessories',
-    'apple-tv': 'apple-tv',
+    'apple-tv': 'tv',
     noutbuki: 'noutbuki'
   }
   return aliases[key] || key
