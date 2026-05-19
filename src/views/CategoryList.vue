@@ -428,7 +428,6 @@ onMounted(() => {
         <div v-for="product in visibleProducts" :key="product.id" class="catalog-card">
           <div class="card-media">
             <img :src="getImageUrl(getProductImage(product))" :alt="product.name" />
-            <RouterLink :to="`/product/${product.slug}`" class="card-more">Подробнее</RouterLink>
           </div>
 
           <div class="card-info">
@@ -469,26 +468,24 @@ onMounted(() => {
               </div>
             </template>
 
-            <div class="stock-row">
-              <span :class="['stock-dot', { 'in-stock': getProductState(product).inStock }]">
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </span>
-              <span class="stock-text">{{ getProductState(product).inStock ? 'В наличии' : (getProductState(product).isPreorder ? 'Предзаказ' : 'Нет в наличии') }}</span>
+            <div class="stock-buy-row">
+              <span class="stock-label-inline">{{ getProductState(product).inStock ? 'В наличии' : (getProductState(product).isPreorder ? 'Предзаказ' : 'Нет в наличии') }}</span>
+              <button
+                class="add-cart-btn"
+                type="button"
+                :disabled="!getProductState(product).canBuy"
+                @click="addToCart(product)"
+              >
+                <span class="btn-price">{{ Number(getProductState(product).price).toLocaleString('ru-RU') }} ₽</span>
+                <span class="btn-text">{{
+                  getProductState(product).isPreorder && !getProductState(product).inStock
+                    ? 'Предзаказ'
+                    : (getProductState(product).canBuy ? 'В корзину' : 'Нет в наличии')
+                }}</span>
+              </button>
             </div>
 
-            <button
-              class="add-cart-btn"
-              type="button"
-              :disabled="!getProductState(product).canBuy"
-              @click="addToCart(product)"
-            >
-              <span class="btn-price">{{ Number(getProductState(product).price).toLocaleString('ru-RU') }} ₽</span>
-              <span class="btn-text">{{
-                getProductState(product).isPreorder && !getProductState(product).inStock
-                  ? 'Предзаказ'
-                  : (getProductState(product).canBuy ? 'В корзину' : 'Нет в наличии')
-              }}</span>
-            </button>
+            <RouterLink :to="`/product/${product.slug}`" class="card-more">Подробнее</RouterLink>
           </div>
         </div>
 
@@ -629,86 +626,66 @@ onMounted(() => {
 }
 
 .catalog-card {
-  background: #ffffff;
+  background: #f9fafb;
   border-radius: 28px;
-  padding: 28px 32px;
+  padding: 40px;
   display: grid;
-  grid-template-columns: 260px 1fr;
-  gap: 32px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  grid-template-columns: 340px 1fr;
+  gap: 40px;
   transition: box-shadow 0.2s;
 }
 
 .catalog-card:hover {
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
 }
 
 .card-media {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
 }
 
 .card-media img {
   width: 100%;
-  max-width: 240px;
+  max-width: 300px;
   aspect-ratio: 1;
   object-fit: contain;
-}
-
-.card-more {
-  color: var(--accent-blue);
-  font-size: 13px;
-  text-decoration: none;
 }
 
 .card-info {
   display: flex;
   flex-direction: column;
   gap: 16px;
-}
-
-.card-title {
-  font-size: 22px;
-  font-weight: 700;
-  margin: 0;
-  color: #111827;
-}
-
-.stock-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.stock-dot {
-  flex-shrink: 0;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #d1d5db;
-  color: #fff;
-  display: flex;
-  align-items: center;
   justify-content: center;
 }
 
-.stock-dot.in-stock {
-  background: #22c55e;
+.card-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+  color: #111827;
+  line-height: 1.3;
 }
 
-.stock-text {
+.stock-buy-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.stock-label-inline {
   font-size: 14px;
   font-weight: 500;
-  color: #22c55e;
+  color: #6b7280;
+  white-space: nowrap;
 }
 
 .add-cart-btn {
   background: linear-gradient(90deg, #43e0f0 0%, #a855f7 100%);
   color: #fff;
   border: none;
-  padding: 16px 24px;
+  padding: 14px 28px;
   border-radius: 9999px;
   font-weight: 600;
   cursor: pointer;
@@ -718,7 +695,8 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   gap: 20px;
-  width: 100%;
+  flex: 1;
+  max-width: 400px;
 }
 
 .add-cart-btn:hover:not(:disabled) {
@@ -733,6 +711,14 @@ onMounted(() => {
 
 .btn-price { font-weight: 700; font-size: 16px; }
 .btn-text { font-weight: 600; font-size: 14px; }
+
+.card-more {
+  color: var(--accent-blue);
+  font-size: 14px;
+  text-decoration: none;
+  font-weight: 500;
+  width: fit-content;
+}
 
 .attr-row {
   display: grid;
@@ -1046,10 +1032,12 @@ onMounted(() => {
 
   .catalog-card {
     grid-template-columns: 1fr;
+    padding: 28px;
+    gap: 24px;
   }
 
-  .card-head {
-    flex-direction: column;
+  .card-media img {
+    max-width: 240px;
   }
 }
 
@@ -1109,8 +1097,8 @@ onMounted(() => {
   }
 
   .catalog-card {
-    padding: 16px;
-    border-radius: 18px;
+    padding: 20px;
+    border-radius: 20px;
     gap: 16px;
   }
 
@@ -1126,8 +1114,15 @@ onMounted(() => {
     font-size: 18px;
   }
 
-  .card-price {
-    font-size: 16px;
+  .stock-buy-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .add-cart-btn {
+    width: 100%;
+    max-width: none;
   }
 
   .attr-row {
