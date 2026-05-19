@@ -145,18 +145,18 @@ const sortedChildCategories = computed(() => {
   return [...props.childCategories].sort((a, b) => {
     const numA = extractModelNumber(a.name)
     const numB = extractModelNumber(b.name)
-    // Both have numbers — sort ascending (smallest first)
+    // Both have numbers — sort descending (newest first)
     if (numA && numB) {
-      if (numA !== numB) return numA - numB
-      // Same number — base before Pro
+      if (numA !== numB) return numB - numA
+      // Same number — Pro before base
       const aIsPro = /pro|ultra|max/i.test(a.name)
       const bIsPro = /pro|ultra|max/i.test(b.name)
-      if (aIsPro !== bIsPro) return aIsPro ? 1 : -1
+      if (aIsPro !== bIsPro) return aIsPro ? -1 : 1
       return a.name.localeCompare(b.name)
     }
-    // Items without numbers (SE, Air, etc.) go to the beginning
-    if (numA && !numB) return 1
-    if (!numA && numB) return -1
+    // Items without numbers (SE, Air, etc.) go to the end
+    if (numA && !numB) return -1
+    if (!numA && numB) return 1
     return a.name.localeCompare(b.name)
   })
 })
@@ -205,9 +205,9 @@ const visibleProducts = computed(() => {
     }
     const ma = getModelInfo(a.name)
     const mb = getModelInfo(b.name)
-    // Ascending: smallest model first (11 → 12 → ... → 17 Pro Max)
-    if (ma.num !== mb.num) return ma.num - mb.num
-    if (ma.variant !== mb.variant) return ma.variant - mb.variant
+    // Descending: newest model first (17 Pro Max → 17 Pro → ... → 13)
+    if (ma.num !== mb.num) return mb.num - ma.num
+    if (ma.variant !== mb.variant) return mb.variant - ma.variant
     return a.name.localeCompare(b.name)
   })
 })
