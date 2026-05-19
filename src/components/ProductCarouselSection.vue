@@ -418,18 +418,6 @@ onUnmounted(() => {
     <div v-if="sortedChildCategories.length > 1" class="sub-tabs-row">
       <div class="sub-tabs">
         <button
-          :class="['sub-tab', { active: !activeSubSlug }]"
-          @click="selectSub(null)"
-        >
-          <svg class="sub-tab-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
-            <rect x="1" y="1" width="7.5" height="7.5" rx="2" />
-            <rect x="11.5" y="1" width="7.5" height="7.5" rx="2" />
-            <rect x="1" y="11.5" width="7.5" height="7.5" rx="2" />
-            <rect x="11.5" y="11.5" width="7.5" height="7.5" rx="2" />
-          </svg>
-          <span>Все</span>
-        </button>
-        <button
           v-for="sub in sortedChildCategories"
           :key="sub.slug"
           :class="['sub-tab', { active: activeSubSlug === sub.slug }]"
@@ -445,12 +433,6 @@ onUnmounted(() => {
 
     <div v-if="!hideSize && sizeFilterValues.length > 0" class="size-filters-row">
       <div class="size-filters">
-        <button
-          :class="['size-pill', { active: !activeSizeFilter }]"
-          @click="activeSizeFilter = null; nextTick(() => { if (trackRef) trackRef.scrollTo({ left: 0, behavior: 'smooth' }); checkScroll() })"
-        >
-          Все
-        </button>
         <button
           v-for="size in sizeFilterValues"
           :key="size"
