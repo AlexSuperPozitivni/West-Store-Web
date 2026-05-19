@@ -261,6 +261,8 @@ const primarySections = computed(() => [
     viewAllText: 'Посмотреть все AirPods',
     viewAllLink: '/catalog/airpods',
     slugs: ['airpods'],
+    showBanner: true,
+    sortByPriceDesc: true,
   },
   {
     key: 'ipad',
@@ -681,6 +683,7 @@ watch(contactModalOpen, (isOpen) => {
       :child-categories="section.childCategories"
       :hide-size="section.hideSize || false"
       :sort-by-price-desc="section.sortByPriceDesc || false"
+      :show-banner="section.showBanner || false"
     />
 
     <ProductCarouselSection

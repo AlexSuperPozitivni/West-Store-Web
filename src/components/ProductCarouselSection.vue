@@ -52,11 +52,30 @@ const props = withDefaults(defineProps<{
   limit?: number
   hideSize?: boolean
   sortByPriceDesc?: boolean
+  showBanner?: boolean
 }>(), {
   limit: 14,
   childCategories: () => [],
   hideSize: false,
   sortByPriceDesc: false,
+  showBanner: false,
+})
+
+const bannerProduct = computed(() => {
+  if (!props.showBanner || !props.products.length) return null
+  return [...props.products].sort((a, b) => b.price - a.price)[0]
+})
+
+const bannerColors = computed(() => {
+  if (!bannerProduct.value?.attributes) return []
+  const colorGroup = bannerProduct.value.attributes.filter(a => isColorGroup(a.name))
+  const seen = new Set<string>()
+  return colorGroup.filter(a => {
+    const val = a.pivot?.value
+    if (!val || seen.has(val)) return false
+    seen.add(val)
+    return true
+  }).map(a => a.pivot!.value)
 })
 
 const STORAGE_URL = import.meta.env.VITE_STORAGE_URL || (typeof window !== 'undefined' ? window.location.origin + '/storage' : '/storage')
@@ -368,6 +387,22 @@ onUnmounted(() => {
       </div>
     </div>
 
+    <RouterLink v-if="bannerProduct" :to="`/product/${bannerProduct.slug}`" class="featured-banner">
+      <div class="banner-image">
+        <img :src="getImageUrl(bannerProduct.image_main)" :alt="bannerProduct.name" />
+      </div>
+      <div class="banner-info">
+        <h3 class="banner-title">{{ bannerProduct.name }}</h3>
+        <div v-if="bannerColors.length" class="banner-colors">
+          <span v-for="color in bannerColors" :key="color" class="banner-color-dot" :style="resolveColorStyle(color)"></span>
+        </div>
+        <div class="banner-actions">
+          <span class="banner-price">{{ Number(bannerProduct.price).toLocaleString('ru-RU') }} ₽</span>
+          <span class="banner-link">Подробнее <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </div>
+      </div>
+    </RouterLink>
+
     <div v-if="sortedChildCategories.length > 1 || (!hideSize && sizeFilterValues.length > 1)" class="sub-tabs-row">
       <div v-if="sortedChildCategories.length > 1" class="sub-tabs">
         <button
@@ -624,6 +659,128 @@ onUnmounted(() => {
   .size-pill {
     padding: 8px 14px;
     font-size: 12px;
+  }
+}
+
+/* Featured banner */
+.featured-banner {
+  display: flex;
+  align-items: center;
+  background: #111;
+  border-radius: 24px;
+  overflow: hidden;
+  text-decoration: none;
+  margin-bottom: 28px;
+  min-height: 280px;
+  transition: box-shadow 0.3s;
+}
+
+.featured-banner:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+
+.banner-image {
+  flex: 0 0 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+}
+
+.banner-image img {
+  max-width: 100%;
+  max-height: 220px;
+  object-fit: contain;
+}
+
+.banner-info {
+  flex: 1;
+  padding: 32px 40px 32px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.banner-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.banner-colors {
+  display: flex;
+  gap: 8px;
+}
+
+.banner-color-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.3);
+}
+
+.banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-top: 8px;
+}
+
+.banner-price {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 28px;
+  background: #007AFF;
+  color: #fff;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.banner-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255,255,255,0.7);
+  font-size: 15px;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.featured-banner:hover .banner-link {
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  .featured-banner {
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  .banner-image {
+    flex: none;
+    width: 100%;
+    padding: 24px;
+  }
+
+  .banner-image img {
+    max-height: 160px;
+  }
+
+  .banner-info {
+    padding: 0 24px 24px;
+    gap: 12px;
+  }
+
+  .banner-title {
+    font-size: 22px;
+  }
+
+  .banner-price {
+    padding: 10px 22px;
+    font-size: 15px;
   }
 }
 
