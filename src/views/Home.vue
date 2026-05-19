@@ -277,8 +277,9 @@ const primarySections = computed(() => [
     viewAllText: 'Посмотреть все часы',
     viewAllLink: '/catalog/watch',
     slugs: ['watch'],
-    hideSize: true,
+    hideSize: false,
     sortByPriceDesc: true,
+    subtitlePrefix: 'GPS + Cellular',
   },
   {
     key: 'macbook',
@@ -289,7 +290,7 @@ const primarySections = computed(() => [
   },
 ].map(config => ({
   ...config,
-  products: getProductsByCategorySlugs(config.slugs, 30),
+  products: getProductsByCategorySlugs(config.slugs, 60),
   childCategories: getChildCategories(config.slugs)
 })).filter(config => config.products.length > 0))
 
@@ -684,6 +685,7 @@ watch(contactModalOpen, (isOpen) => {
       :hide-size="section.hideSize || false"
       :sort-by-price-desc="section.sortByPriceDesc || false"
       :show-banner="section.showBanner || false"
+      :subtitle-prefix="section.subtitlePrefix || ''"
     />
 
     <ProductCarouselSection

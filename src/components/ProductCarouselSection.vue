@@ -53,12 +53,14 @@ const props = withDefaults(defineProps<{
   hideSize?: boolean
   sortByPriceDesc?: boolean
   showBanner?: boolean
+  subtitlePrefix?: string
 }>(), {
   limit: 14,
   childCategories: () => [],
   hideSize: false,
   sortByPriceDesc: false,
   showBanner: false,
+  subtitlePrefix: '',
 })
 
 const bannerProduct = computed(() => {
@@ -459,7 +461,7 @@ onUnmounted(() => {
           </RouterLink>
         </div>
         <p v-if="!hideSize && getProductSubtitle(product)" class="product-subtitle">
-          {{ getProductSubtitle(product) }}
+          {{ subtitlePrefix ? subtitlePrefix + ' / ' + getProductSubtitle(product) : getProductSubtitle(product) }}
         </p>
 
         <RouterLink :to="`/product/${product.slug}`" class="card-image-wrap">
