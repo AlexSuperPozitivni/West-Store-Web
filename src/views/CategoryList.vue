@@ -233,11 +233,11 @@ const visibleProducts = computed(() => {
     list = list.filter(p => p.in_stock)
   }
 
-  if (filterPriceMin.value !== null && filterPriceMin.value > 0) {
+  if (filterPriceMin.value != null && !isNaN(filterPriceMin.value) && filterPriceMin.value > 0) {
     list = list.filter(p => p.price >= filterPriceMin.value!)
   }
 
-  if (filterPriceMax.value !== null && filterPriceMax.value > 0) {
+  if (filterPriceMax.value != null && !isNaN(filterPriceMax.value) && filterPriceMax.value > 0) {
     list = list.filter(p => p.price <= filterPriceMax.value!)
   }
 
