@@ -783,10 +783,10 @@ watch(contactModalOpen, (isOpen) => {
   border-radius: 24px;
   padding: 40px 48px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 48px;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 40px;
   align-items: center;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  box-shadow: var(--shadow-md);
 }
 
 .callback-title {
@@ -816,13 +816,13 @@ watch(contactModalOpen, (isOpen) => {
   font-size: 15px;
   font-family: 'Inter', sans-serif;
   color: var(--text-dark);
-  background: #fcf9f7;
+  background: #ffffff;
   outline: none;
   transition: border-color 0.2s;
 }
 
 .callback-input:focus {
-  border-color: var(--text-dark);
+  border-color: var(--accent-blue);
 }
 
 .callback-input::placeholder {
@@ -831,7 +831,7 @@ watch(contactModalOpen, (isOpen) => {
 
 .callback-btn {
   width: 100%;
-  background: var(--accent);
+  background: var(--accent-blue);
   color: #ffffff;
   border: none;
   border-radius: 9999px;
@@ -845,7 +845,7 @@ watch(contactModalOpen, (isOpen) => {
 }
 
 .callback-btn:hover {
-  background: var(--accent-hover);
+  background: var(--accent-blue-hover);
 }
 
 .callback-legal {
@@ -945,13 +945,13 @@ watch(contactModalOpen, (isOpen) => {
   max-width: 1360px;
   margin: 0 auto;
   overflow: hidden;
-  border-radius: 32px;
+  border-radius: 24px;
   background: #000000;
   touch-action: pan-y pinch-zoom;
   user-select: none;
   -webkit-user-select: none;
   cursor: grab;
-  box-shadow: 0 0 8px rgba(0,0,0,0.08);
+  box-shadow: var(--shadow-lg);
 }
 
 .slider-container:active {
@@ -1047,19 +1047,21 @@ watch(contactModalOpen, (isOpen) => {
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  padding: 16px 40px;
-  font-size: 16px;
-  font-weight: 700;
-  color: #007AFF;
+  padding: 12px 32px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #ffffff;
+  background: rgba(37, 99, 235, 0.85);
+  border-radius: 999px;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  transition: all 0.3s;
+  transition: all 0.2s;
+  margin-top: 8px;
+  backdrop-filter: blur(8px);
 }
 
 .slide-buy-link:hover {
-  background: linear-gradient(45deg, #74AFFD, #a855f7);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  background: rgba(37, 99, 235, 1);
+  transform: scale(1.04);
 }
 
 .slider-dots {
@@ -1073,7 +1075,7 @@ watch(contactModalOpen, (isOpen) => {
 }
 
 .slider-dot {
-  width: 32px;
+  width: 10px;
   height: 4px;
   border-radius: 999px;
   border: none;
@@ -1082,7 +1084,7 @@ watch(contactModalOpen, (isOpen) => {
   transition: background 0.3s ease, width 0.3s ease;
   padding: 0;
   position: relative;
-  box-shadow: 0 0 4px rgba(0,0,0,0.3);
+  box-shadow: 0 0 4px rgba(0,0,0,0.2);
 }
 
 .slider-dot::before {
@@ -1095,7 +1097,8 @@ watch(contactModalOpen, (isOpen) => {
 }
 
 .slider-dot.active {
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.9);
+  width: 28px;
 }
 
 .slider-dot:hover {

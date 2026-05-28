@@ -583,7 +583,7 @@ onUnmounted(() => {
   gap: 0;
   overflow-x: auto;
   scrollbar-width: none;
-  background: #f0ece8;
+  background: #ececee;
   border-radius: 16px;
   padding: 6px;
   flex-shrink: 0;
@@ -636,7 +636,7 @@ onUnmounted(() => {
 .size-filters {
   display: inline-flex;
   gap: 0;
-  background: #f0ece8;
+  background: #ececee;
   border-radius: 16px;
   padding: 6px;
   flex-shrink: 0;
@@ -673,7 +673,7 @@ onUnmounted(() => {
   gap: 12px;
   width: 100%;
   padding: 14px 18px;
-  background: #f5f3f0;
+  background: #f0f0f2;
   border: none;
   border-radius: 16px;
   font-size: 16px;
@@ -862,17 +862,19 @@ onUnmounted(() => {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  border: 1px solid #e5e7eb;
+  border: none;
   background: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s;
+  box-shadow: var(--shadow-sm);
+  color: #555;
 }
 
-.nav-btn:hover:not(:disabled) { border-color: var(--text-dark); color: var(--text-dark); }
-.nav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.nav-btn:hover:not(:disabled) { background: var(--bg-card); box-shadow: var(--shadow-md); color: var(--text-dark); }
+.nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* ===== Carousel ===== */
 .carousel-wrapper { position: relative; }
@@ -915,7 +917,7 @@ onUnmounted(() => {
 /* ===== Product card ===== */
 .product-card {
   flex: 0 0 300px;
-  background: #f5f3f0;
+  background: #f0f0f2;
   border-radius: 24px;
   padding: 24px 24px 0;
   display: flex;
@@ -975,7 +977,7 @@ onUnmounted(() => {
   display: flex;
   gap: 0;
   flex-wrap: nowrap;
-  background: #e8e4e0;
+  background: #ececee;
   border-radius: 12px;
   padding: 3px;
   overflow-x: auto;

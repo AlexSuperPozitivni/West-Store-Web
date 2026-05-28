@@ -329,11 +329,11 @@ watch(() => router.currentRoute.value.path, () => {
 .header-inner {
   max-width: 1400px;
   margin: 0 auto;
-  height: 100px;
+  height: 80px;
   padding: 0 32px;
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
   position: relative;
 }
 
@@ -366,7 +366,7 @@ watch(() => router.currentRoute.value.path, () => {
 }
 
 .logo-img {
-  height: 56px;
+  height: 48px;
   width: auto;
   object-fit: contain;
   display: block;
@@ -502,14 +502,14 @@ watch(() => router.currentRoute.value.path, () => {
 /* ===== Mega Menu ===== */
 .mega-menu {
   position: absolute;
-  top: 100px;
+  top: 80px;
   left: 0;
   width: 100%;
   background: var(--bg-white);
   border-top: 1px solid var(--border-color);
   box-shadow: 0 20px 60px rgba(0,0,0,0.1);
   z-index: 999;
-  max-height: calc(100vh - 100px);
+  max-height: calc(100vh - 80px);
   overflow-y: auto;
 }
 
@@ -549,15 +549,15 @@ watch(() => router.currentRoute.value.path, () => {
 }
 
 .cat-item:hover {
-  color: var(--text-dark);
-  background: #f5f5f5;
+  color: var(--accent-blue);
+  background: rgba(37, 99, 235, 0.06);
   padding-left: 10px;
 }
 
 .cat-item.active {
-  color: var(--text-dark);
+  color: var(--accent-blue);
   font-weight: 600;
-  background: #f0f0f0;
+  background: rgba(37, 99, 235, 0.08);
   padding-left: 10px;
 }
 
@@ -569,7 +569,7 @@ watch(() => router.currentRoute.value.path, () => {
 
 .cat-item:hover svg,
 .cat-item.active svg {
-  color: #555;
+  color: var(--accent-blue);
   transform: translateX(2px);
 }
 
@@ -623,8 +623,8 @@ watch(() => router.currentRoute.value.path, () => {
 }
 
 .sub-item:hover {
-  background: #f5f5f5;
-  color: var(--text-dark);
+  background: rgba(37, 99, 235, 0.05);
+  color: var(--accent-blue);
   font-weight: 500;
   padding-left: 18px;
 }

@@ -394,7 +394,7 @@ onMounted(() => fetchProducts())
 }
 
 .option-pill {
-  background: #f0ece8;
+  background: #ececee;
   border: 1px solid transparent;
   border-radius: 8px;
   padding: 6px 10px;

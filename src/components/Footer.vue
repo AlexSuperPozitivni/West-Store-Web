@@ -147,7 +147,7 @@ const storeLinks = [
 <style scoped>
 /* ===== Footer ===== */
 .footer {
-  background-color: #e8e4e0;
+  background-color: #1e2330;
   padding: 60px 0 40px;
   margin-top: auto;
   position: relative;
@@ -175,7 +175,7 @@ const storeLinks = [
 .footer-title {
   font-size: 16px;
   font-weight: 700;
-  color: #000000;
+  color: #ffffff;
   margin-bottom: 20px;
   line-height: 1.4;
 }
@@ -191,7 +191,7 @@ const storeLinks = [
 }
 
 .footer-link {
-  color: #333333;
+  color: rgba(255,255,255,0.6);
   text-decoration: none;
   font-size: 14px;
   line-height: 1.5;
@@ -200,7 +200,7 @@ const storeLinks = [
 }
 
 .footer-link:hover {
-  color: #26242d;
+  color: #ffffff;
 }
 
 /* ===== Информация о магазине ===== */
@@ -211,23 +211,24 @@ const storeLinks = [
 .store-address {
   font-size: 14px;
   line-height: 1.6;
-  color: #333333;
+  color: rgba(255,255,255,0.7);
   margin-bottom: 20px;
 }
 
 .gray-text {
-  color: #999999;
+  color: rgba(255,255,255,0.4);
 }
 
 .working-hours p {
   font-size: 14px;
   margin: 0;
   line-height: 1.6;
+  color: rgba(255,255,255,0.6);
 }
 
 .hours-time {
   font-weight: 500;
-  color: #000000;
+  color: #ffffff;
 }
 
 /* ===== Контакты ===== */
@@ -246,18 +247,18 @@ const storeLinks = [
 .phone-number {
   font-size: 16px;
   font-weight: 600;
-  color: #000000;
+  color: #ffffff;
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
 .phone-number:hover {
-  color: #26242d;
+  color: var(--accent-blue);
 }
 
 .phone-label {
   font-size: 12px;
-  color: #999999;
+  color: rgba(255,255,255,0.4);
 }
 
 .messenger-links {
@@ -268,14 +269,14 @@ const storeLinks = [
 
 .messenger-link {
   font-size: 14px;
-  color: #000000;
+  color: rgba(255,255,255,0.7);
   text-decoration: none;
   font-weight: 500;
   transition: color 0.2s ease;
 }
 
 .messenger-link:hover {
-  color: #26242d;
+  color: #ffffff;
 }
 
 /* ===== Платежные системы ===== */
@@ -294,17 +295,19 @@ const storeLinks = [
 .payment-icon {
   height: 24px;
   width: auto;
-  filter: grayscale(100%);
-  transition: filter 0.3s ease;
+  filter: grayscale(100%) brightness(2);
+  opacity: 0.5;
+  transition: all 0.3s ease;
 }
 
 .payment-icons:hover .payment-icon {
-  filter: grayscale(0%);
+  filter: grayscale(0%) brightness(1.5);
+  opacity: 0.8;
 }
 
 .payment-text {
   font-size: 13px;
-  color: #999999;
+  color: rgba(255,255,255,0.4);
   margin: 0;
 }
 
@@ -314,20 +317,18 @@ const storeLinks = [
 }
 
 .brand-logo {
-  font-family: 'Impact', 'Arial Narrow', 'Helvetica Neue', sans-serif;
-  font-size: 22px;
-  font-weight: 900;
-  font-style: italic;
-  letter-spacing: 1.5px;
-  color: #000000;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #ffffff;
   margin-bottom: 15px;
   text-transform: uppercase;
-  transform: skewX(-4deg);
 }
 
 .social-label {
   font-size: 13px;
-  color: #666666;
+  color: rgba(255,255,255,0.4);
   margin-bottom: 15px;
 }
 
@@ -340,21 +341,20 @@ const storeLinks = [
 .social-icon {
   width: 44px;
   height: 44px;
-  background: #FFFFFF;
-  border-radius: 8px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #666666;
+  color: rgba(255,255,255,0.6);
   text-decoration: none;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
 }
 
 .social-icon:hover {
-  color: #26242d;
+  color: #ffffff;
+  background: rgba(255,255,255,0.15);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 .social-icon.avito {
@@ -370,13 +370,13 @@ const storeLinks = [
 
 .extra-link {
   font-size: 12px;
-  color: #666666;
+  color: rgba(255,255,255,0.5);
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
 .extra-link:hover {
-  color: #0066CC;
+  color: var(--accent-blue);
 }
 
 .social-icons-bottom {
@@ -391,7 +391,7 @@ const storeLinks = [
 
 .copyright p {
   font-size: 12px;
-  color: #999999;
+  color: rgba(255,255,255,0.3);
   line-height: 1.6;
   margin: 0;
 }

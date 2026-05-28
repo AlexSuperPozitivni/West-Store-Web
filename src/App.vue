@@ -156,7 +156,7 @@ const launchConfetti = (event: MouseEvent, type: string) => {
   const cx = rect.left + rect.width / 2
   const cy = rect.top + rect.height / 2
 
-  for (let i = 0; i < 22; i++) {
+  for (let i = 0; i < 12; i++) {
     const p = document.createElement('div')
     const size = Math.random() * 7 + 4
     const isCircle = Math.random() > 0.4
@@ -513,25 +513,25 @@ const launchConfetti = (event: MouseEvent, type: string) => {
   position: fixed;
   bottom: 28px;
   left: 28px;
-  width: 48px;
-  height: 48px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
-  background: #1a1a2e;
+  background: var(--accent);
   color: #ffffff;
   border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
   z-index: 9998;
   transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 
 .scroll-top-btn:hover {
-  background: #26242d;
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  background: var(--accent-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
 .scroll-top-btn:active {

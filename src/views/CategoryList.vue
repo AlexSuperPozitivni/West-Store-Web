@@ -524,15 +524,14 @@ onMounted(() => {
 }
 
 .catalog-hero {
-  display: grid;
-  grid-template-columns: 1.1fr 1fr;
-  gap: 40px;
-  align-items: start;
-  margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  margin-bottom: 28px;
 }
 
 .hero-left h1 {
-  font-size: 32px;
+  font-size: 28px;
   line-height: 1.25;
   font-weight: 700;
   color: #111827;
@@ -544,20 +543,24 @@ onMounted(() => {
 
 .hero-right {
   background: #ffffff;
-  padding: 20px 24px;
-  border-radius: 18px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  padding: 18px 22px;
+  border-radius: 16px;
+  box-shadow: var(--shadow-sm);
+  flex: 1;
+  max-width: 500px;
 }
 
 .hero-title {
   font-weight: 600;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   color: #111827;
+  font-size: 14px;
 }
 
 .hero-text {
-  color: #4b5563;
-  line-height: 1.6;
+  color: #6b7280;
+  line-height: 1.55;
+  font-size: 13px;
 }
 
 .category-tabs {
@@ -568,7 +571,7 @@ onMounted(() => {
   display: flex;
   gap: 12px;
   flex-wrap: nowrap;
-  background: #e8e4e0;
+  background: #ececee;
   padding: 10px 10px 14px;
   border-radius: 999px;
   margin-bottom: 32px;
@@ -626,7 +629,7 @@ onMounted(() => {
 }
 
 .catalog-card {
-  background: #f5f3f0;
+  background: #f0f0f2;
   border-radius: 28px;
   padding: 40px;
   display: grid;
@@ -636,7 +639,7 @@ onMounted(() => {
 }
 
 .catalog-card:hover {
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-lg);
 }
 
 .card-media {
@@ -797,7 +800,7 @@ onMounted(() => {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
-  background: #f0ece8;
+  background: #ececee;
   padding: 6px;
   border-radius: 16px;
 }
@@ -913,9 +916,9 @@ onMounted(() => {
   flex-wrap: wrap;
   background: #ffffff;
   padding: 20px 24px;
-  border-radius: 20px;
+  border-radius: 16px;
   margin-bottom: 20px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-md);
 }
 
 .filter-group {
@@ -1130,7 +1133,7 @@ onMounted(() => {
     padding: 20px;
     border-radius: 20px;
     gap: 16px;
-    background: #f5f3f0;
+    background: #f0f0f2;
   }
 
   .card-media {
@@ -1197,7 +1200,7 @@ onMounted(() => {
   }
 
   .pill-options {
-    background: #e8e4e0;
+    background: #ececee;
     padding: 4px;
     gap: 0;
     border-radius: 12px;
