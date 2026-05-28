@@ -563,14 +563,14 @@ watch(() => route.params.slug, () => {
 }
 
 .add-cart-btn {
-  background: linear-gradient(90deg, #43e0f0 0%, #a855f7 100%);
+  background: #2563eb;
   color: #fff;
   border: none;
   padding: 18px 28px;
   border-radius: 9999px;
   font-weight: 600;
   cursor: pointer;
-  transition: opacity 0.2s, filter 0.2s;
+  transition: background 0.15s;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -580,7 +580,7 @@ watch(() => route.params.slug, () => {
 }
 
 .add-cart-btn:hover:not(:disabled) {
-  filter: brightness(1.08);
+  background: #1d4ed8;
 }
 
 .add-cart-btn:disabled {

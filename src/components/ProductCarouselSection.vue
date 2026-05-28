@@ -63,6 +63,18 @@ const props = withDefaults(defineProps<{
   subtitlePrefix: '',
 })
 
+const dropdownOpen = ref(false)
+const isMobile = ref(false)
+const checkMobile = () => { isMobile.value = window.innerWidth <= 768 }
+
+const toggleDropdown = () => { dropdownOpen.value = !dropdownOpen.value }
+const closeDropdown = () => { dropdownOpen.value = false }
+
+const activeSubCategory = computed(() => {
+  if (!activeSubSlug.value) return null
+  return sortedChildCategories.value.find(c => c.slug === activeSubSlug.value) || null
+})
+
 const bannerProduct = computed(() => {
   if (!props.showBanner || !props.products.length) return null
   return [...props.products].sort((a, b) => b.price - a.price)[0]
@@ -358,6 +370,8 @@ watch(() => props.products, (items) => {
 }, { immediate: true })
 
 onMounted(() => {
+  checkMobile()
+  window.addEventListener('resize', checkMobile)
   if (trackRef.value) {
     trackRef.value.addEventListener('scroll', checkScroll)
     window.addEventListener('resize', checkScroll)
@@ -366,6 +380,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  window.removeEventListener('resize', checkMobile)
   if (trackRef.value) {
     trackRef.value.removeEventListener('scroll', checkScroll)
   }
@@ -415,7 +430,8 @@ onUnmounted(() => {
       </div>
     </RouterLink>
 
-    <div v-if="sortedChildCategories.length > 1" class="sub-tabs-row">
+    <!-- Desktop: tab pills -->
+    <div v-if="sortedChildCategories.length > 1" class="sub-tabs-row desktop-sub">
       <div class="sub-tabs">
         <button
           v-for="sub in sortedChildCategories"
@@ -431,6 +447,41 @@ onUnmounted(() => {
       </div>
     </div>
 
+    <!-- Mobile: dropdown selector -->
+    <div v-if="sortedChildCategories.length > 1" class="mobile-dropdown-wrap mobile-sub">
+      <button class="mobile-dropdown-btn" @click="toggleDropdown">
+        <svg v-if="getCategoryIcon('')" class="dropdown-icon-svg" width="32" height="32" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+          <path :d="getCategoryIcon('')!" />
+        </svg>
+        <span class="dropdown-label">{{ activeSubCategory ? shortName(activeSubCategory) : sortedChildCategories[0] ? shortName(sortedChildCategories[0]) : title }}</span>
+        <svg class="dropdown-chevron" :class="{ open: dropdownOpen }" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+      <Transition name="sheet-fade">
+        <div v-if="dropdownOpen" class="sheet-overlay" @click="closeDropdown"></div>
+      </Transition>
+      <Transition name="sheet-slide">
+        <div v-if="dropdownOpen" class="sheet-panel">
+          <button
+            v-for="sub in sortedChildCategories"
+            :key="sub.slug"
+            :class="['sheet-item', { active: activeSubSlug === sub.slug }]"
+            @click="selectSub(sub.slug); closeDropdown()"
+          >
+            <svg v-if="getCategoryIcon(sub.slug)" class="sheet-item-icon" width="32" height="32" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+              <path :d="getCategoryIcon(sub.slug)!" />
+            </svg>
+            <span>{{ shortName(sub) }}</span>
+            <svg v-if="activeSubSlug === sub.slug" class="sheet-check" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </Transition>
+    </div>
+
     <div v-if="!hideSize && sizeFilterValues.length > 0" class="size-filters-row">
       <div class="size-filters">
         <button
@@ -444,60 +495,66 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <div class="carousel-track" ref="trackRef">
-      <div class="product-card" v-for="product in visibleProducts.slice(0, limit)" :key="product.id">
-        <div class="product-name-row">
-          <span :class="['stock-dot', { 'in-stock': getProductState(product).inStock }]" :title="getProductState(product).inStock ? 'В наличии' : 'Нет в наличии'">
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </span>
-          <RouterLink :to="`/product/${product.slug}`" class="product-name" :title="product.name">
-            {{ product.name }}
+    <div class="carousel-wrapper">
+      <div class="carousel-track" ref="trackRef">
+        <div class="product-card" v-for="product in visibleProducts.slice(0, limit)" :key="product.id">
+          <RouterLink :to="`/product/${product.slug}`" class="card-top-link">
+            <h3 class="product-name">{{ product.name }}</h3>
+            <p v-if="!hideSize && getProductSubtitle(product)" class="product-subtitle">
+              {{ subtitlePrefix ? subtitlePrefix + ' / ' + getProductSubtitle(product) : getProductSubtitle(product) }}
+            </p>
           </RouterLink>
+
+          <RouterLink :to="`/product/${product.slug}`" class="card-image-wrap">
+            <img :src="getImageUrl(getProductState(product).variation?.image || product.image_main)" :alt="product.name" class="card-image" loading="lazy">
+          </RouterLink>
+
+          <div class="attributes-wrapper">
+            <template v-for="group in getAttributeGroups(product)" :key="group.name">
+              <div v-if="isColorGroup(group.name)" class="color-options">
+                <button
+                  v-for="val in group.values" :key="val"
+                  :class="['color-dot', { active: selectedAttributes[product.id]?.[group.name] === val }]"
+                  @click="selectAttribute(product.id, group.name, val)"
+                >
+                  <span :style="resolveColorStyle(val)"></span>
+                </button>
+              </div>
+              <div v-else-if="!isSizeGroup(group.name)" class="pill-options">
+                <button
+                  v-for="val in group.values" :key="val"
+                  :class="['attr-pill', { active: selectedAttributes[product.id]?.[group.name] === val }]"
+                  @click="selectAttribute(product.id, group.name, val)"
+                >
+                  {{ val }}
+                </button>
+              </div>
+            </template>
+          </div>
+
+          <button
+            class="add-cart-btn"
+            :disabled="!getProductState(product).canBuy"
+            @click="addToCart(product)"
+          >
+            <span class="btn-price">{{ Number(getProductState(product).price).toLocaleString('ru-RU') }} ₽</span>
+            <span class="btn-text">{{ getProductState(product).isPreorder && !getProductState(product).inStock ? 'Предзаказ' : (getProductState(product).canBuy ? 'В корзину' : 'Нет в наличии') }}</span>
+          </button>
         </div>
-        <p v-if="!hideSize && getProductSubtitle(product)" class="product-subtitle">
-          {{ subtitlePrefix ? subtitlePrefix + ' / ' + getProductSubtitle(product) : getProductSubtitle(product) }}
-        </p>
-
-        <RouterLink :to="`/product/${product.slug}`" class="card-image-wrap">
-          <img :src="getImageUrl(getProductState(product).variation?.image || product.image_main)" :alt="product.name" class="card-image" loading="lazy">
-        </RouterLink>
-
-        <div class="attributes-wrapper">
-          <template v-for="group in getAttributeGroups(product)" :key="group.name">
-            <div v-if="isColorGroup(group.name)" class="color-options">
-              <button
-                v-for="val in group.values" :key="val"
-                :class="['color-dot', { active: selectedAttributes[product.id]?.[group.name] === val }]"
-                @click="selectAttribute(product.id, group.name, val)"
-              >
-                <span :style="resolveColorStyle(val)"></span>
-              </button>
-            </div>
-            <div v-else-if="!isSizeGroup(group.name)" class="pill-options">
-              <button
-                v-for="val in group.values" :key="val"
-                :class="['attr-pill', { active: selectedAttributes[product.id]?.[group.name] === val }]"
-                @click="selectAttribute(product.id, group.name, val)"
-              >
-                {{ val }}
-              </button>
-            </div>
-          </template>
-        </div>
-
-        <button
-          class="add-cart-btn"
-          :disabled="!getProductState(product).canBuy"
-          @click="addToCart(product)"
-        >
-          <span class="btn-price">{{ Number(getProductState(product).price).toLocaleString('ru-RU') }} ₽</span>
-          <span class="btn-text">{{ getProductState(product).isPreorder && !getProductState(product).inStock ? 'Предзаказ' : (getProductState(product).canBuy ? 'В корзину' : 'Нет в наличии') }}</span>
-        </button>
       </div>
+
+      <button v-if="canScrollNext" class="carousel-next-float" @click="scrollNext" aria-label="Следующий">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
     </div>
 
-    <RouterLink :to="viewAllLink" class="view-all-link mobile-only">
+    <RouterLink :to="viewAllLink" class="view-all-bottom">
       {{ viewAllText }}
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
     </RouterLink>
   </section>
 </template>
@@ -509,7 +566,7 @@ onUnmounted(() => {
   padding: 40px 20px;
 }
 
-/* ===== Subcategory tabs + size filters row ===== */
+/* ===== Subcategory tabs (desktop) ===== */
 .sub-tabs-row {
   display: flex;
   align-items: center;
@@ -519,9 +576,7 @@ onUnmounted(() => {
   scrollbar-width: none;
 }
 
-.sub-tabs-row::-webkit-scrollbar {
-  display: none;
-}
+.sub-tabs-row::-webkit-scrollbar { display: none; }
 
 .sub-tabs {
   display: flex;
@@ -534,9 +589,49 @@ onUnmounted(() => {
   flex-shrink: 0;
 }
 
-.size-filters-row {
-  margin-bottom: 20px;
+.sub-tabs::-webkit-scrollbar { display: none; }
+
+.sub-tab {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 18px;
+  border-radius: 12px;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
 }
+
+.sub-tab:hover { color: var(--text-dark); }
+
+.sub-tab.active {
+  background: #fff;
+  color: var(--text-dark);
+  font-weight: 600;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.sub-tab-icon-svg {
+  opacity: 0.4;
+  transition: opacity 0.15s;
+  display: block;
+  flex-shrink: 0;
+}
+
+.sub-tab.active .sub-tab-icon-svg {
+  opacity: 0.85;
+  color: var(--accent-blue, #007aff);
+}
+
+/* ===== Size filters ===== */
+.size-filters-row { margin-bottom: 20px; }
 
 .size-filters {
   display: inline-flex;
@@ -560,9 +655,7 @@ onUnmounted(() => {
   transition: all 0.15s;
 }
 
-.size-pill:hover {
-  color: var(--text-dark);
-}
+.size-pill:hover { color: var(--text-dark); }
 
 .size-pill.active {
   background: #fff;
@@ -571,98 +664,115 @@ onUnmounted(() => {
   box-shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
 
-.sub-tabs::-webkit-scrollbar {
-  display: none;
-}
+/* ===== Mobile dropdown + bottom sheet ===== */
+.mobile-dropdown-wrap { display: none; }
 
-.sub-tab {
-  flex: 0 0 auto;
+.mobile-dropdown-btn {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 10px 18px;
-  border-radius: 12px;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 18px;
+  background: #f5f3f0;
   border: none;
-  background: transparent;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-muted);
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.15s;
-}
-
-.sub-tab:hover {
-  color: var(--text-dark);
-}
-
-.sub-tab.active {
-  background: #fff;
-  color: var(--text-dark);
+  border-radius: 16px;
+  font-size: 16px;
   font-weight: 600;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  color: #111;
+  cursor: pointer;
+  transition: background 0.15s;
 }
 
-.sub-tab-icon {
-  opacity: 0.4;
-  transition: opacity 0.15s;
-}
+.mobile-dropdown-btn:active { background: #eae7e3; }
 
-.sub-tab.active .sub-tab-icon {
-  opacity: 0.8;
-}
-
-.sub-tab-icon-svg {
-  opacity: 0.4;
-  transition: opacity 0.15s;
-  display: block;
+.dropdown-icon-svg {
+  opacity: 0.5;
   flex-shrink: 0;
 }
 
-.sub-tab.active .sub-tab-icon-svg {
+.dropdown-label { flex: 1; text-align: left; }
+
+.dropdown-chevron {
+  flex-shrink: 0;
+  color: #999;
+  transition: transform 0.2s;
+}
+
+.dropdown-chevron.open { transform: rotate(180deg); }
+
+.sheet-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.sheet-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10001;
+  background: #fff;
+  border-radius: 24px 24px 0 0;
+  padding: 12px 8px calc(12px + env(safe-area-inset-bottom));
+  max-height: 70vh;
+  overflow-y: auto;
+  box-shadow: 0 -8px 40px rgba(0,0,0,0.18);
+}
+
+.sheet-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 16px 16px;
+  border: none;
+  background: none;
+  font-size: 16px;
+  font-weight: 400;
+  color: #333;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: background 0.12s;
+}
+
+.sheet-item:active { background: #f5f5f5; }
+
+.sheet-item.active {
+  color: var(--accent-blue, #2563eb);
+  font-weight: 600;
+}
+
+.sheet-item-icon {
+  opacity: 0.4;
+  flex-shrink: 0;
+}
+
+.sheet-item.active .sheet-item-icon {
   opacity: 0.85;
-  color: var(--accent-blue, #007aff);
+  color: var(--accent-blue, #2563eb);
 }
 
-@media (max-width: 768px) {
-  .sub-tabs-row {
-    gap: 10px;
-  }
-
-  .sub-tabs {
-    border-radius: 12px;
-    padding: 4px;
-  }
-
-  .sub-tab {
-    padding: 8px 14px;
-    font-size: 11px;
-  }
-
-  .sub-tab-icon {
-    width: 22px;
-    height: 16px;
-  }
-
-  .sub-tab-icon-svg {
-    width: 22px;
-    height: 22px;
-    display: block;
-  }
-
-  .size-filters {
-    border-radius: 12px;
-    padding: 4px;
-  }
-
-  .size-pill {
-    padding: 8px 14px;
-    font-size: 12px;
-  }
+.sheet-check {
+  margin-left: auto;
+  color: var(--accent-blue, #2563eb);
+  transform: rotate(180deg);
 }
 
-/* Featured banner */
+.sheet-fade-enter-active,
+.sheet-fade-leave-active { transition: opacity 0.2s ease; }
+.sheet-fade-enter-from,
+.sheet-fade-leave-to { opacity: 0; }
+
+.sheet-slide-enter-active { transition: transform 0.28s cubic-bezier(0.16,1,0.3,1); }
+.sheet-slide-leave-active { transition: transform 0.2s ease-in; }
+.sheet-slide-enter-from { transform: translateY(100%); }
+.sheet-slide-leave-to { transform: translateY(100%); }
+
+/* ===== Featured banner ===== */
 .featured-banner {
   display: flex;
   align-items: center;
@@ -675,9 +785,7 @@ onUnmounted(() => {
   transition: box-shadow 0.3s;
 }
 
-.featured-banner:hover {
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
-}
+.featured-banner:hover { box-shadow: 0 12px 40px rgba(0,0,0,0.25); }
 
 .banner-image {
   flex: 0 0 50%;
@@ -687,11 +795,7 @@ onUnmounted(() => {
   padding: 32px;
 }
 
-.banner-image img {
-  max-width: 100%;
-  max-height: 220px;
-  object-fit: contain;
-}
+.banner-image img { max-width: 100%; max-height: 220px; object-fit: contain; }
 
 .banner-info {
   flex: 1;
@@ -701,38 +805,17 @@ onUnmounted(() => {
   gap: 16px;
 }
 
-.banner-title {
-  font-size: 28px;
-  font-weight: 700;
-  color: #fff;
-  margin: 0;
-  line-height: 1.2;
-}
+.banner-title { font-size: 28px; font-weight: 700; color: #fff; margin: 0; line-height: 1.2; }
+.banner-colors { display: flex; gap: 8px; }
+.banner-color-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.3); }
 
-.banner-colors {
-  display: flex;
-  gap: 8px;
-}
-
-.banner-color-dot {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  border: 2px solid rgba(255,255,255,0.3);
-}
-
-.banner-actions {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  margin-top: 8px;
-}
+.banner-actions { display: flex; align-items: center; gap: 24px; margin-top: 8px; }
 
 .banner-price {
   display: inline-flex;
   align-items: center;
   padding: 12px 28px;
-  background: #007AFF;
+  background: #2563eb;
   color: #fff;
   border-radius: 999px;
   font-size: 16px;
@@ -749,41 +832,9 @@ onUnmounted(() => {
   transition: color 0.2s;
 }
 
-.featured-banner:hover .banner-link {
-  color: #fff;
-}
+.featured-banner:hover .banner-link { color: #fff; }
 
-@media (max-width: 768px) {
-  .featured-banner {
-    flex-direction: column;
-    min-height: auto;
-  }
-
-  .banner-image {
-    flex: none;
-    width: 100%;
-    padding: 24px;
-  }
-
-  .banner-image img {
-    max-height: 160px;
-  }
-
-  .banner-info {
-    padding: 0 24px 24px;
-    gap: 12px;
-  }
-
-  .banner-title {
-    font-size: 22px;
-  }
-
-  .banner-price {
-    padding: 10px 22px;
-    font-size: 15px;
-  }
-}
-
+/* ===== Section header ===== */
 .section-header {
   display: flex;
   justify-content: space-between;
@@ -791,17 +842,9 @@ onUnmounted(() => {
   margin-bottom: 24px;
 }
 
-.section-title {
-  font-size: 32px;
-  font-weight: 700;
-  color: #111;
-}
+.section-title { font-size: 32px; font-weight: 700; color: #111; }
 
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
+.header-right { display: flex; align-items: center; gap: 24px; }
 
 .view-all-link {
   display: flex;
@@ -813,10 +856,7 @@ onUnmounted(() => {
   font-size: 16px;
 }
 
-.nav-buttons {
-  display: flex;
-  gap: 8px;
-}
+.nav-buttons { display: flex; gap: 8px; }
 
 .nav-btn {
   width: 40px;
@@ -831,15 +871,11 @@ onUnmounted(() => {
   transition: all 0.2s;
 }
 
-.nav-btn:hover:not(:disabled) {
-  border-color: var(--text-dark);
-  color: var(--text-dark);
-}
+.nav-btn:hover:not(:disabled) { border-color: var(--text-dark); color: var(--text-dark); }
+.nav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-.nav-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
+/* ===== Carousel ===== */
+.carousel-wrapper { position: relative; }
 
 .carousel-track {
   display: flex;
@@ -851,62 +887,68 @@ onUnmounted(() => {
   padding-bottom: 20px;
 }
 
-.carousel-track::-webkit-scrollbar {
-  display: none;
+.carousel-track::-webkit-scrollbar { display: none; }
+
+.carousel-next-float {
+  position: absolute;
+  right: -4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  z-index: 10;
+  transition: background 0.15s, transform 0.15s;
+  backdrop-filter: blur(4px);
 }
 
+.carousel-next-float:hover { background: rgba(0,0,0,0.7); }
+
+/* ===== Product card ===== */
 .product-card {
   flex: 0 0 300px;
-  background: #fff;
-  border-radius: 20px;
-  padding: 20px 20px 0;
+  background: #f5f3f0;
+  border-radius: 24px;
+  padding: 24px 24px 0;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
   scroll-snap-align: start;
   transition: box-shadow 0.2s;
   overflow: hidden;
 }
 
-.product-card:hover {
-  box-shadow: 0 6px 24px rgba(0,0,0,0.1);
-}
+.product-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.1); }
 
-.product-name-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
-  margin-bottom: 8px;
-}
-
-.stock-dot {
-  flex-shrink: 0;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: #d1d5db;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 2px;
-}
-
-.stock-dot.in-stock {
-  background: #22c55e;
+.card-top-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  margin-bottom: 4px;
 }
 
 .product-name {
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 17px;
+  font-weight: 700;
   color: #111;
-  text-decoration: none;
-  text-align: left;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  min-height: 40px;
+  text-align: center;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.product-subtitle {
+  font-size: 13px;
+  color: #888;
+  margin: 4px 0 0;
+  text-align: center;
+  padding: 0;
 }
 
 .card-image-wrap {
@@ -918,12 +960,9 @@ onUnmounted(() => {
   text-decoration: none;
 }
 
-.card-image {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-}
+.card-image { max-width: 100%; max-height: 100%; object-fit: contain; }
 
+/* ===== Attributes ===== */
 .attributes-wrapper {
   display: flex;
   flex-direction: column;
@@ -936,23 +975,21 @@ onUnmounted(() => {
   display: flex;
   gap: 0;
   flex-wrap: nowrap;
-  background: #f0ece8;
-  border-radius: 10px;
+  background: #e8e4e0;
+  border-radius: 12px;
   padding: 3px;
   overflow-x: auto;
   scrollbar-width: none;
 }
 
-.pill-options::-webkit-scrollbar {
-  display: none;
-}
+.pill-options::-webkit-scrollbar { display: none; }
 
 .attr-pill {
   background: transparent;
   border: 1px solid transparent;
-  padding: 7px 12px;
-  border-radius: 8px;
-  font-size: 12px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
@@ -965,14 +1002,8 @@ onUnmounted(() => {
   background: #fff;
   border-color: var(--border-color);
   color: var(--text-dark);
+  font-weight: 600;
   box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-}
-
-.product-subtitle {
-  font-size: 13px;
-  color: #888;
-  margin: -4px 0 4px;
-  padding-left: 24px;
 }
 
 .color-options {
@@ -1002,30 +1033,27 @@ onUnmounted(() => {
   border: 1px solid rgba(0,0,0,0.12);
 }
 
-.color-dot.active {
-  border-color: var(--accent-blue);
-}
+.color-dot.active { border-color: var(--accent-blue); }
 
+/* ===== Add to cart button ===== */
 .add-cart-btn {
-  background: linear-gradient(90deg, #43e0f0 0%, #a855f7 100%);
+  background: #2563eb;
   color: #fff;
   border: none;
-  width: calc(100% + 40px);
-  margin: auto -20px 0;
+  width: calc(100% + 48px);
+  margin: auto -24px 0;
   padding: 16px 24px;
-  border-radius: 0 0 20px 20px;
+  border-radius: 0 0 24px 24px;
   font-weight: 600;
   cursor: pointer;
   font-size: 14px;
-  transition: opacity 0.2s, filter 0.2s;
+  transition: background 0.15s, filter 0.15s;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.add-cart-btn:hover:not(:disabled) {
-  filter: brightness(1.08);
-}
+.add-cart-btn:hover:not(:disabled) { background: #1d4ed8; }
 
 .add-cart-btn:disabled {
   background: #ccc;
@@ -1033,40 +1061,82 @@ onUnmounted(() => {
   opacity: 0.6;
 }
 
-.btn-price {
-  font-weight: 700;
-  font-size: 15px;
-}
+.btn-price { font-weight: 700; font-size: 16px; }
+.btn-text { font-weight: 600; font-size: 14px; }
 
-.btn-text {
+/* ===== View all bottom link ===== */
+.view-all-bottom {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--accent-blue);
+  text-decoration: none;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 16px;
+  margin-top: 20px;
 }
 
-.mobile-only {
-  display: none;
-}
-
+/* ===== Mobile ===== */
 @media (max-width: 768px) {
-  .desktop-only { display: none; }
-  .mobile-only {
-    display: flex;
-    justify-content: center;
-    margin-top: 16px;
-    background: #ede9e5;
-    padding: 12px;
-    border-radius: 12px;
-  }
+  .carousel-section { padding: 28px 12px; }
+
+  .desktop-only,
+  .desktop-sub { display: none !important; }
+
+  .mobile-dropdown-wrap.mobile-sub { display: block; margin-bottom: 16px; }
+
+  .section-header { margin-bottom: 16px; }
+  .section-title { font-size: 24px; }
+
+  .header-right .view-all-link { display: none; }
+  .nav-buttons { display: none; }
+
   .product-card {
-    flex: 0 0 240px;
-    padding: 16px 16px 0;
+    flex: 0 0 280px;
+    padding: 20px 20px 0;
+    border-radius: 20px;
   }
+
+  .product-name { font-size: 16px; }
 
   .add-cart-btn {
-    width: calc(100% + 32px);
-    margin: auto -16px 0;
-    padding: 12px 16px;
+    width: calc(100% + 40px);
+    margin: auto -20px 0;
+    padding: 14px 20px;
     border-radius: 0 0 20px 20px;
   }
+
+  .carousel-next-float {
+    width: 44px;
+    height: 44px;
+    right: 0;
+  }
+
+  .carousel-track { gap: 12px; }
+
+  .view-all-bottom { font-size: 15px; margin-top: 16px; }
+
+  .featured-banner {
+    flex-direction: column;
+    min-height: auto;
+    border-radius: 20px;
+    margin-bottom: 20px;
+  }
+
+  .banner-image { flex: none; width: 100%; padding: 24px; }
+  .banner-image img { max-height: 160px; }
+  .banner-info { padding: 0 24px 24px; gap: 12px; }
+  .banner-title { font-size: 22px; }
+  .banner-price { padding: 10px 22px; font-size: 15px; }
+
+  .size-filters { border-radius: 12px; padding: 4px; }
+  .size-pill { padding: 8px 16px; font-size: 13px; }
+  .size-filters-row { margin-bottom: 16px; }
+
+  .color-dot { width: 26px; height: 26px; }
+}
+
+@media (max-width: 380px) {
+  .product-card { flex: 0 0 260px; }
 }
 </style>

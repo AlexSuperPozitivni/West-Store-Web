@@ -341,7 +341,7 @@ watch(query, (q) => {
 }
 
 .add-cart-btn {
-  background: linear-gradient(90deg, #43e0f0 0%, #a855f7 100%);
+  background: #2563eb;
   color: #fff;
   border: none;
   width: calc(100% + 40px);
@@ -358,7 +358,7 @@ watch(query, (q) => {
 }
 
 .add-cart-btn:hover {
-  filter: brightness(1.08);
+  background: #1d4ed8;
 }
 
 .btn-price {

@@ -411,7 +411,7 @@ onMounted(() => fetchProducts())
 /* Кнопка корзины */
 .add-cart-btn {
   margin-top: auto;
-  background: linear-gradient(90deg, #43e0f0 0%, #a855f7 100%);
+  background: #2563eb;
   color: #fff;
   border: none;
   width: calc(100% + 48px);
@@ -429,7 +429,7 @@ onMounted(() => fetchProducts())
   align-items: center;
 }
 
-.add-cart-btn:hover:not(:disabled) { filter: brightness(1.08); }
+.add-cart-btn:hover:not(:disabled) { background: #1d4ed8; }
 .add-cart-btn:disabled { background: #ccc; cursor: not-allowed; opacity: 0.6; }
 
 .btn-price { font-weight: 700; font-size: 15px; }

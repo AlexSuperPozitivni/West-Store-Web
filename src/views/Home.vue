@@ -751,15 +751,20 @@ watch(contactModalOpen, (isOpen) => {
   width: 100%;
   border: 0;
   border-radius: 16px;
-  background: var(--accent);
+  background: #2563eb;
   color: #ffffff;
   font-size: 16px;
   font-weight: 700;
   line-height: 1;
-  min-height: 56px;
-  padding: 16px;
+  min-height: 52px;
+  padding: 14px;
   cursor: pointer;
   user-select: none;
+  transition: background 0.15s;
+}
+
+.hero-contact-btn:active {
+  background: #1d4ed8;
 }
 
 .home-page {

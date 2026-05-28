@@ -626,7 +626,7 @@ onMounted(() => {
 }
 
 .catalog-card {
-  background: #f9fafb;
+  background: #f5f3f0;
   border-radius: 28px;
   padding: 40px;
   display: grid;
@@ -683,7 +683,7 @@ onMounted(() => {
 }
 
 .add-cart-btn {
-  background: linear-gradient(90deg, #43e0f0 0%, #a855f7 100%);
+  background: #2563eb;
   color: #fff;
   border: none;
   padding: 14px 28px;
@@ -691,7 +691,7 @@ onMounted(() => {
   font-weight: 600;
   cursor: pointer;
   font-size: 14px;
-  transition: opacity 0.2s, filter 0.2s;
+  transition: background 0.15s;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -701,7 +701,7 @@ onMounted(() => {
 }
 
 .add-cart-btn:hover:not(:disabled) {
-  filter: brightness(1.08);
+  background: #1d4ed8;
 }
 
 .add-cart-btn:disabled {
@@ -1044,15 +1044,32 @@ onMounted(() => {
 
 @media (max-width: 640px) {
   .container {
-    padding: 0 12px;
+    padding: 0 10px;
+  }
+
+  .catalog-page {
+    padding: 12px 0 60px;
+  }
+
+  .breadcrumb {
+    margin-bottom: 16px;
   }
 
   .hero-left h1 {
-    font-size: 24px;
+    font-size: 22px;
+  }
+
+  .catalog-hero {
+    margin-bottom: 20px;
+  }
+
+  .hero-right {
+    padding: 16px 18px;
+    border-radius: 16px;
   }
 
   .filter-bar {
-    gap: 10px;
+    gap: 8px;
   }
 
   .filters-panel {
@@ -1090,70 +1107,119 @@ onMounted(() => {
   .category-tabs {
     overflow-x: auto;
     scrollbar-width: none;
-    border-radius: 20px;
+    border-radius: 16px;
+    margin-bottom: 20px;
+    padding: 6px;
+  }
+
+  .tab-pill {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+
+  .tab-icon {
+    width: 24px;
+    height: 24px;
   }
 
   .catalog-list {
-    gap: 16px;
+    gap: 12px;
   }
 
   .catalog-card {
     padding: 20px;
     border-radius: 20px;
     gap: 16px;
+    background: #f5f3f0;
+  }
+
+  .card-media {
+    display: flex;
+    justify-content: center;
   }
 
   .card-media img {
-    max-width: 180px;
+    max-width: 200px;
   }
 
   .card-info {
-    gap: 12px;
+    gap: 10px;
   }
 
   .card-title {
-    font-size: 18px;
+    font-size: 20px;
+    text-align: center;
+  }
+
+  .product-subtitle {
+    text-align: center;
   }
 
   .stock-buy-row {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .stock-label-inline {
+    text-align: center;
   }
 
   .add-cart-btn {
     width: 100%;
     max-width: none;
+    padding: 14px 20px;
+    border-radius: 14px;
+    font-size: 15px;
   }
 
   .attr-row {
     grid-template-columns: 1fr;
-    gap: 8px;
+    gap: 6px;
+  }
+
+  .attr-label {
+    text-align: center;
   }
 
   .variable-item {
-    width: 24px;
-    height: 24px;
+    width: 26px;
+    height: 26px;
   }
 
   .variable-item-contents {
-    width: 14px;
-    height: 14px;
+    width: 16px;
+    height: 16px;
+  }
+
+  .variable-items-wrapper {
+    justify-content: center;
   }
 
   .pill-options {
-    background: transparent;
-    padding: 0;
-    gap: 8px;
+    background: #e8e4e0;
+    padding: 4px;
+    gap: 0;
+    border-radius: 12px;
+    justify-content: center;
   }
 
   .pill {
-    padding: 8px 12px;
-    font-size: 12px;
+    padding: 8px 14px;
+    font-size: 13px;
+    border-radius: 10px;
+    flex: 1;
+    text-align: center;
   }
 
-  .add-cart-btn {
-    padding: 14px 18px;
+  .pill.active {
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+
+  .card-more {
+    text-align: center;
+    display: block;
   }
 }
 </style>

@@ -633,8 +633,9 @@ watch(() => router.currentRoute.value.path, () => {
   position: fixed;
   inset: 0;
   z-index: 998;
-  background: rgba(0, 0, 0, 0.25);
-  backdrop-filter: blur(2px);
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 .search-area {
@@ -709,32 +710,56 @@ watch(() => router.currentRoute.value.path, () => {
     display: none !important;
   }
 
+  .header {
+    border-bottom: none;
+  }
+
+  .header-bar {
+    background: #1e2330;
+  }
+
   .header-inner {
-    height: 80px;
-    padding: 0 16px;
+    height: 64px;
+    padding: 0 14px;
+  }
+
+  .toggle-btn {
+    color: #fff;
+  }
+
+  .toggle-btn:hover {
+    background: rgba(255,255,255,0.1);
   }
 
   .logo-img {
-    height: 70px;
+    height: 44px;
+    filter: brightness(0) invert(1) drop-shadow(0 1px 2px rgba(0,0,0,0.2));
   }
 
   .logo-text {
     display: none;
   }
 
+  .cart-btn {
+    color: #fff;
+  }
+
+  .cart-badge {
+    border-color: #1e2330;
+  }
+
   .mega-menu {
     position: fixed;
-    top: 80px;
+    top: 64px;
     left: 0;
     width: 100%;
-    height: calc(100dvh - 80px);
+    height: calc(100dvh - 64px);
     max-height: none;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    border-top: 1px solid var(--border-color);
+    border-top: none;
   }
 
-  /* On mobile: slide from left instead of from top */
   .menu-slide-enter-from {
     opacity: 0;
     transform: translateX(-16px);
@@ -747,7 +772,7 @@ watch(() => router.currentRoute.value.path, () => {
   .mega-inner {
     flex-direction: column;
     gap: 0;
-    padding: 0 16px;
+    padding: 0 14px;
     min-height: auto;
   }
 
@@ -758,8 +783,8 @@ watch(() => router.currentRoute.value.path, () => {
   }
 
   .cat-item {
-    padding: 12px 8px;
-    font-size: 15px;
+    padding: 14px 8px;
+    font-size: 16px;
     border-bottom: 1px solid var(--border-color);
     border-radius: 0;
   }
@@ -779,8 +804,8 @@ watch(() => router.currentRoute.value.path, () => {
   }
 
   .sub-item {
-    font-size: 14px;
-    padding: 10px 8px;
+    font-size: 15px;
+    padding: 12px 8px;
     border-bottom: 1px solid #f0f0f0;
     border-radius: 0;
   }
@@ -799,8 +824,8 @@ watch(() => router.currentRoute.value.path, () => {
   .mobile-sub-item {
     display: block;
     width: 100%;
-    padding: 10px 8px;
-    font-size: 14px;
+    padding: 12px 8px;
+    font-size: 15px;
     color: var(--text-main);
     background: none;
     border: none;
@@ -816,6 +841,10 @@ watch(() => router.currentRoute.value.path, () => {
   .mobile-sub-all {
     font-weight: 600;
     color: var(--accent-blue, #2563eb);
+  }
+
+  .info-link {
+    font-size: 14px;
   }
 }
 </style>
