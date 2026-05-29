@@ -86,6 +86,7 @@ const menuItems = [
   {
     section: 'НАСТРОЙКИ',
     items: [
+      { name: 'SEO', icon: DataLine, path: '/admin/seo', submenu: null },
       { name: 'Настройки', icon: Setting, path: '/admin/settings', submenu: null },
       { name: 'Выход', icon: SwitchButton, path: null, submenu: null, isLogout: true }
     ]

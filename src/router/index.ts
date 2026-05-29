@@ -31,6 +31,7 @@ const Promocodes = () => import('../views/Admin/Promocodes.vue')
 const Pages = () => import('../views/Admin/Pages.vue')
 const Requests = () => import('../views/Admin/Requests.vue')
 const Import = () => import('../views/Admin/Import.vue')
+const Seo = () => import('../views/Admin/Seo.vue')
 const Settings = () => import('../views/Admin/Settings.vue')
 
 const routes = [
@@ -68,6 +69,7 @@ const routes = [
   { path: '/admin/pages', name: 'Pages', component: Pages, meta: { requiresAuth: true } },
   { path: '/admin/requests', name: 'Requests', component: Requests, meta: { requiresAuth: true } },
   { path: '/admin/import', name: 'Import', component: Import, meta: { requiresAuth: true } },
+  { path: '/admin/seo', name: 'Seo', component: Seo, meta: { requiresAuth: true } },
   { path: '/admin/settings', name: 'Settings', component: Settings, meta: { requiresAuth: true } },
 
   // 404
