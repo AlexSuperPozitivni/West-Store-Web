@@ -887,6 +887,7 @@ onUnmounted(() => {
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
   padding-bottom: 20px;
+  will-change: scroll-position;
 }
 
 .carousel-track::-webkit-scrollbar { display: none; }

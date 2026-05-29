@@ -17,6 +17,7 @@ const handleSearch = () => {
   closeMenu()
   router.push({ path: '/search', query: { q } })
 }
+const searchInputRef = ref<HTMLInputElement | null>(null)
 const activeCategory = ref<string | null>(null)
 const mobileExpanded = ref<string | null>(null)
 const isMobile = ref(false)

@@ -1,32 +1,36 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../views/Home.vue'
-import NotFound from '../views/NotFound.vue'
-import Search from '../views/Search.vue'
-import Login from '../views/Login.vue'
 import CategoryList from '../views/CategoryList.vue'
 import ProductDetail from '../views/ProductDetail.vue'
-import Cart from '../views/Cart.vue'
-import TradeIn from '../views/TradeIn.vue'
-import Repair from '../views/Repair.vue'
-import Payment from '../views/Payment.vue'
-import About from '../views/About.vue'
-import Contacts from '../views/Contacts.vue'
-import Blog from '../views/Blog.vue'
-import Franchise from '../views/Franchise.vue'
-import Dashboard from '../views/Admin/Dashboard.vue'
-import Categories from '../views/Admin/Categories.vue'
-import Products from '../views/Admin/Products.vue'
-import Media from '../views/Admin/Media.vue'
-import Sliders from '../views/Admin/Sliders.vue'
-import ActivityLog from '../views/Admin/ActivityLog.vue'
-import Orders from '../views/Admin/Orders.vue'
-import Analytics from '../views/Admin/Analytics.vue'
-import Customers from '../views/Admin/Customers.vue'
-import Promocodes from '../views/Admin/Promocodes.vue'
-import Pages from '../views/Admin/Pages.vue'
-import Requests from '../views/Admin/Requests.vue'
-import Import from '../views/Admin/Import.vue'
-import Settings from '../views/Admin/Settings.vue'
+
+// Lazy-loaded public pages
+const Cart = () => import('../views/Cart.vue')
+const Search = () => import('../views/Search.vue')
+const TradeIn = () => import('../views/TradeIn.vue')
+const Repair = () => import('../views/Repair.vue')
+const Payment = () => import('../views/Payment.vue')
+const About = () => import('../views/About.vue')
+const Contacts = () => import('../views/Contacts.vue')
+const Blog = () => import('../views/Blog.vue')
+const Franchise = () => import('../views/Franchise.vue')
+const Login = () => import('../views/Login.vue')
+const NotFound = () => import('../views/NotFound.vue')
+
+// Lazy-loaded admin pages (only loaded when admin navigates there)
+const Dashboard = () => import('../views/Admin/Dashboard.vue')
+const Categories = () => import('../views/Admin/Categories.vue')
+const Products = () => import('../views/Admin/Products.vue')
+const Media = () => import('../views/Admin/Media.vue')
+const Sliders = () => import('../views/Admin/Sliders.vue')
+const ActivityLog = () => import('../views/Admin/ActivityLog.vue')
+const Orders = () => import('../views/Admin/Orders.vue')
+const Analytics = () => import('../views/Admin/Analytics.vue')
+const Customers = () => import('../views/Admin/Customers.vue')
+const Promocodes = () => import('../views/Admin/Promocodes.vue')
+const Pages = () => import('../views/Admin/Pages.vue')
+const Requests = () => import('../views/Admin/Requests.vue')
+const Import = () => import('../views/Admin/Import.vue')
+const Settings = () => import('../views/Admin/Settings.vue')
 
 const routes = [
   // Публичные маршруты

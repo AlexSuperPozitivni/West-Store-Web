@@ -26,18 +26,25 @@ const searched = ref(false)
 
 useSeo({ title: `Поиск: ${query.value}` })
 
+let searchAbort: AbortController | null = null
+
 const searchProducts = async (q: string) => {
   if (!q.trim()) {
     products.value = []
     searched.value = false
     return
   }
+  // Cancel previous request
+  if (searchAbort) searchAbort.abort()
+  searchAbort = new AbortController()
+
   loading.value = true
   searched.value = false
   try {
-    const { data } = await api.get('/products', { params: { search: q } })
+    const { data } = await api.get('/products', { params: { search: q }, signal: searchAbort.signal })
     products.value = Array.isArray(data) ? data : (data.data || [])
-  } catch (e) {
+  } catch (e: any) {
+    if (e?.code === 'ERR_CANCELED') return
     console.error('Search failed:', e)
     products.value = []
   } finally {

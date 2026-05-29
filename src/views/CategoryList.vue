@@ -427,7 +427,7 @@ onMounted(() => {
       <div v-loading="loading" class="catalog-list">
         <div v-for="product in visibleProducts" :key="product.id" class="catalog-card">
           <div class="card-media">
-            <img :src="getImageUrl(getProductImage(product))" :alt="product.name" />
+            <img :src="getImageUrl(getProductImage(product))" :alt="product.name" loading="lazy" />
           </div>
 
           <div class="card-info">

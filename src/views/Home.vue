@@ -966,6 +966,7 @@ watch(contactModalOpen, (isOpen) => {
   display: flex;
   width: 100%;
   will-change: transform;
+  backface-visibility: hidden;
 }
 
 .slide {
