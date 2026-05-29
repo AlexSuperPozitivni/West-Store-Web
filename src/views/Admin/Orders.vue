@@ -22,7 +22,10 @@ interface Order {
   customer_address: string
   items: OrderItem[]
   total: number
-  status: 'new' | 'processing' | 'delivered' | 'cancelled'
+  status: 'new' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
+  payment_status: 'pending' | 'paid' | 'partial' | 'refunded'
+  payment_method: string
+  tracking_number: string
   notes: string
 }
 
@@ -35,6 +38,9 @@ const dialogVisible = ref(false)
 const currentOrder = ref<Order | null>(null)
 const editStatus = ref<string>('')
 const editNotes = ref('')
+const editPaymentStatus = ref<string>('pending')
+const editPaymentMethod = ref<string>('')
+const editTrackingNumber = ref<string>('')
 
 // Filters
 const searchQuery = ref('')
@@ -64,6 +70,7 @@ const handleAuthError = (e: any) => {
 const statusLabels: Record<string, string> = {
   new: 'Новый',
   processing: 'В обработке',
+  shipped: 'Отправлен',
   delivered: 'Доставлен',
   cancelled: 'Отменён'
 }
@@ -71,6 +78,7 @@ const statusLabels: Record<string, string> = {
 const statusColors: Record<string, string> = {
   new: '#409EFF',
   processing: '#e6a23c',
+  shipped: '#8b5cf6',
   delivered: '#67c23a',
   cancelled: '#f56c6c'
 }
@@ -79,9 +87,20 @@ const statusOptions = [
   { value: '', label: 'Все статусы' },
   { value: 'new', label: 'Новый' },
   { value: 'processing', label: 'В обработке' },
+  { value: 'shipped', label: 'Отправлен' },
   { value: 'delivered', label: 'Доставлен' },
   { value: 'cancelled', label: 'Отменён' }
 ]
+
+const paymentStatusLabels: Record<string, string> = {
+  pending: 'Ожидает', paid: 'Оплачен', partial: 'Частично', refunded: 'Возврат'
+}
+
+const paymentStatusColors: Record<string, string> = {
+  pending: '#e6a23c', paid: '#67c23a', partial: '#409EFF', refunded: '#f56c6c'
+}
+
+const paymentMethods = ['Наличные', 'Карта', 'Перевод', 'СБП', 'Криптовалюта']
 
 // Stats
 const totalOrders = computed(() => orders.value.length)
@@ -196,6 +215,7 @@ function generateDemoOrders(): Order[] {
     else if (daysAgo < 20) status = Math.random() > 0.3 ? 'delivered' : 'processing'
     else status = Math.random() > 0.15 ? 'delivered' : 'cancelled'
 
+    const paymentSt = status === 'delivered' ? 'paid' : (status === 'cancelled' ? 'refunded' : (Math.random() > 0.5 ? 'paid' : 'pending'))
     result.push({
       id: i + 1,
       order_number: `WS-${String(10000 + i).slice(1)}`,
@@ -207,6 +227,9 @@ function generateDemoOrders(): Order[] {
       items: orderItems,
       total,
       status,
+      payment_status: paymentSt as Order['payment_status'],
+      payment_method: ['Наличные', 'Карта', 'Перевод', 'СБП'][Math.floor(Math.random() * 4)],
+      tracking_number: status === 'shipped' || status === 'delivered' ? `CDEK-${100000 + Math.floor(Math.random() * 900000)}` : '',
       notes: ''
     })
   }
@@ -244,6 +267,9 @@ const openOrderDetail = (order: Order) => {
   currentOrder.value = { ...order, items: [...order.items] }
   editStatus.value = order.status
   editNotes.value = order.notes || ''
+  editPaymentStatus.value = order.payment_status || 'pending'
+  editPaymentMethod.value = order.payment_method || ''
+  editTrackingNumber.value = order.tracking_number || ''
   dialogVisible.value = true
 }
 
@@ -280,16 +306,24 @@ const updateOrderStatus = async () => {
     await ensureCsrf()
     await api.put(`/admin/orders/${order.id}`, {
       status: newStatus,
-      notes: editNotes.value
+      notes: editNotes.value,
+      payment_status: editPaymentStatus.value,
+      payment_method: editPaymentMethod.value,
+      tracking_number: editTrackingNumber.value,
     })
     order.status = newStatus
     order.notes = editNotes.value
+    order.payment_status = editPaymentStatus.value as Order['payment_status']
+    order.payment_method = editPaymentMethod.value
+    order.tracking_number = editTrackingNumber.value
     ElMessage.success('Заказ обновлён')
   } catch (e: any) {
     if (handleAuthError(e)) return
-    // Fallback: update locally
     order.status = newStatus
     order.notes = editNotes.value
+    order.payment_status = editPaymentStatus.value as Order['payment_status']
+    order.payment_method = editPaymentMethod.value
+    order.tracking_number = editTrackingNumber.value
     saveToLocalStorage(orders.value)
     ElMessage.success('Заказ обновлён (локально)')
   }
@@ -436,9 +470,16 @@ onMounted(fetchOrders)
             <td class="col-status">
               <span
                 class="status-badge"
-                :style="{ background: statusColors[order.status] + '18', color: statusColors[order.status], borderColor: statusColors[order.status] + '40' }"
+                :style="{ background: statusColors[order.status] + '18', color: statusColors[order.status] }"
               >
                 {{ statusLabels[order.status] }}
+              </span>
+              <span
+                v-if="order.payment_status"
+                class="status-badge payment-badge"
+                :style="{ background: (paymentStatusColors[order.payment_status] || '#909399') + '18', color: paymentStatusColors[order.payment_status] || '#909399' }"
+              >
+                {{ paymentStatusLabels[order.payment_status] || order.payment_status }}
               </span>
             </td>
             <td class="col-actions" @click.stop>
@@ -512,20 +553,40 @@ onMounted(fetchOrders)
           </div>
         </div>
 
-        <!-- Status & Notes -->
+        <!-- Status & Payment -->
         <div class="detail-section">
           <h4>Управление</h4>
           <el-form label-position="top">
-            <el-form-item label="Статус заказа">
-              <el-select v-model="editStatus" style="width: 100%">
-                <el-option
-                  v-for="opt in statusOptions.filter(o => o.value)"
-                  :key="opt.value"
-                  :label="opt.label"
-                  :value="opt.value"
-                />
-              </el-select>
-            </el-form-item>
+            <div class="form-row-2">
+              <el-form-item label="Статус заказа">
+                <el-select v-model="editStatus" style="width: 100%">
+                  <el-option
+                    v-for="opt in statusOptions.filter(o => o.value)"
+                    :key="opt.value"
+                    :label="opt.label"
+                    :value="opt.value"
+                  />
+                </el-select>
+              </el-form-item>
+              <el-form-item label="Статус оплаты">
+                <el-select v-model="editPaymentStatus" style="width: 100%">
+                  <el-option value="pending" label="Ожидает оплаты" />
+                  <el-option value="paid" label="Оплачен" />
+                  <el-option value="partial" label="Частично оплачен" />
+                  <el-option value="refunded" label="Возврат" />
+                </el-select>
+              </el-form-item>
+            </div>
+            <div class="form-row-2">
+              <el-form-item label="Способ оплаты">
+                <el-select v-model="editPaymentMethod" style="width: 100%" clearable placeholder="Выберите...">
+                  <el-option v-for="m in paymentMethods" :key="m" :label="m" :value="m" />
+                </el-select>
+              </el-form-item>
+              <el-form-item label="Трек-номер (СДЭК, Почта)">
+                <el-input v-model="editTrackingNumber" placeholder="Например: CDEK-123456" clearable />
+              </el-form-item>
+            </div>
             <el-form-item label="Заметки">
               <el-input
                 v-model="editNotes"
@@ -867,13 +928,22 @@ onMounted(fetchOrders)
     min-width: unset;
   }
 
-  .orders-table-wrap {
-    overflow-x: auto;
+  .orders-table thead { display: none; }
+  .orders-table, .orders-table tbody, .orders-table tr, .orders-table td {
+    display: block; width: 100%;
   }
-
-  .orders-table {
-    min-width: 700px;
+  .orders-table tr.order-row {
+    background: var(--card-bg, #fff); border-radius: 12px; padding: 16px;
+    margin-bottom: 12px; box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
   }
+  .orders-table td { padding: 2px 0; border: none; }
+  .orders-table .col-number { font-weight: 700; }
+  .orders-table .col-date { text-align: right; color: var(--text-muted, #909399); font-size: 12px; }
+  .orders-table .col-customer { grid-column: 1 / -1; }
+  .orders-table .col-total { font-weight: 700; font-size: 16px; }
+  .orders-table .col-status { text-align: right; }
+  .orders-table .col-actions { grid-column: 1 / -1; display: flex; gap: 8px; margin-top: 4px; }
 }
 
 @media (max-width: 500px) {
@@ -943,4 +1013,11 @@ onMounted(fetchOrders)
   border-color: #3a3a3a;
   color: #e0e0e0;
 }
+
+.form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 640px) { .form-row-2 { grid-template-columns: 1fr; } }
+
+.payment-badge { margin-left: 4px; }
+
+.col-status { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
 </style>

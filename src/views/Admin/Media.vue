@@ -15,6 +15,16 @@ const deletingBulk = ref(false)
 
 const selectedCount = computed(() => selectedPaths.value.length)
 const hasSelection = computed(() => selectedCount.value > 0)
+const searchQuery = ref('')
+const filteredMedia = computed(() => {
+  if (!searchQuery.value.trim()) return media.value
+  const q = searchQuery.value.toLowerCase()
+  return media.value.filter((item: any) =>
+    (item.name || '').toLowerCase().includes(q) ||
+    (item.mime_type || '').toLowerCase().includes(q) ||
+    (item.path || '').toLowerCase().includes(q)
+  )
+})
 
 const API_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin + '/api' : '/api')
 const APP_URL = import.meta.env.VITE_APP_URL || API_URL.replace(/\/api\/?$/, '')
@@ -226,6 +236,9 @@ defineExpose({ selectedImage })
       </div>
 
       <div class="header-actions">
+        <el-input v-model="searchQuery" placeholder="Поиск файлов..." clearable style="width: 220px" class="media-search">
+          <template #prefix><el-icon><Search /></el-icon></template>
+        </el-input>
         <el-button v-if="hasSelection" type="danger" :loading="deletingBulk" @click="deleteSelected">
           Удалить выбранные ({{ selectedCount }})
         </el-button>
@@ -234,9 +247,14 @@ defineExpose({ selectedImage })
       </div>
     </div>
 
+    <div class="media-stats" v-if="!loading">
+      <span>{{ filteredMedia.length }} файлов</span>
+      <span v-if="searchQuery"> (из {{ media.length }})</span>
+    </div>
+
     <div class="media-grid" v-loading="loading">
       <div
-        v-for="item in media"
+        v-for="item in filteredMedia"
         :key="item.id"
         :class="['media-item', { 'is-selected': isSelected(item.path) }]"
         @click="toggleSelect(item)"
@@ -300,6 +318,14 @@ defineExpose({ selectedImage })
 .media-page {
   padding: 20px 0;
 }
+
+.media-stats {
+  font-size: 13px;
+  color: var(--text-muted, #909399);
+  margin-bottom: 12px;
+}
+
+.media-search { margin-right: auto; }
 
 .page-header {
   display: flex;

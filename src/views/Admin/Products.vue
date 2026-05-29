@@ -34,6 +34,7 @@ interface ProductForm {
   sku: string
   category_id: number | null
   price: number
+  stock: number | null
   description: string
   image_main: string
   images: string[]
@@ -79,7 +80,7 @@ const presetColors = [
 ]
 
 const form = ref<ProductForm>({
-  name: '', slug: '', sku: '', category_id: null, price: 0,
+  name: '', slug: '', sku: '', category_id: null, price: 0, stock: null,
   description: '', image_main: '', images: [], is_active: true, colors: []
 })
 
@@ -243,7 +244,8 @@ const openEditDialog = (product: Product) => {
   form.value = {
     name: product.name || '', slug: product.slug || '',
     sku: product.sku || '', category_id: product.category_id || null,
-    price: Number(product.price) || 0, description: product.description || '',
+    price: Number(product.price) || 0, stock: (product as any).stock ?? null,
+    description: product.description || '',
     image_main: product.image_main || '',
     images: Array.isArray(product.images) ? product.images : [],
     is_active: product.is_active ?? true,
@@ -400,7 +402,7 @@ const onDragEnd = () => { dragIndex.value = null }
 
 const resetForm = () => {
   form.value = {
-    name: '', slug: '', sku: '', category_id: null, price: 0,
+    name: '', slug: '', sku: '', category_id: null, price: 0, stock: null,
     description: '', image_main: '', images: [], is_active: true, colors: []
   }
   specsRows.value = [{ key: '', value: '' }]
@@ -522,6 +524,14 @@ onMounted(() => {
             <span class="price-text">{{ Number(scope.row.price).toLocaleString() }} ₽</span>
           </template>
         </el-table-column>
+        <el-table-column label="Остаток" width="90">
+          <template #default="scope">
+            <span v-if="scope.row.stock != null" :class="['stock-text', scope.row.stock <= 3 ? 'low' : '']">
+              {{ scope.row.stock }} шт.
+            </span>
+            <span v-else class="stock-text na">—</span>
+          </template>
+        </el-table-column>
         <el-table-column label="Статус" width="100">
           <template #default="scope">
             <span :class="['status-indicator', scope.row.is_active ? 'active' : 'inactive']">
@@ -575,11 +585,20 @@ onMounted(() => {
           </el-col>
         </el-row>
 
-        <el-form-item label="Категория">
-          <el-select v-model="form.category_id" placeholder="Выберите категорию" style="width: 100%" v-loading="loadingCategories">
-            <el-option v-for="cat in categories" :key="cat.id" :label="cat.name" :value="cat.id" />
-          </el-select>
-        </el-form-item>
+        <el-row :gutter="16">
+          <el-col :span="12">
+            <el-form-item label="Остаток на складе">
+              <el-input-number v-model="form.stock" :min="0" style="width: 100%" placeholder="0" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="Категория">
+              <el-select v-model="form.category_id" placeholder="Выберите категорию" style="width: 100%" v-loading="loadingCategories">
+                <el-option v-for="cat in categories" :key="cat.id" :label="cat.name" :value="cat.id" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
 
         <el-form-item label="Описание">
           <el-input v-model="form.description" type="textarea" :rows="3" />
@@ -734,6 +753,9 @@ onMounted(() => {
 
 .category-text { color: var(--text-muted, #909399); }
 .price-text { color: var(--text-primary, #303133); font-weight: 500; }
+.stock-text { font-size: 13px; font-weight: 500; color: #67c23a; }
+.stock-text.low { color: #f56c6c; font-weight: 600; }
+.stock-text.na { color: var(--text-muted, #c0c4cc); }
 .status-indicator { font-size: 12px; padding: 4px 12px; border-radius: 4px; }
 .status-indicator.active { color: #67c23a; background: rgba(103, 194, 58, 0.1); }
 .status-indicator.inactive { color: #f56c6c; background: rgba(245, 108, 108, 0.1); }
