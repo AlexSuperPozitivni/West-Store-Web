@@ -134,6 +134,7 @@ const storeLinks = [
 
           <div class="copyright">
             <p>© WEST-STORE 2012-{{ currentYear }}</p>
+            <RouterLink to="/privacy" class="legal-link">Политика конфиденциальности</RouterLink>
             <p class="legal-text">
               Сайт носит сугубо информационный характер и не является публичной офертой, определяемой Статьей 437(2) ГК РФ.
             </p>
@@ -395,6 +396,17 @@ const storeLinks = [
   line-height: 1.6;
   margin: 0;
 }
+
+.legal-link {
+  display: inline-block;
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+  text-decoration: none;
+  margin-top: 8px;
+  transition: color 0.2s;
+}
+
+.legal-link:hover { color: var(--accent-blue); }
 
 .legal-text {
   margin-top: 10px;

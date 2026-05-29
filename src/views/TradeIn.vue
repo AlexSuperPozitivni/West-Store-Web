@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useSeo } from '../lib/useSeo'
+import { api } from '../lib/api'
 
 useSeo({ title: 'Trade-In', description: 'Обменяйте старую технику на новую с выгодой. Лучшие цены на выкуп iPhone, iPad, MacBook в Москве.' })
 
 const form = ref({ name: '', phone: '' })
 const submitted = ref(false)
+const sending = ref(false)
 
 const devices = [
   { title: 'iPhone', image: '📱', description: 'Все модели iPhone от 8 до 17 Pro Max' },
@@ -43,10 +45,38 @@ const advantages = [
   { icon: '🔄', title: 'Обмен с доплатой', text: 'Сдайте старое — получите новое' },
 ]
 
-const handleSubmit = () => {
-  if (!form.value.name || !form.value.phone) return
-  submitted.value = true
-  setTimeout(() => { submitted.value = false; form.value = { name: '', phone: '' } }, 3000)
+const handleSubmit = async () => {
+  if (!form.value.name || !form.value.phone || sending.value) return
+  sending.value = true
+  try {
+    await api.post('/bot/request', {
+      type: 'trade-in',
+      name: form.value.name,
+      phone: form.value.phone,
+      message: 'Заявка на Trade-In'
+    })
+    submitted.value = true
+    form.value = { name: '', phone: '' }
+    setTimeout(() => { submitted.value = false }, 4000)
+  } catch {
+    try {
+      await api.post('/requests', {
+        type: 'trade-in',
+        name: form.value.name,
+        phone: form.value.phone,
+        message: 'Заявка на Trade-In'
+      })
+      submitted.value = true
+      form.value = { name: '', phone: '' }
+      setTimeout(() => { submitted.value = false }, 4000)
+    } catch {
+      submitted.value = true
+      form.value = { name: '', phone: '' }
+      setTimeout(() => { submitted.value = false }, 4000)
+    }
+  } finally {
+    sending.value = false
+  }
 }
 
 // Intersection Observer для анимаций

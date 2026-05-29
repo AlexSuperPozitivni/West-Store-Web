@@ -1,0 +1,22 @@
+{
+  "name": "WEST-STORE — Apple в Москве",
+  "short_name": "WEST-STORE",
+  "description": "Интернет-магазин Apple техники. iPhone, MacBook, iPad, AirPods, Apple Watch по лучшим ценам.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f5f7",
+  "theme_color": "#1e2330",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logo_web.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/logo_new.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

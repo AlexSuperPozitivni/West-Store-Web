@@ -324,11 +324,17 @@ onMounted(() => {
 <template>
   <div class="catalog-page">
     <div class="container">
-      <div class="breadcrumb">
-        <RouterLink to="/">Главная</RouterLink>
+      <nav class="breadcrumb" itemscope itemtype="https://schema.org/BreadcrumbList">
+        <span itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <RouterLink to="/" itemprop="item"><span itemprop="name">Главная</span></RouterLink>
+          <meta itemprop="position" content="1" />
+        </span>
         <span>›</span>
-        <span>{{ breadcrumbLabel }}</span>
-      </div>
+        <span itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <span itemprop="name">{{ breadcrumbLabel }}</span>
+          <meta itemprop="position" content="2" />
+        </span>
+      </nav>
 
       <div class="catalog-hero">
         <div class="hero-left">

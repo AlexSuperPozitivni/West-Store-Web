@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useSeo } from '../lib/useSeo'
+import { api } from '../lib/api'
 
 useSeo({ title: 'Ремонт', description: 'Профессиональный ремонт iPhone, iPad, MacBook, Apple Watch в Москве. Бесплатная диагностика, оригинальные запчасти.' })
 
 const form = ref({ name: '', phone: '' })
 const submitted = ref(false)
+const sending = ref(false)
 
 const services = [
   {
@@ -67,10 +69,18 @@ const guarantees = [
   { icon: '💯', title: 'Бесплатная диагностика', text: 'Точная стоимость до начала работ' },
 ]
 
-const handleSubmit = () => {
-  if (!form.value.name || !form.value.phone) return
+const handleSubmit = async () => {
+  if (!form.value.name || !form.value.phone || sending.value) return
+  sending.value = true
+  try {
+    await api.post('/bot/request', { type: 'repair', name: form.value.name, phone: form.value.phone, message: 'Заявка на ремонт' })
+  } catch {
+    try { await api.post('/requests', { type: 'repair', name: form.value.name, phone: form.value.phone, message: 'Заявка на ремонт' }) } catch { /* fallback */ }
+  }
   submitted.value = true
-  setTimeout(() => { submitted.value = false; form.value = { name: '', phone: '' } }, 3000)
+  form.value = { name: '', phone: '' }
+  setTimeout(() => { submitted.value = false }, 4000)
+  sending.value = false
 }
 
 const observeElements = () => {

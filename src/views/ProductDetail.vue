@@ -185,9 +185,30 @@ const fetchProduct = async () => {
     const res = await api.get(`/products/${slug}`)
     product.value = res.data
     if (product.value) {
+      const p = product.value
+      const imgUrl = p.image_main ? (p.image_main.startsWith('http') ? p.image_main : `${window.location.origin}/storage/${p.image_main.replace(/^\/storage\//, '')}`) : ''
       setSeo({
-        title: product.value.name,
-        description: `${product.value.name} — купить в WEST-STORE за ${Number(product.value.price).toLocaleString('ru-RU')} ₽. Доставка по Москве.`,
+        title: p.name,
+        description: `${p.name} — купить в WEST-STORE за ${Number(p.price).toLocaleString('ru-RU')} ₽. Доставка по Москве.`,
+        ogImage: imgUrl || undefined,
+        type: 'product',
+        jsonLd: {
+          '@context': 'https://schema.org',
+          '@type': 'Product',
+          name: p.name,
+          description: p.description || `${p.name} — купить в WEST-STORE`,
+          image: imgUrl || undefined,
+          sku: p.sku || undefined,
+          brand: { '@type': 'Brand', name: 'Apple' },
+          offers: {
+            '@type': 'Offer',
+            url: `${window.location.origin}/product/${p.slug}`,
+            priceCurrency: 'RUB',
+            price: p.price,
+            availability: p.in_stock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+            seller: { '@type': 'Organization', name: 'WEST-STORE' }
+          }
+        }
       })
     }
     selectedAttributes.value = {}
@@ -222,13 +243,22 @@ watch(() => route.params.slug, () => {
 <template>
   <div class="product-page" v-loading="loading">
     <div v-if="product" class="container">
-      <div class="breadcrumb">
-        <RouterLink to="/">Главная</RouterLink>
+      <nav class="breadcrumb" itemscope itemtype="https://schema.org/BreadcrumbList">
+        <span itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <RouterLink to="/" itemprop="item"><span itemprop="name">Главная</span></RouterLink>
+          <meta itemprop="position" content="1" />
+        </span>
         <span>›</span>
-        <RouterLink to="/catalog">Каталог</RouterLink>
+        <span itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <RouterLink to="/catalog" itemprop="item"><span itemprop="name">Каталог</span></RouterLink>
+          <meta itemprop="position" content="2" />
+        </span>
         <span>›</span>
-        <span>{{ product.name }}</span>
-      </div>
+        <span itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <span itemprop="name">{{ product.name }}</span>
+          <meta itemprop="position" content="3" />
+        </span>
+      </nav>
 
       <div class="product-card">
         <div class="gallery">

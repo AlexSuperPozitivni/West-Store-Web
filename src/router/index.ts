@@ -14,6 +14,7 @@ const Contacts = () => import('../views/Contacts.vue')
 const Blog = () => import('../views/Blog.vue')
 const Franchise = () => import('../views/Franchise.vue')
 const Login = () => import('../views/Login.vue')
+const Privacy = () => import('../views/Privacy.vue')
 const NotFound = () => import('../views/NotFound.vue')
 
 // Lazy-loaded admin pages (only loaded when admin navigates there)
@@ -47,6 +48,7 @@ const routes = [
   { path: '/blog', name: 'Blog', component: Blog },
   { path: '/franchise', name: 'Franchise', component: Franchise },
   { path: '/search', name: 'Search', component: Search },
+  { path: '/privacy', name: 'Privacy', component: Privacy },
 
   // Авторизация
   { path: '/login', name: 'Login', component: Login },

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useSeo } from '../lib/useSeo'
+import { api } from '../lib/api'
 
 useSeo({
   title: 'Контакты',
@@ -9,11 +10,20 @@ useSeo({
 
 const form = ref({ name: '', phone: '' })
 const submitted = ref(false)
+const sending = ref(false)
 
-const handleSubmit = () => {
-  if (!form.value.name || !form.value.phone) return
+const handleSubmit = async () => {
+  if (!form.value.name || !form.value.phone || sending.value) return
+  sending.value = true
+  try {
+    await api.post('/bot/request', { type: 'callback', name: form.value.name, phone: form.value.phone, message: 'Обратный звонок' })
+  } catch {
+    try { await api.post('/requests', { type: 'callback', name: form.value.name, phone: form.value.phone, message: 'Обратный звонок' }) } catch { /* fallback */ }
+  }
   submitted.value = true
-  setTimeout(() => { submitted.value = false; form.value = { name: '', phone: '' } }, 3000)
+  form.value = { name: '', phone: '' }
+  setTimeout(() => { submitted.value = false }, 4000)
+  sending.value = false
 }
 
 const observeElements = () => {
