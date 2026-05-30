@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /login
+Disallow: /api/
+Disallow: /storage/
+Disallow: /cart
+Disallow: /search
+Disallow: /maintenance.html
+
+Sitemap: https://west-store.ru/sitemap.xml
+Host: https://west-store.ru

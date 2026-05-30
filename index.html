@@ -14,6 +14,67 @@
     <link rel="manifest" href="/manifest.json" />
     <title>WEST-STORE — Apple в Москве</title>
 
+    <!-- Open Graph / Twitter defaults (уточняются на каждой странице скриптом SEO) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="WEST-STORE" />
+    <meta property="og:title" content="WEST-STORE — Apple в Москве" />
+    <meta property="og:description" content="Интернет-магазин Apple техники в Москве. iPhone, MacBook, iPad, AirPods, Apple Watch по лучшим ценам." />
+    <meta property="og:url" content="https://west-store.ru/" />
+    <meta property="og:image" content="https://west-store.ru/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="WEST-STORE — Apple в Москве" />
+    <meta name="twitter:image" content="https://west-store.ru/og-image.jpg" />
+
+    <!-- Поисковая верификация (вставить коды из Google Search Console / Яндекс.Вебмастера) -->
+    <!-- <meta name="google-site-verification" content="ВСТАВЬ_КОД" /> -->
+    <!-- <meta name="yandex-verification" content="ВСТАВЬ_КОД" /> -->
+
+    <!-- Структурированные данные: организация + сайт (для Google и Яндекса) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Store",
+          "@id": "https://west-store.ru/#store",
+          "name": "WEST-STORE",
+          "url": "https://west-store.ru/",
+          "logo": "https://west-store.ru/logo_web.png",
+          "image": "https://west-store.ru/og-image.jpg",
+          "description": "Интернет-магазин Apple техники в Москве: iPhone, MacBook, iPad, AirPods, Apple Watch, а также Samsung, Dyson, телевизоры и аксессуары.",
+          "telephone": "+7-929-955-6487",
+          "priceRange": "₽₽",
+          "areaServed": "RU",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Москва",
+            "addressCountry": "RU"
+          },
+          "sameAs": [
+            "https://t.me/weststore_msk",
+            "https://www.instagram.com/onlyphones_ru/",
+            "https://www.avito.ru/brands/i314221442"
+          ]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://west-store.ru/#website",
+          "url": "https://west-store.ru/",
+          "name": "WEST-STORE",
+          "inLanguage": "ru-RU",
+          "publisher": { "@id": "https://west-store.ru/#store" },
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://west-store.ru/search?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        }
+      ]
+    }
+    </script>
+
     <!-- Yandex.Metrika -->
     <script type="text/javascript">
       (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};

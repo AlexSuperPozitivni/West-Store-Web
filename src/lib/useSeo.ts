@@ -6,11 +6,12 @@ interface SeoOptions {
   ogImage?: string
   canonical?: string
   type?: string
-  jsonLd?: Record<string, any>
+  jsonLd?: Record<string, any> | Record<string, any>[]
 }
 
 const SITE_NAME = 'WEST-STORE — Apple в Москве'
 const SITE_URL = 'https://west-store.ru'
+const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.jpg`
 
 const setMeta = (name: string, content: string) => {
   const attr = name.startsWith('og:') || name.startsWith('article:') ? 'property' : 'name'
@@ -33,7 +34,7 @@ const setLink = (rel: string, href: string) => {
   el.setAttribute('href', href)
 }
 
-const setJsonLd = (data: Record<string, any>) => {
+const setJsonLd = (data: Record<string, any> | Record<string, any>[]) => {
   let el = document.querySelector('script[data-seo-jsonld]')
   if (!el) {
     el = document.createElement('script')
@@ -41,7 +42,11 @@ const setJsonLd = (data: Record<string, any>) => {
     el.setAttribute('data-seo-jsonld', '')
     document.head.appendChild(el)
   }
-  el.textContent = JSON.stringify(data)
+  // Multiple blocks (e.g. Product + BreadcrumbList) are combined via @graph
+  const payload = Array.isArray(data)
+    ? { '@context': 'https://schema.org', '@graph': data }
+    : data
+  el.textContent = JSON.stringify(payload)
 }
 
 const removeJsonLd = () => {
@@ -66,11 +71,10 @@ const applyOptions = (options: SeoOptions) => {
   setMeta('twitter:card', 'summary_large_image')
   setMeta('twitter:title', fullTitle)
 
-  if (options.ogImage) {
-    const img = options.ogImage.startsWith('http') ? options.ogImage : `${SITE_URL}${options.ogImage}`
-    setMeta('og:image', img)
-    setMeta('twitter:image', img)
-  }
+  const ogImage = options.ogImage || DEFAULT_OG_IMAGE
+  const img = ogImage.startsWith('http') ? ogImage : `${SITE_URL}${ogImage}`
+  setMeta('og:image', img)
+  setMeta('twitter:image', img)
 
   // Canonical URL
   const canonical = options.canonical || `${SITE_URL}${window.location.pathname}`

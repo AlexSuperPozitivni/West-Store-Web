@@ -45,6 +45,36 @@ interface AttributeGroup {
   values: string[]
 }
 
+// Определяем бренд по названию товара для разметки Product (раньше всегда было "Apple")
+const detectBrand = (name: string): string | null => {
+  const n = (name || '').toLowerCase()
+  const map: [RegExp, string][] = [
+    [/iphone|ipad|macbook|airpods|apple watch|imac|\bmac\b|apple|magsafe|magic keyboard/, 'Apple'],
+    [/samsung|galaxy/, 'Samsung'],
+    [/playstation|dualsense|\bps5\b|sony/, 'Sony'],
+    [/dyson/, 'Dyson'],
+    [/\bjbl\b/, 'JBL'],
+    [/marshall/, 'Marshall'],
+    [/bang\s*&?\s*olufsen|beoplay/, 'Bang & Olufsen'],
+    [/harman\s*kardon/, 'Harman Kardon'],
+    [/devialet/, 'Devialet'],
+    [/meta\s*quest|\boculus\b/, 'Meta'],
+    [/nintendo/, 'Nintendo'],
+    [/pitaka/, 'Pitaka'],
+    [/whoop/, 'Whoop'],
+    [/starlink/, 'Starlink'],
+    [/\bdji\b/, 'DJI'],
+    [/hisense/, 'Hisense'],
+    [/\blg\b/, 'LG'],
+    [/huawei/, 'Huawei'],
+    [/kodak/, 'Kodak'],
+    [/backbone/, 'Backbone'],
+    [/\brog\b|asus/, 'ASUS'],
+  ]
+  for (const [re, brand] of map) if (re.test(n)) return brand
+  return null
+}
+
 const route = useRoute()
 const product = ref<Product | null>(null)
 const loading = ref(false)
@@ -186,29 +216,43 @@ const fetchProduct = async () => {
     product.value = res.data
     if (product.value) {
       const p = product.value
-      const imgUrl = p.image_main ? (p.image_main.startsWith('http') ? p.image_main : `${window.location.origin}/storage/${p.image_main.replace(/^\/storage\//, '')}`) : ''
+      const origin = window.location.origin
+      const imgUrl = p.image_main ? (p.image_main.startsWith('http') ? p.image_main : `${origin}/storage/${p.image_main.replace(/^\/storage\//, '')}`) : ''
+
+      const productJsonLd: Record<string, any> = {
+        '@context': 'https://schema.org',
+        '@type': 'Product',
+        name: p.name,
+        description: p.description || `${p.name} — купить в WEST-STORE`,
+        image: imgUrl || undefined,
+        sku: p.sku || undefined,
+        offers: {
+          '@type': 'Offer',
+          url: `${origin}/product/${p.slug}`,
+          priceCurrency: 'RUB',
+          price: p.price,
+          availability: p.in_stock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+          seller: { '@type': 'Organization', name: 'WEST-STORE' }
+        }
+      }
+      const brand = detectBrand(p.name)
+      if (brand) productJsonLd.brand = { '@type': 'Brand', name: brand }
+
+      // Хлебные крошки: Главная › Категория › Товар
+      const cat = (p as any).category as { name?: string; slug?: string } | undefined
+      const crumbs: any[] = [{ '@type': 'ListItem', position: 1, name: 'Главная', item: `${origin}/` }]
+      if (cat?.name && cat?.slug) {
+        crumbs.push({ '@type': 'ListItem', position: 2, name: cat.name, item: `${origin}/catalog/${cat.slug}` })
+      }
+      crumbs.push({ '@type': 'ListItem', position: crumbs.length + 1, name: p.name, item: `${origin}/product/${p.slug}` })
+      const breadcrumbJsonLd = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: crumbs }
+
       setSeo({
         title: p.name,
         description: `${p.name} — купить в WEST-STORE за ${Number(p.price).toLocaleString('ru-RU')} ₽. Доставка по Москве.`,
         ogImage: imgUrl || undefined,
         type: 'product',
-        jsonLd: {
-          '@context': 'https://schema.org',
-          '@type': 'Product',
-          name: p.name,
-          description: p.description || `${p.name} — купить в WEST-STORE`,
-          image: imgUrl || undefined,
-          sku: p.sku || undefined,
-          brand: { '@type': 'Brand', name: 'Apple' },
-          offers: {
-            '@type': 'Offer',
-            url: `${window.location.origin}/product/${p.slug}`,
-            priceCurrency: 'RUB',
-            price: p.price,
-            availability: p.in_stock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-            seller: { '@type': 'Organization', name: 'WEST-STORE' }
-          }
-        }
+        jsonLd: [productJsonLd, breadcrumbJsonLd]
       })
     }
     selectedAttributes.value = {}
