@@ -92,8 +92,13 @@ const bannerColors = computed(() => {
   }).map(a => a.pivot!.value)
 })
 
-// Кликабельные кружки цвета на баннере: меняют картинку баннера
+// Кликабельные кружки цвета на баннере: меняют картинку баннера.
+// Эффективный цвет = выбранный пользователем, иначе первый цвет (по умолчанию).
+// Используем computed (ленивый), а НЕ immediate watch — иначе bannerColors
+// вычислится во время setup, когда isColorGroup ещё в TDZ, и секция упадёт.
 const bannerSelectedColor = ref<string | null>(null)
+
+const effectiveBannerColor = computed(() => bannerSelectedColor.value ?? (bannerColors.value[0] ?? null))
 
 const bannerVariationImage = (color: string): string | null => {
   const p = bannerProduct.value
@@ -105,16 +110,13 @@ const bannerVariationImage = (color: string): string | null => {
 const bannerImage = computed(() => {
   const p = bannerProduct.value
   if (!p) return ''
-  if (bannerSelectedColor.value) {
-    const img = bannerVariationImage(bannerSelectedColor.value)
+  const c = effectiveBannerColor.value
+  if (c) {
+    const img = bannerVariationImage(c)
     if (img) return img
   }
   return p.image_main
 })
-
-watch(bannerColors, (colors) => {
-  bannerSelectedColor.value = colors.length ? colors[0] : null
-}, { immediate: true })
 
 const STORAGE_URL = import.meta.env.VITE_STORAGE_URL || (typeof window !== 'undefined' ? window.location.origin + '/storage' : '/storage')
 const { addItem } = useCart()
@@ -450,7 +452,7 @@ onUnmounted(() => {
             :key="color"
             type="button"
             class="banner-color-dot"
-            :class="{ active: bannerSelectedColor === color }"
+            :class="{ active: effectiveBannerColor === color }"
             :style="resolveColorStyle(color)"
             :title="color"
             @click.stop.prevent="bannerSelectedColor = color"
