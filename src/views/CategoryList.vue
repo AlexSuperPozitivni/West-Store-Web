@@ -217,6 +217,12 @@ const addToCart = (product: Product) => {
 const visibleProducts = computed(() => {
   let list = products.value.filter((p) => p.is_active)
 
+  // В URL указана категория, но её нет в базе (битая ссылка) — показываем пусто,
+  // а не весь каталог. Проверяем только когда категории уже загружены.
+  if (currentCategorySlug.value && categories.value.length > 0 && !activeCategory.value) {
+    return []
+  }
+
   if (activeCategory.value) {
     const active = activeCategory.value
 
@@ -635,12 +641,13 @@ onMounted(() => {
 }
 
 .catalog-card {
-  background: #f0f0f2;
+  background: #fff;
   border-radius: 28px;
   padding: 40px;
   display: grid;
   grid-template-columns: 340px 1fr;
   gap: 40px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
   transition: box-shadow 0.2s;
 }
 

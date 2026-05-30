@@ -41,19 +41,15 @@ const categories: NavCategory[] = [
       { label: 'iPhone 17', path: '/catalog/iphone-17' },
       { label: 'iPhone 16 Pro', path: '/catalog/iphone-16-pro' },
       { label: 'iPhone 16', path: '/catalog/iphone-16' },
-      { label: 'iPhone 15 Pro', path: '/catalog/iphone-15-pro' },
       { label: 'iPhone 15', path: '/catalog/iphone-15' },
       { label: 'iPhone 14', path: '/catalog/iphone-14' },
       { label: 'iPhone 13', path: '/catalog/iphone-13' },
-      { label: 'iPhone 12', path: '/catalog/iphone-12' },
-      { label: 'iPhone 11', path: '/catalog/iphone-11' },
-      { label: 'iPhone SE', path: '/catalog/iphone-se' },
     ]
   },
   {
     label: 'AirPods', path: '/catalog/airpods',
     sub: [
-      { label: 'AirPods', path: '/catalog/airpods' },
+      { label: 'AirPods', path: '/catalog/airpods-airpods' },
       { label: 'AirPods Pro', path: '/catalog/airpods-pro' },
       { label: 'AirPods Max', path: '/catalog/airpods-max' },
     ]
@@ -62,29 +58,38 @@ const categories: NavCategory[] = [
     label: 'iPad', path: '/catalog/ipad',
     sub: [
       { label: 'iPad Pro', path: '/catalog/ipad-pro' },
-      { label: 'iPad', path: '/catalog/ipad' },
       { label: 'iPad Air', path: '/catalog/ipad-air' },
+      { label: 'iPad', path: '/catalog/ipad-ipad' },
       { label: 'iPad mini', path: '/catalog/ipad-mini' },
     ]
   },
   {
     label: 'MacBook', path: '/catalog/macbook',
     sub: [
-      { label: 'MacBook Air 13"', path: '/catalog/macbook-air-13' },
-      { label: 'MacBook Air 15"', path: '/catalog/macbook-air-15' },
-      { label: 'MacBook Pro 14"', path: '/catalog/macbook-pro-14' },
-      { label: 'MacBook Pro 16"', path: '/catalog/macbook-pro-16' },
+      { label: 'MacBook Pro 16"', path: '/catalog/mbpro-16-11' },
+      { label: 'MacBook Pro 14"', path: '/catalog/mbpro-14-11' },
+      { label: 'MacBook Air 15"', path: '/catalog/macbookair-15' },
+      { label: 'MacBook Air 13"', path: '/catalog/macbookair' },
       { label: 'MacBook Neo', path: '/catalog/macbook-neo' },
     ]
   },
-  { label: 'Mac', path: '/catalog/mac' },
+  {
+    label: 'Mac', path: '/catalog/mac',
+    sub: [
+      { label: 'iMac 24"', path: '/catalog/imac-24' },
+      { label: 'Mac mini', path: '/catalog/mac-mini' },
+      { label: 'Mac Studio', path: '/catalog/mac-studio' },
+      { label: 'Pro Display XDR', path: '/catalog/pro-display-xdr' },
+    ]
+  },
   {
     label: 'Watch', path: '/catalog/watch',
     sub: [
+      { label: 'Watch Ultra 3', path: '/catalog/watch-ultra-3' },
       { label: 'Watch Series 11', path: '/catalog/watch-series-11' },
+      { label: 'Watch SE 3', path: '/catalog/watch-se-3' },
       { label: 'Watch Ultra', path: '/catalog/watch-ultra' },
       { label: 'Watch SE', path: '/catalog/watch-se' },
-      { label: 'Watch Nike', path: '/catalog/watch-nike' },
       { label: 'Watch Hermès', path: '/catalog/watch-hermes' },
     ]
   },
@@ -93,45 +98,48 @@ const categories: NavCategory[] = [
   {
     label: 'Аксессуары', path: '/catalog/accessories',
     sub: [
-      { label: 'Диктофоны', path: '/catalog/diktofony' },
-      { label: 'Аксессуары для iPad', path: '/catalog/accessories-ipad' },
-      { label: 'Аксессуары для iPhone', path: '/catalog/accessories-iphone' },
-      { label: 'Аксессуары для Mac', path: '/catalog/accessories-mac' },
-      { label: 'Аксессуары для Watch', path: '/catalog/accessories-watch' },
+      { label: 'Популярные чехлы', path: '/catalog/popular-cases' },
+      { label: 'Аксессуары для iPhone', path: '/catalog/iphone-accessories' },
+      { label: 'Аксессуары для iPad', path: '/catalog/ipad-accessories' },
+      { label: 'Аксессуары для Mac', path: '/catalog/mac-accessories' },
+      { label: 'Аксессуары для Watch', path: '/catalog/watch-accessories' },
+      { label: 'AirTag', path: '/catalog/airtag' },
+      { label: 'Диктофоны', path: '/catalog/voice-recorders' },
     ]
   },
   { label: 'Playstation', path: '/catalog/playstation' },
   {
     label: 'Samsung', path: '/catalog/samsung',
     sub: [
-      { label: 'Samsung S26', path: '/catalog/samsung-s26' },
-      { label: 'Samsung S25', path: '/catalog/samsung-s25' },
-      { label: 'Samsung S24', path: '/catalog/samsung-s24' },
-      { label: 'Samsung S23', path: '/catalog/samsung-s23' },
-      { label: 'Samsung Tab S10', path: '/catalog/samsung-tab-s10' },
-      { label: 'Samsung Tab S9', path: '/catalog/samsung-tab-s9' },
-      { label: 'Samsung Tab S8', path: '/catalog/samsung-tab-s8' },
-      { label: 'Samsung Z Flip', path: '/catalog/samsung-z-flip' },
+      { label: 'Galaxy S26', path: '/catalog/s26' },
+      { label: 'Galaxy S25', path: '/catalog/s25' },
+      { label: 'Galaxy Z Fold', path: '/catalog/z-fold' },
+      { label: 'Galaxy Z Flip', path: '/catalog/z-flip' },
+      { label: 'Galaxy Tab S9', path: '/catalog/tab-s9' },
     ]
   },
   {
-    label: 'Ноутбуки', path: '/catalog/noutbuki',
+    label: 'Ноутбуки', path: '/catalog/notebook',
     sub: [
-      { label: 'Ноутбуки Acer', path: '/catalog/acer' },
-      { label: 'Ноутбуки HP', path: '/catalog/hp' },
-      { label: 'Ноутбуки Asus', path: '/catalog/asus' },
-      { label: 'Ноутбуки DELL', path: '/catalog/dell' },
-      { label: 'Ноутбуки Lenovo', path: '/catalog/lenovo' },
+      { label: 'Asus', path: '/catalog/asus' },
+      { label: 'Acer', path: '/catalog/acer' },
+      { label: 'HP', path: '/catalog/hp' },
+      { label: 'DELL', path: '/catalog/dell' },
+      { label: 'Lenovo', path: '/catalog/lenovo' },
+      { label: 'MSI', path: '/catalog/msi' },
+      { label: 'LG', path: '/catalog/lg' },
+      { label: 'Huawei', path: '/catalog/huawei' },
+      { label: 'Samsung', path: '/catalog/samsung-notebook' },
     ]
   },
   {
     label: 'Dyson', path: '/catalog/dyson',
     sub: [
-      { label: 'Выпрямители для волос Dyson', path: '/catalog/dyson-straighteners' },
-      { label: 'Стайлеры Dyson', path: '/catalog/dyson-stylers' },
-      { label: 'Фены Dyson', path: '/catalog/dyson-hairdryers' },
-      { label: 'Пылесосы Dyson', path: '/catalog/dyson-vacuums' },
-      { label: 'Освежители воздуха Dyson', path: '/catalog/dyson-air' },
+      { label: 'Пылесосы', path: '/catalog/pylesosy' },
+      { label: 'Фены', path: '/catalog/feny' },
+      { label: 'Стайлеры', path: '/catalog/stajlery' },
+      { label: 'Выпрямители для волос', path: '/catalog/vypryamiteli-dlya-volos' },
+      { label: 'Очистители воздуха', path: '/catalog/osvezhiteli-i-ochistiteli-vozduha' },
     ]
   },
   { label: 'Garmin', path: '/catalog/garmin' },
@@ -139,8 +147,8 @@ const categories: NavCategory[] = [
   { label: 'Игровые приставки', path: '/catalog/pristavki' },
   { label: 'Акустика', path: '/catalog/akustika' },
   { label: 'Телевизоры', path: '/catalog/televizory' },
-  { label: 'Фотоаппараты', path: '/catalog/fotoapparaty' },
-  { label: 'Huawei', path: '/catalog/huawei' },
+  { label: 'Фотоаппараты', path: '/catalog/cameras' },
+  { label: 'Huawei', path: '/catalog/huawei-2' },
 ]
 
 const infoLinks = [
@@ -732,13 +740,17 @@ watch(() => router.currentRoute.value.path, () => {
     background: rgba(255,255,255,0.1);
   }
 
+  /* На тёмном мобильном хедере цветной логотип превращался в белое пятно
+     (brightness(0) invert(1)). Показываем чистый белый текстовый логотип. */
   .logo-img {
-    height: 44px;
-    filter: brightness(0) invert(1) drop-shadow(0 1px 2px rgba(0,0,0,0.2));
+    display: none;
   }
 
   .logo-text {
-    display: none;
+    display: block;
+    color: #ffffff;
+    font-size: 19px;
+    letter-spacing: 2px;
   }
 
   .cart-btn {
