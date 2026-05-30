@@ -92,6 +92,30 @@ const bannerColors = computed(() => {
   }).map(a => a.pivot!.value)
 })
 
+// Кликабельные кружки цвета на баннере: меняют картинку баннера
+const bannerSelectedColor = ref<string | null>(null)
+
+const bannerVariationImage = (color: string): string | null => {
+  const p = bannerProduct.value
+  if (!p?.variations) return null
+  const match = p.variations.find(v => v.image && Object.values(v.attributes || {}).includes(color))
+  return match?.image || null
+}
+
+const bannerImage = computed(() => {
+  const p = bannerProduct.value
+  if (!p) return ''
+  if (bannerSelectedColor.value) {
+    const img = bannerVariationImage(bannerSelectedColor.value)
+    if (img) return img
+  }
+  return p.image_main
+})
+
+watch(bannerColors, (colors) => {
+  bannerSelectedColor.value = colors.length ? colors[0] : null
+}, { immediate: true })
+
 const STORAGE_URL = import.meta.env.VITE_STORAGE_URL || (typeof window !== 'undefined' ? window.location.origin + '/storage' : '/storage')
 const { addItem } = useCart()
 
@@ -416,12 +440,21 @@ onUnmounted(() => {
 
     <RouterLink v-if="bannerProduct" :to="`/product/${bannerProduct.slug}`" class="featured-banner">
       <div class="banner-image">
-        <img :src="getImageUrl(bannerProduct.image_main)" :alt="bannerProduct.name" />
+        <img :src="getImageUrl(bannerImage)" :alt="bannerProduct.name" />
       </div>
       <div class="banner-info">
         <h3 class="banner-title">{{ bannerProduct.name }}</h3>
         <div v-if="bannerColors.length" class="banner-colors">
-          <span v-for="color in bannerColors" :key="color" class="banner-color-dot" :style="resolveColorStyle(color)"></span>
+          <button
+            v-for="color in bannerColors"
+            :key="color"
+            type="button"
+            class="banner-color-dot"
+            :class="{ active: bannerSelectedColor === color }"
+            :style="resolveColorStyle(color)"
+            :title="color"
+            @click.stop.prevent="bannerSelectedColor = color"
+          ></button>
         </div>
         <div class="banner-actions">
           <span class="banner-price">{{ Number(bannerProduct.price).toLocaleString('ru-RU') }} ₽</span>
@@ -807,7 +840,20 @@ onUnmounted(() => {
 
 .banner-title { font-size: 28px; font-weight: 700; color: #fff; margin: 0; line-height: 1.2; }
 .banner-colors { display: flex; gap: 8px; }
-.banner-color-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.3); }
+.banner-color-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.3);
+  padding: 0;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+.banner-color-dot:hover { transform: scale(1.12); }
+.banner-color-dot.active {
+  border-color: #fff;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.55);
+}
 
 .banner-actions { display: flex; align-items: center; gap: 24px; margin-top: 8px; }
 
