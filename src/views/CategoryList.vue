@@ -1146,7 +1146,6 @@ onMounted(() => {
     padding: 20px;
     border-radius: 20px;
     gap: 16px;
-    background: #f0f0f2;
   }
 
   .card-media {
