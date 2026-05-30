@@ -918,12 +918,13 @@ onUnmounted(() => {
 /* ===== Product card ===== */
 .product-card {
   flex: 0 0 300px;
-  background: #f0f0f2;
+  background: #fff;
   border-radius: 24px;
   padding: 24px 24px 0;
   display: flex;
   flex-direction: column;
   scroll-snap-align: start;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
   transition: box-shadow 0.2s;
   overflow: hidden;
 }

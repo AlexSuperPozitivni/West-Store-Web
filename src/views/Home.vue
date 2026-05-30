@@ -479,12 +479,25 @@ const onSliderPointerDown = (event: PointerEvent) => {
   if (event.pointerType === 'mouse' && event.button !== 0) return
   activePointerId.value = event.pointerId
   beginSwipeTracking(event.clientX, event.clientY)
-  sliderContainerRef.value?.setPointerCapture?.(event.pointerId)
+  // Don't capture the pointer yet — capturing on pointerdown redirects the
+  // subsequent `click` event off the inner <a>, which breaks RouterLink
+  // navigation (the "Купить" button / banner click). Capture lazily once a
+  // real horizontal drag starts (see onSliderPointerMove).
 }
 
 const onSliderPointerMove = (event: PointerEvent) => {
   if (!pointerTracking.value || activePointerId.value !== event.pointerId) return
   updateSwipeTracking(event.clientX, event.clientY, event)
+
+  const container = sliderContainerRef.value
+  if (
+    container &&
+    !container.hasPointerCapture?.(event.pointerId) &&
+    Math.abs(pointerDeltaX.value) > 8 &&
+    Math.abs(pointerDeltaX.value) > Math.abs(pointerDeltaY.value)
+  ) {
+    container.setPointerCapture?.(event.pointerId)
+  }
 }
 
 const onSliderPointerUp = (event: PointerEvent) => {

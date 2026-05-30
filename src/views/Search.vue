@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
+import { ref, watch, computed, onMounted } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
 import { api } from '../lib/api'
 import { getImageUrl } from '../lib/image'
@@ -12,6 +12,8 @@ interface Product {
   slug: string
   price: number
   image_main: string | null
+  description?: string | null
+  is_active?: boolean
 }
 
 const route = useRoute()
@@ -21,36 +23,49 @@ const { addItem } = useCart()
 const query = computed(() => (route.query.q as string) || '')
 const searchInput = ref(query.value)
 const products = ref<Product[]>([])
+const allProducts = ref<Product[]>([])
 const loading = ref(false)
 const searched = ref(false)
 
 useSeo({ title: `Поиск: ${query.value}` })
 
-let searchAbort: AbortController | null = null
+// The backend ignores the `search` param and returns the whole catalog, so we
+// load all active products once and filter on the client by product name.
+const loadAllProducts = async () => {
+  loading.value = true
+  try {
+    const { data } = await api.get('/products')
+    const list: Product[] = Array.isArray(data) ? data : (data.data || [])
+    allProducts.value = list.filter((p) => p.is_active !== false)
+  } catch (e) {
+    console.error('Failed to load products:', e)
+    allProducts.value = []
+  } finally {
+    loading.value = false
+    runSearch(query.value)
+  }
+}
 
-const searchProducts = async (q: string) => {
-  if (!q.trim()) {
+const runSearch = (q: string) => {
+  const term = q.trim().toLowerCase()
+  if (!term) {
     products.value = []
     searched.value = false
     return
   }
-  // Cancel previous request
-  if (searchAbort) searchAbort.abort()
-  searchAbort = new AbortController()
+  const words = term.split(/\s+/).filter(Boolean)
+  products.value = allProducts.value.filter((p) => {
+    const name = (p.name || '').toLowerCase()
+    return words.every((w) => name.includes(w))
+  })
+  searched.value = true
+}
 
-  loading.value = true
-  searched.value = false
-  try {
-    const { data } = await api.get('/products', { params: { search: q }, signal: searchAbort.signal })
-    products.value = Array.isArray(data) ? data : (data.data || [])
-  } catch (e: any) {
-    if (e?.code === 'ERR_CANCELED') return
-    console.error('Search failed:', e)
-    products.value = []
-  } finally {
-    loading.value = false
-    searched.value = true
-  }
+const searchProducts = (q: string) => {
+  // Wait for the catalog to load before filtering; loadAllProducts re-runs
+  // the search once data arrives.
+  if (!allProducts.value.length) return
+  runSearch(q)
 }
 
 const submitSearch = () => {
@@ -77,6 +92,8 @@ watch(query, (q) => {
   document.title = q ? `Поиск: ${q} | WEST-STORE — Apple в Москве` : 'Поиск | WEST-STORE — Apple в Москве'
   searchProducts(q)
 }, { immediate: true })
+
+onMounted(loadAllProducts)
 </script>
 
 <template>
