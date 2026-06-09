@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useCart } from '../lib/cart'
+import { useSettings, telHref, tgHref, waHref } from '../lib/settings'
 
 const { cartCount, loadCart } = useCart()
+const { contacts, social } = useSettings()
 const router = useRouter()
 const menuOpen = ref(false)
 const searchOpen = ref(false)
@@ -163,6 +165,20 @@ const infoLinks = [
 
 const activeSub = ref<SubItem[]>([])
 
+// Иконки категорий (по названию) — для быстрого поиска глазами в меню
+const catIcons: Record<string, string> = {
+  'iPhone': '📱', 'AirPods': '🎧', 'iPad': '📋', 'MacBook': '💻', 'Mac': '🖥️', 'Watch': '⌚',
+  'Apple TV': '📺', 'DJI': '🚁', 'Аксессуары': '🔌', 'Playstation': '🎮', 'Samsung': '📲',
+  'Ноутбуки': '💻', 'Dyson': '🌀', 'Garmin': '⌚', 'Ray-Ban Meta': '🕶️', 'Игровые приставки': '🎮',
+  'Акустика': '🔊', 'Телевизоры': '📺', 'Фотоаппараты': '📷', 'Huawei': '📲'
+}
+
+// Подсветка текущего раздела
+const currentPath = computed(() => router.currentRoute.value.path)
+const isCatActive = (cat: NavCategory) =>
+  currentPath.value === cat.path || (cat.sub?.some(s => s.path === currentPath.value) ?? false)
+const isLinkActive = (path: string) => currentPath.value === path
+
 const openMenu = () => {
   menuOpen.value = true
   activeCategory.value = categories[0].label
@@ -265,14 +281,18 @@ watch(() => router.currentRoute.value.path, () => {
     <Transition name="menu-slide">
       <div v-show="menuOpen" class="mega-menu">
         <div class="mega-inner">
+          <form class="menu-search" @submit.prevent="handleSearch">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35" stroke-linecap="round"/></svg>
+            <input v-model="searchQuery" type="text" placeholder="Поиск товаров..." aria-label="Поиск" />
+          </form>
           <nav class="cat-list">
             <template v-for="cat in categories" :key="cat.label">
               <button
-                :class="['cat-item', { active: activeCategory === cat.label }]"
+                :class="['cat-item', { active: activeCategory === cat.label, 'active-route': isCatActive(cat) }]"
                 @mouseenter="!isMobile ? hoverCategory(cat) : undefined"
                 @click="isMobile ? (cat.sub?.length ? (mobileExpanded = mobileExpanded === cat.label ? null : cat.label) : navigateTo(cat.path)) : (cat.sub?.length ? hoverCategory(cat) : navigateTo(cat.path))"
               >
-                <span>{{ cat.label }}</span>
+                <span class="cat-label"><span v-if="catIcons[cat.label]" class="cat-icon">{{ catIcons[cat.label] }}</span>{{ cat.label }}</span>
                 <svg v-if="cat.sub?.length" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" :style="isMobile && mobileExpanded === cat.label ? 'transform: rotate(90deg)' : ''">
                   <path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
@@ -291,11 +311,22 @@ watch(() => router.currentRoute.value.path, () => {
             <button
               v-for="link in infoLinks"
               :key="link.label"
-              class="cat-item info-link"
+              :class="['cat-item', 'info-link', { 'active-route': isLinkActive(link.path) }]"
               @click="navigateTo(link.path)"
             >
               {{ link.label }}
             </button>
+
+            <!-- Кнопки связи (видны на мобильном — на десктопе телефон в шапке) -->
+            <div class="menu-contacts">
+              <a :href="telHref(contacts.phone || '+7 (929) 955 6487')" class="menu-contact-btn call">
+                📞 {{ contacts.phone || '+7 (929) 955 6487' }}
+              </a>
+              <div class="menu-contact-row">
+                <a :href="waHref(social.whatsapp?.value || '+7 929 955 6487')" target="_blank" rel="noopener" class="menu-contact-btn wa">WhatsApp</a>
+                <a :href="tgHref(social.telegram?.value || '@weststore_msk')" target="_blank" rel="noopener" class="menu-contact-btn tg">Telegram</a>
+              </div>
+            </div>
           </nav>
 
           <Transition name="sub-fade">
@@ -638,6 +669,33 @@ watch(() => router.currentRoute.value.path, () => {
   padding-left: 18px;
 }
 
+.cat-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.cat-icon {
+  font-size: 16px;
+  line-height: 1;
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.cat-item.active-route {
+  color: var(--accent-blue);
+  font-weight: 600;
+  background: rgba(37, 99, 235, 0.10);
+  box-shadow: inset 3px 0 0 var(--accent-blue);
+}
+
+/* Поиск и кнопки связи внутри меню — только на мобильном
+   (на десктопе поиск и телефон уже есть в шапке) */
+.menu-search { display: none; }
+.menu-contacts { display: none; }
+
 .menu-overlay {
   position: fixed;
   inset: 0;
@@ -859,5 +917,66 @@ watch(() => router.currentRoute.value.path, () => {
   .info-link {
     font-size: 14px;
   }
+
+  .cat-icon {
+    font-size: 18px;
+    width: 24px;
+  }
+
+  /* Поиск в меню (мобайл) */
+  .menu-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f2f3f5;
+    border-radius: 12px;
+    padding: 0 14px;
+    height: 46px;
+    margin: 10px 0 6px;
+    color: #8a8f98;
+  }
+
+  .menu-search input {
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 15px;
+    font-family: inherit;
+    width: 100%;
+    color: #1a1a1a;
+  }
+
+  .menu-search input::placeholder { color: #9aa0a8; }
+
+  /* Кнопки связи (мобайл) */
+  .menu-contacts {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 18px 8px calc(28px + env(safe-area-inset-bottom));
+  }
+
+  .menu-contact-row {
+    display: flex;
+    gap: 10px;
+  }
+
+  .menu-contact-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex: 1;
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .menu-contact-btn.call { background: var(--accent-blue, #2563eb); color: #fff; }
+  .menu-contact-btn.wa { background: #25D366; color: #fff; }
+  .menu-contact-btn.tg { background: #2AABEE; color: #fff; }
 }
 </style>
