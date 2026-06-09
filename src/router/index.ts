@@ -1,9 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from '../views/Home.vue'
-import CategoryList from '../views/CategoryList.vue'
-import ProductDetail from '../views/ProductDetail.vue'
 
-// Lazy-loaded public pages
+// Lazy-loaded public pages (split out of the initial bundle)
+const Home = () => import('../views/Home.vue')
+const CategoryList = () => import('../views/CategoryList.vue')
+const ProductDetail = () => import('../views/ProductDetail.vue')
 const Cart = () => import('../views/Cart.vue')
 const Search = () => import('../views/Search.vue')
 const TradeIn = () => import('../views/TradeIn.vue')

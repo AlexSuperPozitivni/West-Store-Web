@@ -518,11 +518,13 @@ onMounted(() => {
                 :disabled="!getProductState(product).canBuy"
                 @click="addToCart(product)"
               >
-                <span class="btn-price">{{ Number(getProductState(product).price).toLocaleString('ru-RU') }} ₽</span>
+                <span v-if="getProductState(product).hasPrice" class="btn-price">{{ Number(getProductState(product).price).toLocaleString('ru-RU') }} ₽</span>
                 <span class="btn-text">{{
-                  getProductState(product).isPreorder && !getProductState(product).inStock
-                    ? 'Предзаказ'
-                    : (getProductState(product).canBuy ? 'В корзину' : 'Нет в наличии')
+                  !getProductState(product).hasPrice
+                    ? 'Цена по запросу'
+                    : (getProductState(product).isPreorder && !getProductState(product).inStock
+                      ? 'Предзаказ'
+                      : (getProductState(product).canBuy ? 'В корзину' : 'Нет в наличии'))
                 }}</span>
               </button>
             </div>

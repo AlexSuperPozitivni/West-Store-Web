@@ -61,7 +61,6 @@ const isAnimating = ref(false)
 const sliderContainerRef = ref<HTMLElement | null>(null)
 const slideWidth = ref(0)
 const contactModalOpen = ref(false)
-const contactActions = ['Позвонить', 'Написать в Telegram', 'Написать в WhatsApp']
 const pointerStartX = ref(0)
 const pointerStartY = ref(0)
 const pointerDeltaX = ref(0)
@@ -237,6 +236,27 @@ const openContactModal = () => {
 
 const closeContactModal = () => {
   contactModalOpen.value = false
+}
+
+// Форма обратного звонка
+const cbName = ref('')
+const cbPhone = ref('')
+const cbSending = ref(false)
+const cbSent = ref(false)
+
+const submitCallback = async () => {
+  if (!cbName.value.trim() || !cbPhone.value.trim() || cbSending.value) return
+  cbSending.value = true
+  try {
+    await api.post('/bot/request', { type: 'callback', name: cbName.value.trim(), phone: cbPhone.value.trim(), message: 'Обратный звонок (главная)' })
+  } catch {
+    try { await api.post('/requests', { type: 'callback', name: cbName.value.trim(), phone: cbPhone.value.trim(), message: 'Обратный звонок (главная)' }) } catch { /* fallback */ }
+  }
+  cbSent.value = true
+  cbName.value = ''
+  cbPhone.value = ''
+  setTimeout(() => { cbSent.value = false }, 4000)
+  cbSending.value = false
 }
 
 const getChildCategories = (parentSlugs: string[]) => {
@@ -675,14 +695,9 @@ watch(contactModalOpen, (isOpen) => {
     <div class="contact-modal">
       <h3 class="contact-modal-title">Связаться с нами</h3>
 
-      <button
-        v-for="item in contactActions"
-        :key="item"
-        type="button"
-        class="contact-modal-item"
-      >
-        {{ item }}
-      </button>
+      <a href="tel:+79299556487" class="contact-modal-item" @click="closeContactModal">📞 Позвонить</a>
+      <a href="https://t.me/weststore_msk" target="_blank" rel="noopener noreferrer" class="contact-modal-item" @click="closeContactModal">✈️ Написать в Telegram</a>
+      <a href="https://wa.me/79299556487" target="_blank" rel="noopener noreferrer" class="contact-modal-item" @click="closeContactModal">💬 Написать в WhatsApp</a>
     </div>
   </div>
 
@@ -717,12 +732,14 @@ watch(contactModalOpen, (isOpen) => {
           <h2 class="callback-title">Остались вопросы?</h2>
           <p class="callback-desc">Закажите обратный звонок и наш онлайн-консультант ответит на все ваши вопросы</p>
         </div>
-        <div class="callback-right">
-          <input class="callback-input" type="text" placeholder="Ваше имя" />
-          <input class="callback-input" type="tel" placeholder="Телефон" />
-          <button class="callback-btn" type="button">Заказать звонок</button>
+        <form class="callback-right" @submit.prevent="submitCallback">
+          <input class="callback-input" type="text" placeholder="Ваше имя" v-model="cbName" required />
+          <input class="callback-input" type="tel" placeholder="Телефон" v-model="cbPhone" required />
+          <button class="callback-btn" type="submit" :class="{ success: cbSent }" :disabled="cbSending">
+            {{ cbSent ? '✓ Заявка отправлена' : (cbSending ? 'Отправляем…' : 'Заказать звонок') }}
+          </button>
           <p class="callback-legal">Нажимая на кнопку "Заказать звонок", вы соглашаетесь с политикой обработки персональных данных</p>
-        </div>
+        </form>
       </div>
     </section>
   </div>
@@ -861,6 +878,15 @@ watch(contactModalOpen, (isOpen) => {
   background: var(--accent-blue-hover);
 }
 
+.callback-btn:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.callback-btn.success {
+  background: #10b981;
+}
+
 .callback-legal {
   font-size: 11px;
   color: #aaaaaa;
@@ -942,6 +968,10 @@ watch(contactModalOpen, (isOpen) => {
 .contact-modal-item {
   width: 100%;
   min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   border: 1px solid #dfdfdf;
   border-radius: 16px;
   background: #f3f3f3;
@@ -949,7 +979,14 @@ watch(contactModalOpen, (isOpen) => {
   font-size: 16px;
   font-weight: 400;
   line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
   box-shadow: 0 2px 10px rgba(15, 23, 42, 0.08);
+  transition: background 0.15s;
+}
+
+.contact-modal-item:hover {
+  background: #e9e9e9;
 }
 
 

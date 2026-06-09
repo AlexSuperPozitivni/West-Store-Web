@@ -38,6 +38,18 @@ interface AttributeGroup {
   values: string[]
 }
 
+const props = withDefaults(defineProps<{
+  showInfoCards?: boolean
+  title?: string
+  viewAllLink?: string
+  viewAllText?: string
+}>(), {
+  showInfoCards: true,
+  title: 'iPhone',
+  viewAllLink: '/catalog/iphone',
+  viewAllText: 'Посмотреть все айфоны',
+})
+
 const products = ref<Product[]>([])
 const loading = ref(false)
 const selectedAttributes = ref<Record<number, Record<string, string>>>({})
@@ -157,7 +169,7 @@ onMounted(() => fetchProducts())
 
 <template>
   <section class="iphone-section">
-    <div class="info-cards-container">
+    <div v-if="props.showInfoCards" class="info-cards-container">
       <div v-for="(card, index) in infoCards" :key="index" class="info-card" :style="{ background: card.gradient }">
         <div class="info-card-content">
           <h3 class="info-card-title">{{ card.title }}</h3>
@@ -170,9 +182,9 @@ onMounted(() => fetchProducts())
 
     <div class="products-section">
       <div class="section-header">
-        <h2 class="section-title">iPhone</h2>
-        <RouterLink to="/catalog/iphone" class="view-all-link">
-          Посмотреть все айфоны 
+        <h2 class="section-title">{{ props.title }}</h2>
+        <RouterLink :to="props.viewAllLink" class="view-all-link">
+          {{ props.viewAllText }}
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -227,8 +239,8 @@ onMounted(() => fetchProducts())
             :disabled="!getProductState(product).canBuy"
             @click="addToCart(product)"
           >
-            <span class="btn-price">{{ Number(getProductState(product).price).toLocaleString('ru-RU') }} ₽</span>
-            <span class="btn-text">{{ getProductState(product).isPreorder && !getProductState(product).inStock ? 'Предзаказ' : (getProductState(product).canBuy ? 'В корзину' : 'Нет в наличии') }}</span>
+            <span v-if="getProductState(product).hasPrice" class="btn-price">{{ Number(getProductState(product).price).toLocaleString('ru-RU') }} ₽</span>
+            <span class="btn-text">{{ !getProductState(product).hasPrice ? 'Цена по запросу' : (getProductState(product).isPreorder && !getProductState(product).inStock ? 'Предзаказ' : (getProductState(product).canBuy ? 'В корзину' : 'Нет в наличии')) }}</span>
           </button>
         </div>
       </div>

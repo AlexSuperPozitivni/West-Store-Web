@@ -5,8 +5,18 @@ import { RouterLink } from 'vue-router'
 const currentYear = new Date().getFullYear()
 
 const categories = [
-  'iPhone', 'iPad', 'MacBook', 'Watch', 'Apple TV', 'Mac',
-  'Аксессуары', 'DJI', 'Playstation', 'Samsung', 'Ноутбуки', 'Dyson'
+  { label: 'iPhone', slug: 'iphone' },
+  { label: 'iPad', slug: 'ipad' },
+  { label: 'MacBook', slug: 'macbook' },
+  { label: 'Watch', slug: 'watch' },
+  { label: 'Apple TV', slug: 'tv' },
+  { label: 'Mac', slug: 'mac' },
+  { label: 'Аксессуары', slug: 'accessories' },
+  { label: 'DJI', slug: 'dji' },
+  { label: 'Playstation', slug: 'playstation' },
+  { label: 'Samsung', slug: 'samsung' },
+  { label: 'Ноутбуки', slug: 'notebook' },
+  { label: 'Dyson', slug: 'dyson' },
 ]
 
 const storeLinks = [
@@ -28,8 +38,8 @@ const storeLinks = [
         <div class="footer-column">
           <h3 class="footer-title">Интернет-магазин</h3>
           <ul class="footer-links">
-            <li v-for="item in categories" :key="item">
-              <RouterLink :to="`/catalog/${item.toLowerCase()}`" class="footer-link">{{ item }}</RouterLink>
+            <li v-for="item in categories" :key="item.slug">
+              <RouterLink :to="`/catalog/${item.slug}`" class="footer-link">{{ item.label }}</RouterLink>
             </li>
           </ul>
         </div>

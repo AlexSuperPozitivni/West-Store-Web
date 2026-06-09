@@ -25,6 +25,7 @@ export interface ProductStateResolved {
   inStock: boolean
   isPreorder: boolean
   canBuy: boolean
+  hasPrice: boolean
 }
 
 const toNumber = (value: unknown, fallback = 0): number => {
@@ -73,13 +74,16 @@ export const resolveProductState = (
 
   const match = findMatchingVariation(variations, selected)
   if (!match) {
+    const hasPrice = basePrice > 0
     return {
       variation: null,
       price: basePrice,
       priceMax: basePriceMax,
       inStock: baseInStock,
       isPreorder: basePreorder,
-      canBuy: baseInStock || basePreorder
+      // Нельзя купить товар без проставленной цены (price = 0)
+      canBuy: (baseInStock || basePreorder) && hasPrice,
+      hasPrice
     }
   }
 
@@ -87,6 +91,7 @@ export const resolveProductState = (
   const vRegular = toNumber(match.regular_price, vPrice)
   const inStock = match.in_stock ?? baseInStock
   const preorder = match.is_preorder ?? (!inStock && (match.is_purchasable ?? false))
+  const hasPrice = vPrice > 0
 
   return {
     variation: match,
@@ -94,6 +99,7 @@ export const resolveProductState = (
     priceMax: Math.max(vPrice, vRegular),
     inStock,
     isPreorder: preorder,
-    canBuy: inStock || preorder
+    canBuy: (inStock || preorder) && hasPrice,
+    hasPrice
   }
 }

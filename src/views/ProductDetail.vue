@@ -365,8 +365,8 @@ watch(() => route.params.slug, () => {
           </div>
 
           <button class="add-cart-btn" :disabled="!resolvedState.canBuy" @click="handleAddToCart">
-            <span class="btn-price">{{ Number(resolvedState.price).toLocaleString('ru-RU') }} ₽</span>
-            <span class="btn-text">{{ resolvedState.isPreorder && !resolvedState.inStock ? 'Оформить предзаказ' : (resolvedState.canBuy ? 'В корзину' : 'Нет в наличии') }}</span>
+            <span v-if="resolvedState.hasPrice" class="btn-price">{{ Number(resolvedState.price).toLocaleString('ru-RU') }} ₽</span>
+            <span class="btn-text">{{ !resolvedState.hasPrice ? 'Цена по запросу' : (resolvedState.isPreorder && !resolvedState.inStock ? 'Оформить предзаказ' : (resolvedState.canBuy ? 'В корзину' : 'Нет в наличии')) }}</span>
           </button>
 
           <div class="sku">Артикул: <span>{{ product.sku || product.slug || product.id }}</span></div>

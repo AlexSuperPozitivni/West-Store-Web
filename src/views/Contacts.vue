@@ -100,12 +100,16 @@ onMounted(() => {
       <div class="section-container">
         <h2 class="section-title">Как нас найти</h2>
         <p class="section-subtitle">Мы находимся рядом с метро Багратионовская</p>
-        <div class="map-placeholder">
-          <div class="map-inner">
-            <span class="map-icon">🗺️</span>
-            <p class="map-text">Яндекс Карта</p>
-            <p class="map-address">г. Москва, ул. Барклая 8, магазин 171</p>
-          </div>
+        <div class="map-embed">
+          <iframe
+            src="https://yandex.ru/map-widget/v1/?text=%D0%9C%D0%BE%D1%81%D0%BA%D0%B2%D0%B0%2C%20%D1%83%D0%BB%D0%B8%D1%86%D0%B0%20%D0%91%D0%B0%D1%80%D0%BA%D0%BB%D0%B0%D1%8F%2C%208&z=17"
+            width="100%"
+            height="440"
+            frameborder="0"
+            allowfullscreen
+            loading="lazy"
+            title="Карта: г. Москва, ул. Барклая 8, магазин 171"
+          ></iframe>
         </div>
       </div>
     </section>
@@ -385,37 +389,19 @@ onMounted(() => {
   background: #ffffff;
 }
 
-.map-placeholder {
+.map-embed {
   border-radius: var(--radius-lg);
-  background: linear-gradient(135deg, #f0f4ff 0%, #e8edf5 100%);
-  border: 2px dashed var(--border-color);
   overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border-color);
+  line-height: 0;
 }
 
-.map-inner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 80px 20px;
-}
-
-.map-icon {
-  font-size: 48px;
+.map-embed iframe {
   display: block;
-  margin-bottom: 16px;
-}
-
-.map-text {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--text-dark);
-  margin-bottom: 8px;
-}
-
-.map-address {
-  font-size: 15px;
-  color: var(--text-muted);
+  width: 100%;
+  height: 440px;
+  border: 0;
 }
 
 /* ===== Form ===== */
@@ -584,8 +570,8 @@ onMounted(() => {
     padding: 24px;
   }
 
-  .map-inner {
-    padding: 50px 20px;
+  .map-embed iframe {
+    height: 320px;
   }
 }
 </style>
