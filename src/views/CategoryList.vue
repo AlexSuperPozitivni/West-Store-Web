@@ -143,14 +143,43 @@ const isSizeGroup = (name: string) => {
   return n.includes('размер') || n.includes('size') || n.includes('диагональ')
 }
 
+// Достаём диагональ из названия категории, напр. «MacBook Pro 16"» → «16»
+const extractDiagonal = (text: string): string | null => {
+  const m = text.match(/(\d{2}(?:[.,]\d)?)\s*["”″]/)
+  return m ? m[1].replace(',', '.') : null
+}
+
+const getCategoryName = (product: Product): string => {
+  if (product.category?.name) return product.category.name
+  const c = categories.value.find((c) => c.id === product.category_id)
+  return c?.name || ''
+}
+
+// Подпись под названием: показывает диагональ экрана, чтобы было понятно какой Mac
 const getProductSubtitle = (product: Product): string | null => {
-  if (!product.attributes) return null
-  for (const attr of product.attributes) {
-    if (isSizeGroup(attr.name) && attr.pivot?.value) {
-      return attr.pivot.value
+  // 1) Явный атрибут размера/диагонали, если он задан
+  if (product.attributes) {
+    for (const attr of product.attributes) {
+      if (isSizeGroup(attr.name) && attr.pivot?.value) {
+        return attr.pivot.value
+      }
     }
   }
+  // 2) Диагональ из названия категории (напр. «MacBook Pro 16"»)
+  const diagonal = extractDiagonal(getCategoryName(product))
+  if (diagonal) return `Экран ${diagonal}″`
   return null
+}
+
+// Краткое описание товара вместо подписи «Цвет» — чистим переносы и «склейки»
+const getProductDesc = (product: Product): string | null => {
+  const raw = (product.description || '').trim()
+  if (!raw) return null
+  return raw
+    .replace(/\s*\n+\s*/g, ' · ')              // переносы строк → разделители
+    .replace(/([а-яёa-z])([А-ЯЁA-Z])/g, '$1 · $2') // «эффективностиДисплей» → «… · …»
+    .replace(/\s{2,}/g, ' ')
+    .trim()
 }
 
 const getAttributeGroups = (product: Product): AttributeGroup[] => {
@@ -445,10 +474,11 @@ onMounted(() => {
           <div class="card-info">
             <h2 class="card-title">{{ product.name }}</h2>
             <p v-if="getProductSubtitle(product)" class="product-subtitle">{{ getProductSubtitle(product) }}</p>
+            <p v-if="getProductDesc(product)" class="product-desc">{{ getProductDesc(product) }}</p>
 
             <template v-for="group in getAttributeGroups(product)" :key="group.name">
-              <div class="attr-row" v-if="!isSizeGroup(group.name)">
-                <div class="attr-label">{{ group.name }}</div>
+              <div class="attr-row" :class="{ 'attr-row--color': isColorGroup(group.name) }" v-if="!isSizeGroup(group.name)">
+                <div class="attr-label" v-if="!isColorGroup(group.name)">{{ group.name }}</div>
 
                 <div v-if="isColorGroup(group.name)" class="color-options" :data-op-palette="product.slug ? product.slug.replace(/-/g, '_') : ''">
                   <div class="variable-items-wrapper" data-attribute_name="attribute_pa_color">
@@ -659,6 +689,9 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  background: #f4f5f7;
+  border-radius: 20px;
+  padding: 24px;
 }
 
 .card-media img {
@@ -666,6 +699,7 @@ onMounted(() => {
   max-width: 300px;
   aspect-ratio: 1;
   object-fit: contain;
+  mix-blend-mode: multiply;
 }
 
 .card-info {
@@ -807,6 +841,22 @@ onMounted(() => {
   font-size: 13px;
   color: #888;
   margin: 2px 0 6px;
+}
+
+.product-desc {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #6b7280;
+  margin: 0 0 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Блок выбора цвета — без подписи слева, кружки выравниваем по левому краю */
+.attr-row--color {
+  display: block;
 }
 
 .pill-options {
