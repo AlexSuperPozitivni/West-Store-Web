@@ -2,10 +2,10 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useActivityLog } from '../../lib/useActivityLog'
+import { api } from '../../lib/api'
 
 const { log } = useActivityLog()
 
-const STORAGE_KEY = 'admin_settings'
 const activeTab = ref('contacts')
 
 // --- Default values ---
@@ -61,12 +61,11 @@ const store = ref({ ...defaults.store })
 const seo = ref({ ...defaults.seo })
 const notifications = ref({ ...defaults.notifications })
 
-// --- Load / Save ---
-function loadSettings() {
+// --- Load / Save (через сервер) ---
+async function loadSettings() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return
-    const data = JSON.parse(raw)
+    const res = await api.get('/admin/settings')
+    const data = res.data || {}
     if (data.contacts) Object.assign(contacts.value, data.contacts)
     if (data.social) {
       for (const key of Object.keys(defaults.social) as (keyof typeof defaults.social)[]) {
@@ -77,16 +76,13 @@ function loadSettings() {
     if (data.seo) Object.assign(seo.value, data.seo)
     if (data.notifications) Object.assign(notifications.value, data.notifications)
   } catch {
-    // ignore corrupt data
+    // нет сохранённых настроек — остаёмся на значениях по умолчанию
   }
 }
 
-function saveSection(section: string, data: any) {
+async function saveSection(section: string, data: any) {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    const all = raw ? JSON.parse(raw) : {}
-    all[section] = JSON.parse(JSON.stringify(data))
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(all))
+    await api.put('/admin/settings', { settings: { [section]: JSON.parse(JSON.stringify(data)) } })
     log('update', 'Настройки', `Раздел: ${section}`)
     ElMessage.success('Настройки сохранены')
   } catch {
@@ -99,13 +95,23 @@ function resetAll() {
     'Все настройки будут сброшены к значениям по умолчанию. Продолжить?',
     'Сбросить все настройки',
     { confirmButtonText: 'Сбросить', cancelButtonText: 'Отмена', type: 'warning' }
-  ).then(() => {
+  ).then(async () => {
     contacts.value = { ...defaults.contacts }
     social.value = JSON.parse(JSON.stringify(defaults.social))
     store.value = { ...defaults.store }
     seo.value = { ...defaults.seo }
     notifications.value = { ...defaults.notifications }
-    localStorage.removeItem(STORAGE_KEY)
+    try {
+      await api.put('/admin/settings', {
+        settings: {
+          contacts: defaults.contacts,
+          social: defaults.social,
+          store: defaults.store,
+          seo: defaults.seo,
+          notifications: defaults.notifications,
+        },
+      })
+    } catch { /* ignore */ }
     log('update', 'Настройки', 'Сброс всех настроек')
     ElMessage.success('Настройки сброшены')
   }).catch(() => {})

@@ -2,10 +2,10 @@
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useActivityLog } from '../../lib/useActivityLog'
+import { api } from '../../lib/api'
+import RichTextEditor from '../../components/RichTextEditor.vue'
 
 const { log } = useActivityLog()
-
-const STORAGE_KEY = 'admin_pages_content'
 
 interface SectionItem {
   icon: string
@@ -246,16 +246,17 @@ const saving = ref(false)
 
 const selectedPage = computed(() => pages.value.find(p => p.id === selectedPageId.value) || null)
 
-const loadPages = () => {
+// Загружаем контент с сервера и накладываем поверх дефолтов (если страница
+// ещё не редактировалась — берём дефолт).
+const loadPages = async () => {
+  const defaults = getDefaults()
   try {
-    const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored) {
-      pages.value = JSON.parse(stored)
-    } else {
-      pages.value = getDefaults()
-    }
+    const res = await api.get('/admin/pages')
+    const bySlug: Record<string, any> = {}
+    ;(res.data || []).forEach((p: any) => { if (p?.slug && p.content) bySlug[p.slug] = p.content })
+    pages.value = defaults.map(d => bySlug[d.id] ? { ...d, ...bySlug[d.id] } : d)
   } catch {
-    pages.value = getDefaults()
+    pages.value = defaults
   }
   if (pages.value.length > 0 && !selectedPageId.value) {
     selectedPageId.value = pages.value[0].id
@@ -266,14 +267,17 @@ const selectPage = (id: string) => {
   selectedPageId.value = id
 }
 
-const savePage = () => {
+const savePage = async () => {
+  if (!selectedPage.value) return
   saving.value = true
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(pages.value))
-    ElMessage.success('Изменения сохранены')
-    if (selectedPage.value) {
-      log('update', 'Страница', selectedPage.value.name)
-    }
+    await api.post('/admin/pages', {
+      slug: selectedPage.value.id,
+      content: selectedPage.value,
+      is_active: true,
+    })
+    ElMessage.success('Сохранено и опубликовано на сайте')
+    log('update', 'Страница', selectedPage.value.name)
   } catch {
     ElMessage.error('Ошибка сохранения')
   } finally {
@@ -289,10 +293,15 @@ const resetToDefaults = async () => {
       { confirmButtonText: 'Сбросить', cancelButtonText: 'Отмена', type: 'warning' }
     )
     pages.value = getDefaults()
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(pages.value))
+    saving.value = true
+    await Promise.all(
+      pages.value.map(p => api.post('/admin/pages', { slug: p.id, content: p, is_active: true }).catch(() => {}))
+    )
+    saving.value = false
     ElMessage.success('Контент сброшен к стандартным значениям')
     log('reset', 'Страницы', 'Сброс всех страниц к значениям по умолчанию')
   } catch {
+    saving.value = false
     // cancelled
   }
 }
@@ -360,7 +369,7 @@ onMounted(loadPages)
           </div>
           <div class="field-group">
             <label>Подзаголовок</label>
-            <el-input v-model="selectedPage.hero.subtitle" placeholder="Описание под заголовком" type="textarea" :rows="3" />
+            <RichTextEditor v-model="selectedPage.hero.subtitle" placeholder="Описание под заголовком" />
           </div>
           <div class="field-row">
             <div class="field-group">
@@ -395,7 +404,7 @@ onMounted(loadPages)
           </div>
           <div class="field-group">
             <label>Описание секции</label>
-            <el-input v-model="section.description" placeholder="Описание (необязательно)" type="textarea" :rows="2" />
+            <RichTextEditor v-model="section.description" placeholder="Описание (необязательно)" />
           </div>
 
           <div class="items-label">
@@ -427,7 +436,7 @@ onMounted(loadPages)
               </div>
               <div class="item-bottom">
                 <label>Текст</label>
-                <el-input v-model="item.text" placeholder="Описание элемента" type="textarea" :rows="2" />
+                <RichTextEditor v-model="item.text" placeholder="Описание элемента" />
               </div>
             </div>
           </div>
