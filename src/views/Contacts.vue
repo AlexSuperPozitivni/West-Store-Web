@@ -2,6 +2,9 @@
 import { ref, onMounted } from 'vue'
 import { useSeo } from '../lib/useSeo'
 import { api } from '../lib/api'
+import { useSettings, telHref, tgHref, waHref } from '../lib/settings'
+
+const { contacts, social } = useSettings()
 
 useSeo({
   title: 'Контакты',
@@ -64,8 +67,8 @@ onMounted(() => {
           <div class="contact-card">
             <span class="contact-icon">📞</span>
             <h3>Телефон</h3>
-            <a href="tel:+79299556487" class="contact-link contact-link--phone">+7 (929) 955 6487</a>
-            <p class="contact-note">Звоните ежедневно с 10:00 до 21:00</p>
+            <a :href="telHref(contacts.phone || '+7 (929) 955 6487')" class="contact-link contact-link--phone">{{ contacts.phone || '+7 (929) 955 6487' }}</a>
+            <p class="contact-note">Звоните ежедневно с {{ contacts.weekdaysFrom || '10:00' }} до {{ contacts.weekdaysTo || '21:00' }}</p>
           </div>
 
           <!-- Messengers -->
@@ -73,13 +76,13 @@ onMounted(() => {
             <span class="contact-icon">💬</span>
             <h3>Мессенджеры</h3>
             <div class="messenger-links">
-              <a href="https://t.me/weststore_msk" target="_blank" rel="noopener" class="messenger-link">
+              <a :href="tgHref(social.telegram?.value || '@weststore_msk')" target="_blank" rel="noopener" class="messenger-link">
                 <span class="messenger-badge tg">TG</span>
-                @weststore_msk
+                {{ social.telegram?.value || '@weststore_msk' }}
               </a>
-              <a href="https://wa.me/79299556487" target="_blank" rel="noopener" class="messenger-link">
+              <a :href="waHref(social.whatsapp?.value || '+7 929 955 6487')" target="_blank" rel="noopener" class="messenger-link">
                 <span class="messenger-badge wa">WA</span>
-                +7 929 955 6487
+                {{ social.whatsapp?.value || '+7 929 955 6487' }}
               </a>
             </div>
           </div>
@@ -88,8 +91,8 @@ onMounted(() => {
           <div class="contact-card">
             <span class="contact-icon">📍</span>
             <h3>Адрес</h3>
-            <p class="contact-address">г. Москва, ул. Барклая 8,<br>магазин 171</p>
-            <p class="contact-hours">10:00 – 21:00 ежедневно</p>
+            <p class="contact-address">{{ contacts.address || 'г. Москва, ул. Барклая 8, магазин 171' }}</p>
+            <p class="contact-hours">{{ contacts.weekdaysFrom || '10:00' }} – {{ contacts.weekdaysTo || '21:00' }} ежедневно</p>
           </div>
         </div>
       </div>

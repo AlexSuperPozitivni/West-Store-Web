@@ -9,19 +9,25 @@ interface Slider {
   id: number
   title: string
   subtitle: string
-  image: string
-  link: string
+  image_desktop: string
+  image_mobile: string
+  link_url: string
   sort_order: number
   is_active: boolean
+  starts_at: string | null
+  ends_at: string | null
 }
 
 interface SliderForm {
   title: string
   subtitle: string
-  image: string
-  link: string
+  image_desktop: string
+  image_mobile: string
+  link_url: string
   sort_order: number
   is_active: boolean
+  starts_at: string | null
+  ends_at: string | null
 }
 
 const router = useRouter()
@@ -35,14 +41,18 @@ const mediaDialogVisible = ref(false)
 const isEditMode = ref(false)
 const currentSliderId = ref<number | null>(null)
 const dragIndex = ref<number | null>(null)
+const pickerTarget = ref<'desktop' | 'mobile'>('desktop')
 
 const form = ref<SliderForm>({
   title: '',
   subtitle: '',
-  image: '',
-  link: '',
+  image_desktop: '',
+  image_mobile: '',
+  link_url: '',
   sort_order: 0,
-  is_active: true
+  is_active: true,
+  starts_at: null,
+  ends_at: null
 })
 
 const STORAGE_URL = import.meta.env.VITE_STORAGE_URL || '/storage'
@@ -91,7 +101,7 @@ const fetchMedia = async () => {
 const openCreate = () => {
   isEditMode.value = false
   currentSliderId.value = null
-  form.value = { title: '', subtitle: '', image: '', link: '', sort_order: sliders.value.length, is_active: true }
+  form.value = { title: '', subtitle: '', image_desktop: '', image_mobile: '', link_url: '', sort_order: sliders.value.length, is_active: true, starts_at: null, ends_at: null }
   dialogVisible.value = true
 }
 
@@ -101,21 +111,29 @@ const openEdit = (slider: Slider) => {
   form.value = {
     title: slider.title || '',
     subtitle: slider.subtitle || '',
-    image: slider.image || '',
-    link: slider.link || '',
+    image_desktop: slider.image_desktop || '',
+    image_mobile: slider.image_mobile || '',
+    link_url: slider.link_url || '',
     sort_order: slider.sort_order ?? 0,
-    is_active: slider.is_active ?? true
+    is_active: slider.is_active ?? true,
+    starts_at: slider.starts_at || null,
+    ends_at: slider.ends_at || null
   }
   dialogVisible.value = true
 }
 
-const openMediaPicker = () => {
+const openMediaPicker = (target: 'desktop' | 'mobile' = 'desktop') => {
+  pickerTarget.value = target
   mediaDialogVisible.value = true
   fetchMedia()
 }
 
 const selectImage = (item: any) => {
-  form.value.image = item.path
+  if (pickerTarget.value === 'mobile') {
+    form.value.image_mobile = item.path
+  } else {
+    form.value.image_desktop = item.path
+  }
   mediaDialogVisible.value = false
   ElMessage.success('Изображение выбрано')
 }
@@ -123,6 +141,10 @@ const selectImage = (item: any) => {
 const submitForm = async () => {
   if (!form.value.title.trim()) {
     ElMessage.error('Заголовок обязателен')
+    return
+  }
+  if (!form.value.image_desktop) {
+    ElMessage.error('Выберите изображение баннера (для ПК)')
     return
   }
 
@@ -194,7 +216,7 @@ const onDrop = async (targetIndex: number) => {
 
   try {
     await ensureCsrf()
-    const order = items.map((s, i) => ({ id: s.id, sort_order: i }))
+    const order = items.map((s) => s.id)
     await api.post('/admin/sliders/reorder', { order })
     ElMessage.success('Порядок сохранён')
     log('reorder', 'Слайдеры', `Новый порядок: ${items.map(s => s.title).join(', ')}`)
@@ -245,7 +267,7 @@ onMounted(fetchSliders)
         </div>
 
         <div class="slider-preview">
-          <img v-if="slider.image" :src="getImageUrl(slider.image)" alt="" @error="($event.target as HTMLImageElement).style.display='none'" />
+          <img v-if="slider.image_desktop" :src="getImageUrl(slider.image_desktop)" alt="" @error="($event.target as HTMLImageElement).style.display='none'" />
           <div v-else class="preview-placeholder">
             <el-icon :size="28"><Picture /></el-icon>
           </div>
@@ -254,7 +276,10 @@ onMounted(fetchSliders)
         <div class="slider-info">
           <div class="slider-title">{{ slider.title || 'Без заголовка' }}</div>
           <div class="slider-subtitle" v-if="slider.subtitle">{{ slider.subtitle }}</div>
-          <div class="slider-link" v-if="slider.link">{{ slider.link }}</div>
+          <div class="slider-link" v-if="slider.link_url">{{ slider.link_url }}</div>
+          <div class="slider-dates" v-if="slider.starts_at || slider.ends_at">
+            📅 {{ slider.starts_at ? slider.starts_at.slice(0, 10) : '…' }} — {{ slider.ends_at ? slider.ends_at.slice(0, 10) : '…' }}
+          </div>
         </div>
 
         <div class="slider-actions">
@@ -283,7 +308,7 @@ onMounted(fetchSliders)
           <el-input v-model="form.subtitle" placeholder="Дополнительный текст" />
         </el-form-item>
         <el-form-item label="Ссылка">
-          <el-input v-model="form.link" placeholder="/catalog/iphone или https://..." />
+          <el-input v-model="form.link_url" placeholder="/catalog/iphone или https://..." />
         </el-form-item>
         <el-row :gutter="20">
           <el-col :span="12">
@@ -297,13 +322,35 @@ onMounted(fetchSliders)
             </el-form-item>
           </el-col>
         </el-row>
-        <el-form-item label="Изображение баннера">
+        <el-form-item label="Показывать с / по (необязательно — для праздничных баннеров)">
+          <el-row :gutter="12" style="width: 100%">
+            <el-col :span="12">
+              <el-date-picker v-model="form.starts_at" type="datetime" placeholder="Начало показа" value-format="YYYY-MM-DD HH:mm:ss" style="width: 100%" />
+            </el-col>
+            <el-col :span="12">
+              <el-date-picker v-model="form.ends_at" type="datetime" placeholder="Конец показа" value-format="YYYY-MM-DD HH:mm:ss" style="width: 100%" />
+            </el-col>
+          </el-row>
+          <span class="field-hint">Пусто = показывать всегда. Баннер автоматически появится и скроется в эти даты.</span>
+        </el-form-item>
+        <el-form-item label="Изображение для ПК">
           <div class="banner-image-area">
-            <div v-if="form.image" class="banner-preview">
-              <img :src="getImageUrl(form.image)" alt="" @error="($event.target as HTMLImageElement).style.display='none'" />
-              <el-button size="small" @click="openMediaPicker">Изменить</el-button>
+            <div v-if="form.image_desktop" class="banner-preview">
+              <img :src="getImageUrl(form.image_desktop)" alt="" @error="($event.target as HTMLImageElement).style.display='none'" />
+              <el-button size="small" @click="openMediaPicker('desktop')">Изменить</el-button>
             </div>
-            <el-button v-else @click="openMediaPicker">
+            <el-button v-else @click="openMediaPicker('desktop')">
+              <el-icon><Picture /></el-icon> Выбрать из медиа
+            </el-button>
+          </div>
+        </el-form-item>
+        <el-form-item label="Изображение для телефона (необязательно)">
+          <div class="banner-image-area">
+            <div v-if="form.image_mobile" class="banner-preview">
+              <img :src="getImageUrl(form.image_mobile)" alt="" @error="($event.target as HTMLImageElement).style.display='none'" />
+              <el-button size="small" @click="openMediaPicker('mobile')">Изменить</el-button>
+            </div>
+            <el-button v-else @click="openMediaPicker('mobile')">
               <el-icon><Picture /></el-icon> Выбрать из медиа
             </el-button>
           </div>
@@ -374,6 +421,8 @@ onMounted(fetchSliders)
 .slider-title { font-size: 15px; font-weight: 600; color: var(--text-primary, #303133); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .slider-subtitle { font-size: 13px; color: var(--text-muted, #909399); margin-top: 2px; }
 .slider-link { font-size: 12px; color: #409EFF; margin-top: 2px; }
+.slider-dates { font-size: 12px; color: #e6a23c; margin-top: 2px; }
+.field-hint { display: block; font-size: 12px; color: var(--text-muted, #909399); margin-top: 6px; }
 
 .slider-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 

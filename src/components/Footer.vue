@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
+import { useSettings, telHref, tgHref, waHref } from '../lib/settings'
+
+const { contacts, social } = useSettings()
 
 const currentYear = new Date().getFullYear()
 
@@ -48,15 +50,16 @@ const storeLinks = [
           <h3 class="footer-title">Магазин</h3>
           
           <div class="store-info">
-            <p class="store-address">
+            <p class="store-address" v-if="contacts.address">{{ contacts.address }}</p>
+            <p class="store-address" v-else>
               г. Москва<br>
               ул. Барклая 8<br>
               <span class="gray-text">магазин 171</span>
             </p>
-            
+
             <div class="working-hours">
               <p>Время работы:</p>
-              <p class="hours-time">10:00 – 21:00</p>
+              <p class="hours-time">{{ contacts.weekdaysFrom || '10:00' }} – {{ contacts.weekdaysTo || '21:00' }}</p>
               <p class="gray-text">ежедневно</p>
             </div>
           </div>
@@ -73,13 +76,13 @@ const storeLinks = [
           
           <div class="contacts-block">
             <div class="phone-block">
-              <a href="tel:+79299556487" class="phone-number">+7 (929) 955 6487</a>
+              <a :href="telHref(contacts.phone || '+7 (929) 955 6487')" class="phone-number">{{ contacts.phone || '+7 (929) 955 6487' }}</a>
               <span class="phone-label">WhatsApp, Telegram</span>
             </div>
 
             <div class="messenger-links">
-              <a href="https://t.me/weststore_msk" target="_blank" rel="noopener noreferrer" class="messenger-link">написать в Telegram</a>
-              <a href="https://wa.me/79299556487" target="_blank" rel="noopener noreferrer" class="messenger-link">написать в WhatsApp</a>
+              <a :href="tgHref(social.telegram?.value || '@weststore_msk')" target="_blank" rel="noopener noreferrer" class="messenger-link">написать в Telegram</a>
+              <a :href="waHref(social.whatsapp?.value || '+7 929 955 6487')" target="_blank" rel="noopener noreferrer" class="messenger-link">написать в WhatsApp</a>
             </div>
 
             <div class="payment-systems">
@@ -107,12 +110,12 @@ const storeLinks = [
                 <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
               </svg>
             </a>
-            <a href="#" class="social-icon" title="VK">
+            <a :href="social.vk?.value || '#'" target="_blank" rel="noopener noreferrer" class="social-icon" title="VK">
               <svg viewBox="0 0 24 24" width="20" height="20">
                 <path fill="currentColor" d="M12.727 19.937c4.651 0 5.238-3.219 5.238-4.587 0-1.272-.622-1.828-1.603-1.828-.96 0-1.26.534-2.11 1.418-.758.792-1.083.792-1.475.792-2.11 0-4.02-4.02-4.02-5.495 0-.512.192-1.226 1.453-1.226.917 0 1.248.32 1.603 1.112.874 1.95 1.166 1.95 1.58 1.95h1.227c.534 0 .666-.405.666-1.495 0-1.603-.448-2.29-2.094-2.29-2.667 0-4.45 1.41-4.45 3.723 0 1.58 1.067 4.65 3.017 6.232 1.003.82 1.94.82 2.568.82z"/>
               </svg>
             </a>
-            <a href="#" class="social-icon" title="YouTube">
+            <a :href="social.youtube?.value || '#'" target="_blank" rel="noopener noreferrer" class="social-icon" title="YouTube">
               <svg viewBox="0 0 24 24" width="20" height="20">
                 <path fill="currentColor" d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
               </svg>
@@ -125,7 +128,7 @@ const storeLinks = [
           </div>
 
           <div class="social-icons-bottom">
-            <a href="#" class="social-icon" title="Instagram">
+            <a :href="social.instagram?.value || 'https://www.instagram.com/onlyphones_ru/'" target="_blank" rel="noopener noreferrer" class="social-icon" title="Instagram">
               <svg viewBox="0 0 24 24" width="20" height="20">
                 <path fill="currentColor" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
               </svg>
@@ -135,7 +138,7 @@ const storeLinks = [
                 <path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
               </svg>
             </a>
-            <a href="#" class="social-icon avito" title="Avito">
+            <a :href="social.avito?.value || 'https://www.avito.ru/brands/i314221442'" target="_blank" rel="noopener noreferrer" class="social-icon avito" title="Avito">
               <svg viewBox="0 0 100 30" width="60" height="20">
                 <text x="0" y="20" fill="currentColor" font-size="18" font-weight="bold">Avito</text>
               </svg>
