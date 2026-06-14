@@ -129,6 +129,43 @@ const isColorGroup = (name: string) => {
   return n.includes('цвет') || n.includes('color')
 }
 
+const isSizeGroup = (name: string) => {
+  const n = name.toLowerCase()
+  return n.includes('размер') || n.includes('size') || n.includes('диагональ')
+}
+
+// Достаём диагональ из текста, напр. «MacBook Pro 16"» → «16»
+const extractDiagonal = (text: string): string | null => {
+  const m = text.match(/(\d{2}(?:[.,]\d)?)\s*["”″]/)
+  return m ? m[1].replace(',', '.') : null
+}
+
+// Подзаголовок под названием: диагональ экрана
+const productSubtitle = computed<string | null>(() => {
+  const p = product.value
+  if (!p) return null
+  // 1) Явный атрибут размера/диагонали
+  if (p.attributes) {
+    for (const attr of p.attributes) {
+      if (isSizeGroup(attr.name) && attr.pivot?.value) return attr.pivot.value
+    }
+  }
+  // 2) Диагональ из названия категории (напр. «MacBook Pro 16"»)
+  const diagonal = extractDiagonal(p.category?.name || p.name || '')
+  return diagonal ? `Экран ${diagonal}″` : null
+})
+
+// Краткое описание под названием — чистим переносы и «склейки» слов
+const shortDescription = computed<string | null>(() => {
+  const raw = (product.value?.description || '').trim()
+  if (!raw) return null
+  return raw
+    .replace(/\s*\n+\s*/g, ' · ')
+    .replace(/([а-яёa-z])([А-ЯЁA-Z])/g, '$1 · $2')
+    .replace(/\s{2,}/g, ' ')
+    .trim()
+})
+
 const attributeGroups = computed<AttributeGroup[]>(() => {
   if (!product.value?.attributes) return []
   const map = new Map<string, AttributeGroup>()
@@ -325,6 +362,8 @@ watch(() => route.params.slug, () => {
 
         <div class="details">
           <h1 class="title">{{ product.name }}</h1>
+          <p v-if="productSubtitle" class="product-subtitle">{{ productSubtitle }}</p>
+          <p v-if="shortDescription" class="product-short-desc">{{ shortDescription }}</p>
           <div v-for="group in attributeGroups" :key="group.name" class="attribute-row">
             <div class="attribute-label">{{ group.name }}</div>
 
@@ -514,6 +553,24 @@ watch(() => route.params.slug, () => {
   font-weight: 700;
   color: #111827;
   margin: 0;
+}
+
+.product-subtitle {
+  font-size: 15px;
+  color: #6b7280;
+  margin: -8px 0 0;
+  font-weight: 500;
+}
+
+.product-short-desc {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #4b5563;
+  margin: -4px 0 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .stock-row {

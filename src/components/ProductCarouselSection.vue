@@ -27,6 +27,8 @@ interface Product {
   is_active?: boolean
   attributes?: ProductAttribute[]
   category_id?: number
+  description?: string | null
+  category?: { id: number; name: string; slug?: string } | null
 }
 
 interface ChildCategory {
@@ -326,14 +328,43 @@ const selectAttribute = (productId: number, name: string, value: string) => {
   selectedAttributes.value[productId][name] = value
 }
 
+// Достаём диагональ из текста, напр. «MacBook Pro 16"» → «16»
+const extractDiagonal = (text: string): string | null => {
+  const m = text.match(/(\d{2}(?:[.,]\d)?)\s*["”″]/)
+  return m ? m[1].replace(',', '.') : null
+}
+
+const getCategoryName = (product: Product): string => {
+  if (product.category?.name) return product.category.name
+  if (!product.category_id) return ''
+  const c = props.childCategories.find((c) => c.id === product.category_id)
+  return c?.name || ''
+}
+
 const getProductSubtitle = (product: Product): string | null => {
-  if (!product.attributes) return null
-  for (const attr of product.attributes) {
-    if (isSizeGroup(attr.name) && attr.pivot?.value) {
-      return attr.pivot.value
+  // 1) Явный атрибут размера/диагонали, если задан
+  if (product.attributes) {
+    for (const attr of product.attributes) {
+      if (isSizeGroup(attr.name) && attr.pivot?.value) {
+        return attr.pivot.value
+      }
     }
   }
+  // 2) Диагональ из названия категории (напр. «MacBook Pro 16"»)
+  const diagonal = extractDiagonal(getCategoryName(product))
+  if (diagonal) return `Экран ${diagonal}″`
   return null
+}
+
+// Краткое описание под названием — чистим переносы и «склейки» слов
+const getProductDesc = (product: Product): string | null => {
+  const raw = (product.description || '').trim()
+  if (!raw) return null
+  return raw
+    .replace(/\s*\n+\s*/g, ' · ')
+    .replace(/([а-яёa-z])([А-ЯЁA-Z])/g, '$1 · $2')
+    .replace(/\s{2,}/g, ' ')
+    .trim()
 }
 
 const getProductState = (product: Product) => {
@@ -506,6 +537,7 @@ onUnmounted(() => {
             <p v-if="!hideSize && getProductSubtitle(product)" class="product-subtitle">
               {{ subtitlePrefix ? subtitlePrefix + ' / ' + getProductSubtitle(product) : getProductSubtitle(product) }}
             </p>
+            <p v-if="getProductDesc(product)" class="product-desc">{{ getProductDesc(product) }}</p>
           </RouterLink>
 
           <RouterLink :to="`/product/${product.slug}`" class="card-image-wrap">
@@ -969,6 +1001,18 @@ onUnmounted(() => {
   margin: 4px 0 0;
   text-align: center;
   padding: 0;
+}
+
+.product-desc {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #6b7280;
+  margin: 6px 0 0;
+  text-align: center;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .card-image-wrap {
