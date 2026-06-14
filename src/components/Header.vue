@@ -777,12 +777,8 @@ watch(() => router.currentRoute.value.path, () => {
     display: none !important;
   }
 
-  .header {
-    border-bottom: none;
-  }
-
   .header-bar {
-    background: #1e2330;
+    background: #ffffff;
   }
 
   .header-inner {
@@ -791,32 +787,31 @@ watch(() => router.currentRoute.value.path, () => {
   }
 
   .toggle-btn {
-    color: #fff;
+    color: #1a1a1a;
   }
 
   .toggle-btn:hover {
-    background: rgba(255,255,255,0.1);
+    background: rgba(0,0,0,0.06);
   }
 
-  /* На тёмном мобильном хедере цветной логотип превращался в белое пятно
-     (brightness(0) invert(1)). Показываем чистый белый текстовый логотип. */
+  /* Белый мобильный хедер — как на десктопе: цветной логотип + тёмный текст. */
   .logo-img {
-    display: none;
+    height: 42px;
   }
 
   .logo-text {
     display: block;
-    color: #ffffff;
+    color: #1a1a1a;
     font-size: 19px;
     letter-spacing: 2px;
   }
 
   .cart-btn {
-    color: #fff;
+    color: #1a1a1a;
   }
 
   .cart-badge {
-    border-color: #1e2330;
+    border-color: #ffffff;
   }
 
   .mega-menu {
