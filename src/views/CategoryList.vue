@@ -1096,7 +1096,15 @@ onMounted(() => {
 
 @media (max-width: 1024px) {
   .catalog-hero {
-    grid-template-columns: 1fr;
+    /* .catalog-hero is flex, not grid — stack the two blocks vertically */
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .hero-right {
+    max-width: none;
+    width: 100%;
   }
 
   .catalog-card {
@@ -1125,15 +1133,38 @@ onMounted(() => {
 
   .hero-left h1 {
     font-size: 22px;
+    line-height: 1.3;
+  }
+
+  /* На узком экране переносы лучше делать естественно, а не по жёстким <br> */
+  .hero-left h1 br {
+    display: none;
+  }
+
+  .hero-left span {
+    display: inline-block;
+    margin-top: 2px;
   }
 
   .catalog-hero {
     margin-bottom: 20px;
+    gap: 14px;
   }
 
   .hero-right {
     padding: 16px 18px;
     border-radius: 16px;
+    background: #f6f7f9;
+    box-shadow: none;
+    border: 1px solid #eceef1;
+  }
+
+  .hero-title {
+    font-size: 15px;
+  }
+
+  .hero-text {
+    font-size: 13.5px;
   }
 
   .filter-bar {
