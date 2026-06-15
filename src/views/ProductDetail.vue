@@ -35,6 +35,7 @@ interface Product {
   is_preorder?: boolean
   variations?: ProductVariation[]
   is_active: boolean
+  category_id?: number
   category?: { id: number; name: string; slug?: string }
   attributes?: ProductAttribute[]
 }
@@ -77,6 +78,7 @@ const detectBrand = (name: string): string | null => {
 
 const route = useRoute()
 const product = ref<Product | null>(null)
+const catalog = ref<Product[]>([])
 const loading = ref(false)
 const specsOpen = ref(false)
 const descOpen = ref(false)
@@ -210,6 +212,51 @@ const colorThumbs = computed(() => {
   return Array.from(seen.entries()).map(([color, image]) => ({ color, image }))
 })
 
+const getProductSize = (p: { attributes?: ProductAttribute[] }): string | null => {
+  for (const attr of p.attributes || []) {
+    if (isSizeGroup(attr.name) && attr.pivot?.value) return attr.pivot.value
+  }
+  return null
+}
+
+// Часы (и подобные товары) часто заведены как ОТДЕЛЬНЫЕ товары на каждый размер,
+// а не как вариации. Собираем «соседей» (та же категория + то же название) и
+// показываем размеры кнопками-ссылками: текущий — активный, остальные ведут на
+// товар нужного размера (берём ближайший по цене, чтобы остаться в той же серии).
+const sizeOptions = computed(() => {
+  const p = product.value
+  if (!p) return []
+  const currentSize = getProductSize(p)
+  if (!currentSize) return []
+  const catId = p.category_id ?? p.category?.id
+  if (!catId) return []
+
+  const bySize = new Map<string, { size: string; slug: string; price: number }>()
+  for (const sib of catalog.value) {
+    if (sib.category_id !== catId || sib.name !== p.name) continue
+    const size = getProductSize(sib)
+    if (!size) continue
+    const existing = bySize.get(size)
+    const diff = Math.abs(Number(sib.price) - Number(p.price))
+    if (!existing || diff < Math.abs(existing.price - Number(p.price))) {
+      bySize.set(size, { size, slug: sib.slug, price: Number(sib.price) })
+    }
+  }
+  // Текущий товар всегда указывает сам на себя для своего размера.
+  bySize.set(currentSize, { size: currentSize, slug: p.slug, price: Number(p.price) })
+
+  const arr = Array.from(bySize.values())
+  if (arr.length <= 1) return []
+  return arr
+    .sort((a, b) => (parseFloat(a.size) || 0) - (parseFloat(b.size) || 0))
+    .map((o) => ({ ...o, isCurrent: o.slug === p.slug }))
+})
+
+// Размер уже показан кнопками-ссылками выше — не дублируем его в обычных пилюлях.
+const visibleAttributeGroups = computed(() =>
+  attributeGroups.value.filter((g) => !(isSizeGroup(g.name) && sizeOptions.value.length > 1))
+)
+
 const chooseAttribute = (name: string, value: string) => {
   selectedAttributes.value[name] = value
   const variationImage = resolvedState.value.variation?.image
@@ -311,9 +358,20 @@ const fetchProduct = async () => {
   }
 }
 
+const fetchCatalog = async () => {
+  try {
+    const res = await api.get('/products')
+    catalog.value = res.data || []
+  } catch (e) {
+    // Не критично: блок выбора размера просто не покажется
+    console.error('Failed to load catalog for size options:', e)
+  }
+}
+
 onMounted(() => {
   loadCart()
   fetchProduct()
+  fetchCatalog()
 })
 
 watch(() => route.params.slug, () => {
@@ -364,7 +422,22 @@ watch(() => route.params.slug, () => {
           <h1 class="title">{{ product.name }}</h1>
           <p v-if="productSubtitle" class="product-subtitle">{{ productSubtitle }}</p>
           <p v-if="shortDescription" class="product-short-desc">{{ shortDescription }}</p>
-          <div v-for="group in attributeGroups" :key="group.name" class="attribute-row">
+
+          <div v-if="sizeOptions.length > 1" class="attribute-row">
+            <div class="attribute-label">Размер</div>
+            <div class="pill-options">
+              <RouterLink
+                v-for="opt in sizeOptions"
+                :key="opt.size"
+                :to="`/product/${opt.slug}`"
+                :class="['pill', { active: opt.isCurrent }]"
+              >
+                {{ opt.size }}
+              </RouterLink>
+            </div>
+          </div>
+
+          <div v-for="group in visibleAttributeGroups" :key="group.name" class="attribute-row">
             <div class="attribute-label">{{ group.name }}</div>
 
             <div v-if="isColorGroup(group.name)" class="color-options" :data-op-palette="product?.slug ? product.slug.replace(/-/g, '_') : ''">
@@ -677,6 +750,7 @@ watch(() => route.params.slug, () => {
 }
 
 .pill {
+  display: inline-block;
   padding: 10px 18px;
   border-radius: 16px;
   border: 1px solid #e5e7eb;
@@ -684,6 +758,7 @@ watch(() => route.params.slug, () => {
   cursor: pointer;
   font-weight: 500;
   color: #111827;
+  text-decoration: none;
   transition: all 0.2s;
 }
 
