@@ -42,7 +42,16 @@ const variationMatches = (variation: ProductVariation, selected: Record<string, 
   const attrs = variation.attributes || {}
   const entries = Object.entries(attrs).filter(([, value]) => !!value)
   if (entries.length === 0) return false
-  return entries.every(([name, value]) => selected[name] === value)
+  // Значения, которые пользователь выбрал (по всем группам атрибутов товара).
+  const selectedValues = Object.values(selected).filter(Boolean)
+  // Сопоставляем по имени группы. Если у вариации ключ назван иначе, чем группа
+  // атрибутов товара (напр. товар → «SIM», вариация → «Подключение»), падаем на
+  // сопоставление по значению — иначе ни одна вариация не находится и при выборе
+  // цвета не меняются картинка/цена (баг iPad). Значения у Apple между группами
+  // не пересекаются (цвет/память/связь), поэтому коллизий нет.
+  return entries.every(([name, value]) =>
+    name in selected ? selected[name] === value : selectedValues.includes(value)
+  )
 }
 
 export const findMatchingVariation = (
