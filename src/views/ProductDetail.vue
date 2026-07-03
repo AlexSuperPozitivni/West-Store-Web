@@ -163,7 +163,7 @@ const shortDescription = computed<string | null>(() => {
   if (!raw) return null
   return raw
     .replace(/\s*\n+\s*/g, ' · ')
-    .replace(/([а-яёa-z])([А-ЯЁA-Z])/g, '$1 · $2')
+    .replace(/([а-яё])([А-ЯЁ])/g, '$1 · $2') // только кириллица: латиницу не трогаем, иначе «iPhone» → «i · Phone»
     .replace(/\s{2,}/g, ' ')
     .trim()
 })
