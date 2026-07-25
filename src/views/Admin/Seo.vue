@@ -33,7 +33,7 @@ const defaultPages: Record<string, PageSeo> = {
   repair: { title: 'Ремонт', description: 'Профессиональный ремонт Apple техники в Москве. Бесплатная диагностика.', keywords: '' },
   payment: { title: 'Доставка и оплата', description: 'Условия доставки и оплаты в WEST-STORE. Быстрая доставка по Москве.', keywords: '' },
   about: { title: 'О магазине', description: 'О магазине WEST-STORE. Мы продаём Apple технику с 2012 года.', keywords: '' },
-  contacts: { title: 'Контакты', description: 'Контакты WEST-STORE. Москва, ул. Барклая 8. Телефон: +7 929 955 6487.', keywords: '' },
+  contacts: { title: 'Контакты', description: 'Контакты WEST-STORE. Москва, ул. Барклая 8, БЦ «Рубин», павильон 171. Телефон: +7 929 955 6487.', keywords: '' },
   blog: { title: 'Блог', description: 'Блог WEST-STORE. Новости Apple, обзоры, советы.', keywords: '' },
 }
 

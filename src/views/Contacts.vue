@@ -8,7 +8,7 @@ const { contacts, social } = useSettings()
 
 useSeo({
   title: 'Контакты',
-  description: 'Контакты магазина WEST-STORE. Адрес: Москва, ул. Барклая 8. Телефон: +7 (929) 955 6487. WhatsApp, Telegram.'
+  description: 'Контакты магазина WEST-STORE. Адрес: Москва, ул. Барклая 8, БЦ «Рубин», павильон 171. Телефон: +7 (929) 955 6487. WhatsApp, Telegram.'
 })
 
 const form = ref({ name: '', phone: '' })
@@ -91,7 +91,7 @@ onMounted(() => {
           <div class="contact-card">
             <span class="contact-icon">📍</span>
             <h3>Адрес</h3>
-            <p class="contact-address">{{ contacts.address || 'г. Москва, ул. Барклая 8, магазин 171' }}</p>
+            <p class="contact-address">{{ contacts.address || 'г. Москва, ул. Барклая 8, БЦ «Рубин», павильон 171' }}</p>
             <p class="contact-hours">{{ contacts.weekdaysFrom || '10:00' }} – {{ contacts.weekdaysTo || '21:00' }} ежедневно</p>
           </div>
         </div>
@@ -111,7 +111,7 @@ onMounted(() => {
             frameborder="0"
             allowfullscreen
             loading="lazy"
-            title="Карта: г. Москва, ул. Барклая 8, магазин 171"
+            title="Карта: г. Москва, ул. Барклая 8, БЦ «Рубин», павильон 171"
           ></iframe>
         </div>
       </div>

@@ -54,7 +54,8 @@ const storeLinks = [
             <p class="store-address" v-else>
               г. Москва<br>
               ул. Барклая 8<br>
-              <span class="gray-text">магазин 171</span>
+              Бизнес-центр «Рубин»<br>
+              <span class="gray-text">павильон 171</span>
             </p>
 
             <div class="working-hours">
